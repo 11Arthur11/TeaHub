@@ -9,6 +9,7 @@ public record JwtProperties(
         Duration twoFactorTokenTtl,
         Duration refreshTokenTtl,
         Duration accessTokenTtl,
-        Duration forgotPasswordTokenTtl
+        Duration forgotPasswordTokenTtl,
+        String base64Secret
 ) {
 }

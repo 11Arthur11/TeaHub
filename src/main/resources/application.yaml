@@ -34,6 +34,7 @@ app:
     two-factor-cookie-ttl: 1800s
 
   jason-web-token:
+    base64-secret: f633915d212d5159e506d6d69f6d1adcad3aff7396b05545df48183e1331d537 #Change this value on production phase, this is the whole authentication layer key , keep it secret ;)
     access-token-ttl: 1800s
     forgot-password-token-ttl: 180s
     refresh-token-ttl: 604800s

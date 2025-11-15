@@ -21,11 +21,14 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class User extends BaseEntity<Long> implements UserDetails {
 
-    @Column(unique = true, nullable = false, length = 100, name = "email")
-    private String email;
+    @Column(unique = true, nullable = false, length = 100, name = "phone")
+    private String phone;
 
-    @Column(nullable = false, length = 100, name = "full_name")
-    private String fullName;
+    @Column(nullable = false, length = 100, name = "first_name")
+    private String firstName;
+
+    @Column(nullable = false, length = 100, name = "last_name")
+    private String lastName;
 
     @Column(nullable = false, length = 80, name = "password")
     private String password;
@@ -115,6 +118,10 @@ public class User extends BaseEntity<Long> implements UserDetails {
         return roles.stream().max(Comparator.comparing(Role::getHierarchy)).get();
     }
 
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
     @Override
     public String getPassword() {
         return this.password;
@@ -122,7 +129,7 @@ public class User extends BaseEntity<Long> implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.phone;
     }
 
     @Override

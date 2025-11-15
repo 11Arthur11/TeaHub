@@ -1,5 +1,7 @@
 package dev.parhamziaei.teahub.configuration;
 
+import dev.parhamziaei.teahub.entity.redis.ForgotPasswordSession;
+import dev.parhamziaei.teahub.entity.redis.TwoFactorSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -15,5 +17,20 @@ public class RedisConfiguration {
         return new LettuceConnectionFactory();
     }
 
+    @Bean
+    public RedisTemplate<String, TwoFactorSession> twoFactorRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, TwoFactorSession> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(TwoFactorSession.class));
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<String, ForgotPasswordSession> forgotPasswordRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, ForgotPasswordSession> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ForgotPasswordSession.class));
+        return redisTemplate;
+    }
 
 }
