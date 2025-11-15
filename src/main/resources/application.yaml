@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: TeaHub
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/tea_hub
+    username: admin
+    password: admin123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  servlet:
+    multipart:
+      file-size-threshold: 10MB
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+logging:
+  threshold:
+    console: TRACE
+  pattern:
+    console: "%d{HH:mm:ss.SSS} | %highlight(%-5level) | %logger{0} | %msg%n"
+
+app:
+  integration:
+    ip-panel:
+      base-url: BASE_URL
+      api-key: API_KEY
+      two-facto-message-pattern-code: PATTERN_CODE # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
+
+  cookie-factory:
+    secure-cookie: false
+    two-factor-cookie-ttl: 1800s
+
+  jason-web-token:
+    access-token-ttl: 1800s
+    forgot-password-token-ttl: 180s
+    refresh-token-ttl: 604800s
+    two-factor-token-ttl: 1800s
+
+  sessions:
+    forgot-password-session-ttl: 180s
+    phone-verify-session-ttl: 300s
+    two-factor-session-ttl: 300s
+
+
