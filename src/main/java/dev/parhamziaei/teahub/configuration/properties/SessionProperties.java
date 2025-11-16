@@ -7,7 +7,6 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "app.sessions")
 public record SessionProperties(
         Duration twoFactorSessionTtl,
-        Duration forgotPasswordSessionTtl,
         Duration phoneVerifySessionTtl
 ) {
 }

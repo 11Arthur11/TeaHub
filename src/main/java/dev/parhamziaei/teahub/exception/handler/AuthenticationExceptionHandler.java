@@ -1,10 +1,10 @@
 package dev.parhamziaei.teahub.exception.handler;
 
+import dev.parhamziaei.teahub.dto.response.SimpleResponse;
 import dev.parhamziaei.teahub.enums.Message;
 import dev.parhamziaei.teahub.exception.custom.authentication.AlreadyLoggedInException;
-import dev.parhamziaei.teahub.exception.custom.authentication.EmailAlreadyTakenException;
+import dev.parhamziaei.teahub.exception.custom.authentication.PhoneNumberAlreadyTakenException;
 import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
-import dev.parhamziaei.teahub.exception.custom.authentication.PasswordPolicyException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class AuthenticationExceptionHandler {
     private final MessageService messageService;
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Object> badCredentialsException() {
+    public ResponseEntity<SimpleResponse> badCredentialsException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.AUTH_BAD_CREDENTIALS),
@@ -33,7 +33,7 @@ public class AuthenticationExceptionHandler {
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<Object> usernameNotFoundException() {
+    public ResponseEntity<SimpleResponse> usernameNotFoundException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.AUTH_ACCOUNT_NOT_FOUND),
@@ -42,7 +42,7 @@ public class AuthenticationExceptionHandler {
     }
 
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<Object> lockedException() {
+    public ResponseEntity<SimpleResponse> lockedException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.AUTH_ACCOUNT_LOCKED),
@@ -51,7 +51,7 @@ public class AuthenticationExceptionHandler {
     }
 
     @ExceptionHandler(AlreadyLoggedInException.class)
-    public ResponseEntity<Object> alreadyLoggedInException() {
+    public ResponseEntity<SimpleResponse> alreadyLoggedInException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.AUTH_ALREADY_LOGGED_IN),
@@ -60,7 +60,7 @@ public class AuthenticationExceptionHandler {
     }
 
     @ExceptionHandler(InvalidTwoFactorException.class)
-    public ResponseEntity<Object> invalidTwoFactorException() {
+    public ResponseEntity<SimpleResponse> invalidTwoFactorException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.TWO_FACTOR_INVALID),
@@ -69,7 +69,7 @@ public class AuthenticationExceptionHandler {
     }
 
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<Object> disabledException() {
+    public ResponseEntity<SimpleResponse> disabledException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.AUTH_ACCOUNT_DISABLED),
@@ -77,20 +77,11 @@ public class AuthenticationExceptionHandler {
         );
     }
 
-    @ExceptionHandler(EmailAlreadyTakenException.class)
-    public ResponseEntity<Object> handleEmailAlreadyTakenException(EmailAlreadyTakenException e) {
+    @ExceptionHandler(PhoneNumberAlreadyTakenException.class)
+    public ResponseEntity<SimpleResponse> handleEmailAlreadyTakenException(PhoneNumberAlreadyTakenException e) {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.REGISTER_ACCOUNT_ALREADY_EXIST),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler(PasswordPolicyException.class)
-    public ResponseEntity<Object> handlePasswordPolicyException(PasswordPolicyException e) {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
-                messageService.get(Message.SERVER_VALIDATION_ERROR),
                 HttpStatus.BAD_REQUEST
         );
     }

@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.exception.handler;
 
+import dev.parhamziaei.teahub.dto.response.SimpleResponse;
 import dev.parhamziaei.teahub.enums.Message;
 import dev.parhamziaei.teahub.exception.custom.service.*;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -23,7 +24,7 @@ public class GlobalExceptionHandler {
     private final MessageService messageService;
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> generalException() {
+    public ResponseEntity<SimpleResponse> generalException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.SERVER_INTERNAL_ERROR),
@@ -32,7 +33,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<Object> noResourceFoundException(HttpServletResponse response, HttpServletRequest request) {
+    public ResponseEntity<SimpleResponse> noResourceFoundException(HttpServletResponse response, HttpServletRequest request) {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.SERVER_RESOURCE_NOT_FOUND),
@@ -41,7 +42,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<Object> ioException() {
+    public ResponseEntity<SimpleResponse> ioException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.SERVER_IO_ERROR),
@@ -50,7 +51,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> methodArgumentNotValidException(MethodArgumentNotValidException exception) {
+    public ResponseEntity<SimpleResponse> methodArgumentNotValidException(MethodArgumentNotValidException exception) {
 //        String validationError = Optional.ofNullable(exception.getBindingResult().getFieldError())
 //                .map(FieldError::getDefaultMessage)
 //                .orElse("REQUEST_ARGUMENT_ERROR");
@@ -63,7 +64,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TicketServiceException.class)
-    public ResponseEntity<Object> handleTicketServiceException() {
+    public ResponseEntity<SimpleResponse> handleTicketServiceException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.DEFAULT_FAILED),
@@ -72,7 +73,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TicketMaxAttachmentReachedException.class)
-    public ResponseEntity<Object> handleTicketMaxAttachmentReachedException() {
+    public ResponseEntity<SimpleResponse> handleTicketMaxAttachmentReachedException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.SERVICE_TICKET_MAX_ATTACHMENT_REACHED),
@@ -81,7 +82,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(FileStorageServiceException.class)
-    public ResponseEntity<?> handleFileStorageService() {
+    public ResponseEntity<SimpleResponse> handleFileStorageService() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.SERVICE_FILE_STORAGE_ERROR),
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MediaTypeNotAllowedException.class)
-    public ResponseEntity<?> handleUnsupportedMediaTypeException() {
+    public ResponseEntity<SimpleResponse> handleUnsupportedMediaTypeException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.SERVICE_MEDIA_TYPE_NOT_ALLOWED),
@@ -99,7 +100,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MediaSizeTooLargeException.class)
-    public ResponseEntity<?> handleMediaSizeTooLargeException() {
+    public ResponseEntity<SimpleResponse> handleMediaSizeTooLargeException() {
         return ResponseBuilder.buildFailed(
                 "ERROR",
                 messageService.get(Message.SERVICE_PAYLOAD_TOO_LARGE),
@@ -108,7 +109,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoSuchDataException.class)
-    public ResponseEntity<?> handleNoSuchDataException() {
+    public ResponseEntity<SimpleResponse> handleNoSuchDataException() {
         return ResponseBuilder.buildFailed(
                 "NO_DATA",
                 "",

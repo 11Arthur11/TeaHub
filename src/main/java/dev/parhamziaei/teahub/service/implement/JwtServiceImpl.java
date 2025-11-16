@@ -12,6 +12,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -35,6 +37,14 @@ public class JwtServiceImpl implements JwtService {
     public Key getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    @Override
+    public Optional<String> extractJwtFromRequest(HttpServletRequest request, JwtType type) {
+        Optional<Cookie> cookie = Arrays.stream(request.getCookies() != null ? request.getCookies() : new Cookie[0])
+                .filter(c -> c.getName().equals(type.value()))
+                .findFirst();
+        return cookie.map(Cookie::getValue);
     }
 
     @Override
@@ -75,44 +85,27 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public boolean isTokenValid(String token, JwtType tokenType) {
-        boolean notNull = token != null;
-        boolean validUser = extractPhoneNumber(token).isPresent();
-        boolean forTwoFactor = (extractClaim(token, claims -> claims.get("purpose", String.class).equals("2FA")));
-        boolean forAccess = (extractClaim(token, claims -> claims.get("purpose", String.class).equals("ACCESS")));
-        boolean forRefresh = (extractClaim(token, claims -> claims.get("purpose", String.class).equals("REFRESH")));
-        switch (tokenType) {
-            case ACCESS_TOKEN -> {
-                return (
-                        isSignatureValid(token) &&
-                        isTokenNotExpired(token) &&
-                        forAccess
-                );
-            }
+        if (token == null || extractPhoneNumber(token).isEmpty()) return false;
+        boolean forPurpose = (extractClaim(token, claims -> claims.get("purpose", String.class).equals(tokenType.value())));
 
-            case REFRESH_TOKEN -> {
-                if (isTokenNotExpired(token) && isSignatureValid(token) && forRefresh) {
-                    Optional<RefreshToken> dbToken = refreshTokenRepo.findByToken(token);
-                    Optional<String> phoneNumber = extractPhoneNumber(token);
-                    if (dbToken.isPresent() && phoneNumber.isPresent()) {
-                        RefreshToken refreshToken = dbToken.get();
-                        return (
-                                refreshToken.isActive() &&
-                                refreshToken.getTokenOwner().equals(phoneNumber.get()) &&
-                                refreshToken.getToken().equals(token)
-                        );
-                    }
-                }
-            }
-
-            case TWO_FACTOR_TOKEN ->  {
+        if (tokenType.equals(JwtType.REFRESH_TOKEN) && isTokenNotExpired(token) && isSignatureValid(token) && forPurpose) {
+            Optional<RefreshToken> dbToken = refreshTokenRepo.findByToken(token);
+            Optional<String> phoneNumber = extractPhoneNumber(token);
+            if (dbToken.isPresent() && phoneNumber.isPresent()) {
+                RefreshToken refreshToken = dbToken.get();
                 return (
-                        isSignatureValid(token) &&
-                        isTokenNotExpired(token) &&
-                        forTwoFactor
+                        refreshToken.isActive() &&
+                        refreshToken.getTokenOwner().equals(phoneNumber.get()) &&
+                        refreshToken.getToken().equals(token)
                 );
             }
         }
-        return false;
+
+        return (
+                isTokenNotExpired(token) &&
+                isSignatureValid(token) &&
+                forPurpose
+        );
     }
 
     @Override
@@ -135,7 +128,7 @@ public class JwtServiceImpl implements JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("full_name", user.getFullName());
         claims.put("role", user.getHigherAuthority().getName());
-        claims.put("purpose", "ACCESS");
+        claims.put("purpose", JwtType.ACCESS_TOKEN.value());
 
         return buildToken(
                 claims,
@@ -147,7 +140,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String generateRefreshToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("purpose", "REFRESH");
+        claims.put("purpose", JwtType.REFRESH_TOKEN.value());
         Date expiryDate = new Date(System.currentTimeMillis() + jwtProperties.refreshTokenTtl().toMillis());
         String token = buildToken(
                 claims,
@@ -160,11 +153,10 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateTwoFactorLoginToken(String phoneNumber, String sessionId, boolean rememberMe) {
+    public String generateTwoFactorLoginToken(String phoneNumber, String sessionId) {
         Date expiryDate = new Date(System.currentTimeMillis() + jwtProperties.twoFactorTokenTtl().toMillis());
         HashMap<String, Object> claims = new HashMap<>();
-        claims.put("purpose", "2FA");
-        claims.put("remember_me", rememberMe);
+        claims.put("purpose", JwtType.TWO_FACTOR_TOKEN.value());
         claims.put("session_id", sessionId);
         return buildToken(
                 claims,
@@ -174,10 +166,10 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateForgotPasswordToken(String phoneNumber, String sessionId) {
-        Date expiryDate = new Date(System.currentTimeMillis() + jwtProperties.forgotPasswordTokenTtl().toMillis());
+    public String generatePhoneVerifyToken(String phoneNumber, String sessionId) {
+        Date expiryDate = new Date(System.currentTimeMillis() + jwtProperties.phoneVerifyTokenTtl().toMillis());
         HashMap<String, Object> claims = new HashMap<>();
-        claims.put("purpose", "2FA");
+        claims.put("purpose", JwtType.PHONE_VERIFY_TOKEN.value());
         claims.put("session_id", sessionId);
         return buildToken(
                 claims,
@@ -206,4 +198,14 @@ public class JwtServiceImpl implements JwtService {
     public Optional<String> extractPhoneNumber(String token) {
         return Optional.ofNullable(extractClaim(token, Claims::getSubject));
     }
+
+    @Override
+    public String getPhoneNumber(String token) {
+        Optional<String> phoneNumber = Optional.ofNullable(extractClaim(token, Claims::getSubject));
+        if (phoneNumber.isPresent()) {
+            return phoneNumber.get();
+        }
+        throw new RuntimeException("Invalid token");
+    }
+
 }

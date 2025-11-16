@@ -34,7 +34,7 @@ public class IPPanelService {
                 .build();
     }
 
-    public void sendTwoFactor(String code, String toNumber) {
+    public void sendTwoFactorSMS(String code, String toNumber) {
         Map<String, String> params = new HashMap<>();
         List<String> recipients = List.of(toNumber);
         params.put("code", code);

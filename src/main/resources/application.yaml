@@ -32,17 +32,17 @@ app:
   cookie-factory:
     secure-cookie: false
     two-factor-cookie-ttl: 1800s
+    phone-verify-cookie-ttl: 300s
 
   jason-web-token:
     base64-secret: f633915d212d5159e506d6d69f6d1adcad3aff7396b05545df48183e1331d537 #Change this value on production phase, this is the whole authentication layer key , keep it secret ;)
     access-token-ttl: 1800s
-    forgot-password-token-ttl: 180s
-    refresh-token-ttl: 604800s
-    two-factor-token-ttl: 1800s
+    phone-verify-token-ttl: 300s
+    refresh-token-ttl: 86400s
+    two-factor-token-ttl: 120s
 
   sessions:
-    forgot-password-session-ttl: 180s
     phone-verify-session-ttl: 300s
-    two-factor-session-ttl: 300s
+    two-factor-session-ttl: 120s
 
 

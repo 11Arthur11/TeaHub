@@ -14,17 +14,17 @@ public class ResponseBuilder {
 
     private ResponseBuilder() {}
 
-    public static ResponseEntity<Object> buildFailed(String type, String message, HttpStatus status) {
+    public static ResponseEntity<SimpleResponse> buildFailed(String type, String message, HttpStatus status) {
         SimpleResponse response = new SimpleResponse(false, type, message);
         return ResponseEntity.status(status).body(response);
     }
 
-    public static <T> ResponseEntity<Object> buildFailed(String type, String message, T data, HttpStatus status) {
+    public static <T> ResponseEntity<DetailedDataResponse<T>> buildFailed(String type, String message, T data, HttpStatus status) {
         DetailedDataResponse<T> response = new DetailedDataResponse<>(false, type, message, data);
         return ResponseEntity.status(status).body(response);
     }
 
-    public static ResponseEntity<Object> buildSuccess(String type, String message, HttpStatus status) {
+    public static ResponseEntity<SimpleResponse> buildSuccess(String type, String message, HttpStatus status) {
         SimpleResponse response = new SimpleResponse(true, type, message);
         return ResponseEntity.status(status).body(response);
     }

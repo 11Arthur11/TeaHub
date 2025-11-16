@@ -30,8 +30,8 @@ public class User extends BaseEntity<Long> implements UserDetails {
     @Column(nullable = false, length = 100, name = "last_name")
     private String lastName;
 
-    @Column(nullable = false, length = 80, name = "password")
-    private String password;
+    @Column(nullable = false, length = 80, name = "email")
+    private String email;
 
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
     private Wallet wallet;
@@ -124,7 +124,7 @@ public class User extends BaseEntity<Long> implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.password;
+        return null;
     }
 
     @Override

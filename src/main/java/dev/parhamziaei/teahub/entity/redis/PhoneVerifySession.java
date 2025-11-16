@@ -9,14 +9,14 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Builder
-public class TwoFactorSession implements Serializable {
+public class PhoneVerifySession implements Serializable {
 
     private String phoneNumber;
     private String code;
     private int attempts;
     private boolean verified;
 
-    public TwoFactorSession(String phoneNumber, String hashedCode) {
+    public PhoneVerifySession(String phoneNumber, String hashedCode) {
         this.phoneNumber = phoneNumber;
         this.code = hashedCode;
         this.attempts = 0;

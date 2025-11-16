@@ -13,7 +13,7 @@ public class Initialization implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        ipPanelService.sendTwoFactor("0000", "+989053781183");
+        ipPanelService.sendTwoFactorSMS("0000", "+989053781183");
     }
 
 

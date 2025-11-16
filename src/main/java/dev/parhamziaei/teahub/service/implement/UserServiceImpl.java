@@ -1,10 +1,7 @@
 package dev.parhamziaei.teahub.service.implement;
 
-import dev.parhamziaei.teahub.dto.request.authentication.ChangePasswordRequest;
-import dev.parhamziaei.teahub.dto.request.authentication.ForgotPasswordRequest;
 import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
 import dev.parhamziaei.teahub.entity.jpa.Role;
-import dev.parhamziaei.teahub.entity.redis.ForgotPasswordSession;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +13,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isPhoneNumberValid(String phoneNumber) {
+        return false;
+    }
+
+    @Override
+    public boolean isUserRegistered(String phoneNumber) {
         return false;
     }
 
@@ -36,16 +38,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateLastLogin(String phoneNumber) {
-
-    }
-
-    @Override
-    public void changePassword(ChangePasswordRequest changePasswordRequest, String phoneNumber) {
-
-    }
-
-    @Override
-    public void changeForgottenPassword(ForgotPasswordRequest forgotPasswordRequest, ForgotPasswordSession forgotPasswordSession) {
 
     }
 

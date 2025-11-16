@@ -1,10 +1,9 @@
 package dev.parhamziaei.teahub.service.interfaces;
 
-import dev.parhamziaei.teahub.entity.jpa.RefreshToken;
 import dev.parhamziaei.teahub.entity.jpa.User;
 import dev.parhamziaei.teahub.enums.JwtType;
 import io.jsonwebtoken.Claims;
-import org.springframework.security.core.userdetails.UserDetails;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.security.Key;
 import java.util.Date;
@@ -23,9 +22,11 @@ public interface JwtService {
     boolean isSignatureValid(String token);
     String generateAccessToken(User user);
     String generateRefreshToken(User user);
-    String generateTwoFactorLoginToken(String phoneNumber, String sessionId, boolean rememberMe);
-    String generateForgotPasswordToken(String phoneNumber, String sessionId);
+    String generateTwoFactorLoginToken(String phoneNumber, String sessionId);
+    String generatePhoneVerifyToken(String phoneNumber, String sessionId);
     void deActivateRefreshToken(String token);
     Optional<String> extractPhoneNumber(String token);
+    String getPhoneNumber(String token);
+    Optional<String> extractJwtFromRequest(HttpServletRequest request, JwtType type);
 
 }
