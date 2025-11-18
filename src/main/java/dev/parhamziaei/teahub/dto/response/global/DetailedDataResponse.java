@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.dto.response;
+package dev.parhamziaei.teahub.dto.response.global;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.exception.handler;
 
-import dev.parhamziaei.teahub.dto.response.SimpleResponse;
+import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.Message;
 import dev.parhamziaei.teahub.exception.custom.authentication.AlreadyLoggedInException;
 import dev.parhamziaei.teahub.exception.custom.authentication.PhoneNumberAlreadyTakenException;

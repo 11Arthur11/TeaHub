@@ -1,9 +1,9 @@
 package dev.parhamziaei.teahub.utils;
 
 import dev.parhamziaei.teahub.dto.internal.ImageInternal;
-import dev.parhamziaei.teahub.dto.response.DataResponse;
-import dev.parhamziaei.teahub.dto.response.DetailedDataResponse;
-import dev.parhamziaei.teahub.dto.response.SimpleResponse;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
+import dev.parhamziaei.teahub.dto.response.global.DetailedDataResponse;
+import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

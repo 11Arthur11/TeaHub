@@ -11,7 +11,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
         IPPanelProperties.class,
         JwtProperties.class,
         SessionProperties.class,
-        InitializeProperties.class
+        InitializeProperties.class,
+        TicketServiceProperties.class,
+        ImageStorageProperties.class,
 })
 public class TeaHubApplication {
     public static void main(String[] args) {

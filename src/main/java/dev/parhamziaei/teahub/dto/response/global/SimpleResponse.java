@@ -1,7 +1,5 @@
-package dev.parhamziaei.teahub.dto.response;
+package dev.parhamziaei.teahub.dto.response.global;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

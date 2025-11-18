@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.configuration.properties.JwtProperties;
 import dev.parhamziaei.teahub.entity.jpa.RefreshToken;
 import dev.parhamziaei.teahub.entity.jpa.User;
 import dev.parhamziaei.teahub.enums.JwtType;
+import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
 import dev.parhamziaei.teahub.exception.custom.service.JwtValidationException;
 import dev.parhamziaei.teahub.repository.jpa.RefreshTokenRepository;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
@@ -60,7 +61,7 @@ public class JwtServiceImpl implements JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            claims = null;
+            throw new JwtValidationException("Invalid token structure for token: (" + token + ")");
         }
         return claims;
     }
@@ -104,8 +105,6 @@ public class JwtServiceImpl implements JwtService {
             }
         }
 
-        log.debug("for purpose: {}, expired: {}, signature valid: {}", forPurpose, isTokenNotExpired(token),  isSignatureValid(token));
-
         return (
                 isTokenNotExpired(token) &&
                 isSignatureValid(token) &&
@@ -123,7 +122,7 @@ public class JwtServiceImpl implements JwtService {
                     .parseClaimsJws(token);
             return true;
         } catch (SignatureException ignored) {
-            return false;
+            throw new BrokenJwtException("invalid signature token: (" + token + ")");
         }
     }
 

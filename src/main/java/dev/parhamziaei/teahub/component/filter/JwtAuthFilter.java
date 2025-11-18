@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.component.filter;
 
 import dev.parhamziaei.teahub.component.CookieFactory;
+import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.entity.jpa.User;
 import dev.parhamziaei.teahub.enums.JwtType;
 import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
@@ -38,6 +39,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserService userService;
     private final CookieFactory cookieFactory;
+    private final CurrentUser currentUser;
+
     public final static List<String> SKIP_URLs = Arrays.asList(
             "/v1/auth/**",
             "/docs/**",
@@ -100,8 +103,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private long getRemainingSeconds(Date expirationDate) {
-        return expirationDate.getTime() - System.currentTimeMillis() / 1000;
+    private void buildCurrentUserContext(UserDetails user, HttpServletRequest request) {
+
     }
 
     private boolean requestMatcher(String requestUri) {
