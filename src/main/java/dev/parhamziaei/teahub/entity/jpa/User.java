@@ -2,9 +2,7 @@ package dev.parhamziaei.teahub.entity.jpa;
 
 import dev.parhamziaei.teahub.enums.Roles;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -18,6 +16,8 @@ import java.util.stream.Collectors;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity<Long> implements UserDetails {
 
@@ -57,16 +57,16 @@ public class User extends BaseEntity<Long> implements UserDetails {
     private LocalDateTime updatedAt;
 
     @Column(name = "email_verified")
-    private boolean emailVerified;
+    private boolean emailVerified = false;
 
     @Column(name = "enabled")
-    private boolean enabled;
+    private boolean enabled = true;
 
     @Column(name = "expired")
-    private boolean expired;
+    private boolean expired = false;
 
     @Column(name = "locked")
-    private boolean locked;
+    private boolean locked = false;
 
     @Column(name = "credentials_expired")
     private boolean credentialsExpired = false;

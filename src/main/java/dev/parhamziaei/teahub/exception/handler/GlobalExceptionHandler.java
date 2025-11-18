@@ -2,12 +2,15 @@ package dev.parhamziaei.teahub.exception.handler;
 
 import dev.parhamziaei.teahub.dto.response.SimpleResponse;
 import dev.parhamziaei.teahub.enums.Message;
+import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
+import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.service.*;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,6 +20,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 
+@Slf4j
 @ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
@@ -115,6 +119,21 @@ public class GlobalExceptionHandler {
                 "",
                 HttpStatus.OK
         );
+    }
+
+    @ExceptionHandler(NoSuchRoleException.class)
+    public ResponseEntity<SimpleResponse> handleNoSuchRoleException() {
+        log.error("Error on finding role, did you removed roles from database?");
+        return ResponseBuilder.buildFailed(
+                "ERROR",
+                messageService.get(Message.SERVER_INTERNAL_ERROR),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    @ExceptionHandler(BrokenJwtException.class)
+    public ResponseEntity<Void> handleBrokenJwtException() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 }

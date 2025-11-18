@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.integration.ippanel;
 import dev.parhamziaei.teahub.configuration.properties.IPPanelProperties;
 import dev.parhamziaei.teahub.integration.ippanel.dto.request.PatternMessageRequest;
 import dev.parhamziaei.teahub.integration.ippanel.dto.response.PatternMessageResponse;
+import dev.parhamziaei.teahub.utils.PhoneNumbers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,12 +36,15 @@ public class IPPanelService {
     }
 
     public void sendTwoFactorSMS(String code, String toNumber) {
+        if (PhoneNumbers.isFormatted.test(toNumber)) {
+            toNumber = PhoneNumbers.formatedOf(toNumber);
+        }
         Map<String, String> params = new HashMap<>();
         List<String> recipients = List.of(toNumber);
         params.put("code", code);
         PatternMessageRequest patternMessageRequest = PatternMessageRequest.builder()
                 .sending_type("pattern")
-                .from_number("+983000505")
+                .from_number(ipPanelProperties.fromNumber())
                 .code(ipPanelProperties.twoFactoMessagePatternCode())
                 .params(params)
                 .recipients(recipients)

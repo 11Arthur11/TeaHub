@@ -21,7 +21,7 @@ public class CookieFactory {
 
     public Cookie twoFactorCookie(String token) {
         Cookie cookie = new Cookie(JwtType.TWO_FACTOR_TOKEN.value(), token);
-        cookie.setPath("/");
+        cookie.setPath("/v1/auth/login");
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) cookieProperties.twoFactorCookieTtl().toSeconds());
         cookie.setSecure(cookieProperties.secureCookie());
@@ -31,7 +31,7 @@ public class CookieFactory {
 
     public Cookie phoneVerifyCookie(String token) {
         Cookie cookie = new Cookie(JwtType.PHONE_VERIFY_TOKEN.value(), token);
-        cookie.setPath("/");
+        cookie.setPath("/v1/auth/register");
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) cookieProperties.phoneVerifyCookieTtl().toSeconds());
         cookie.setSecure(cookieProperties.secureCookie());
@@ -49,6 +49,10 @@ public class CookieFactory {
         return cookie;
     }
 
+    public Cookie buildAccessTokenCookie(String token) {
+        return buildAccessTokenCookie(token, jwtProperties.accessTokenTtl());
+    }
+
     public Cookie buildAccessTokenCookie(String token, Duration ttl) {
         Cookie jwtCookie = new Cookie(JwtType.ACCESS_TOKEN.value(), token);
         jwtCookie.setPath("/");
@@ -60,10 +64,14 @@ public class CookieFactory {
     }
 
     public Cookie buildRefreshTokenCookie(String token) {
+        return buildRefreshTokenCookie(token, jwtProperties.refreshTokenTtl());
+    }
+
+    public Cookie buildRefreshTokenCookie(String token, Duration ttl) {
         Cookie refreshTokenCookie = new Cookie(JwtType.REFRESH_TOKEN.value(), token);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setMaxAge((int) jwtProperties.refreshTokenTtl().toSeconds());
+        refreshTokenCookie.setMaxAge((int) ttl.toSeconds());
         refreshTokenCookie.setSecure(cookieProperties.secureCookie());
         refreshTokenCookie.setAttribute("SameSite", "Strict");
         return refreshTokenCookie;

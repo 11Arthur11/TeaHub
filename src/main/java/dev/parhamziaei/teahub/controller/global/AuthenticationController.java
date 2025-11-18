@@ -1,10 +1,18 @@
 package dev.parhamziaei.teahub.controller.global;
 
+import dev.parhamziaei.teahub.component.AuthenticationFactory;
 import dev.parhamziaei.teahub.component.CookieFactory;
+import dev.parhamziaei.teahub.configuration.properties.JwtProperties;
 import dev.parhamziaei.teahub.dto.request.authentication.AuthEntryRequest;
+import dev.parhamziaei.teahub.dto.request.authentication.LoginRequest;
+import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
 import dev.parhamziaei.teahub.dto.response.SimpleResponse;
+import dev.parhamziaei.teahub.entity.jpa.User;
 import dev.parhamziaei.teahub.enums.JwtType;
+import dev.parhamziaei.teahub.enums.Message;
 import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
+import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.TwoFactorService;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
@@ -33,6 +41,9 @@ public class AuthenticationController {
     private final TwoFactorService twoFactorService;
     private final JwtService jwtService;
     private final CookieFactory cookieFactory;
+    private final JwtProperties jwtProperties;
+    private final MessageService messageService;
+    private final AuthenticationFactory authFactory;
 
     @PostMapping("/init")
     public ResponseEntity<SimpleResponse> authEntry(
@@ -40,10 +51,11 @@ public class AuthenticationController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        final String phoneNumber = PhoneNumbers.formatedOf(entryRequest.getPhoneNumber());
+        final String phoneNumber = entryRequest.getPhoneNumber();
         final Optional<String> oldTwoFactorToken = jwtService.extractJwtFromRequest(request, JwtType.TWO_FACTOR_TOKEN);
         final Optional<String> oldPhoneVerifyToken = jwtService.extractJwtFromRequest(request, JwtType.PHONE_VERIFY_TOKEN);
 
+        // note: this section make sure no one with active session can spam this method
         if (oldTwoFactorToken.isPresent() && twoFactorService.hasActiveTwoFactorSession(oldTwoFactorToken.get())) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
@@ -51,8 +63,17 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
 
+        // note: this if-else decides which user must register or login.
         if (userService.isUserRegistered(phoneNumber)) {
-            //reminder continue from here
+            final String sessionId = twoFactorService.sendTwoFactor(phoneNumber);
+            final String twoFactorToken = jwtService.generateTwoFactorLoginToken(phoneNumber, sessionId);
+            Cookie sessionCookie = cookieFactory.twoFactorCookie(twoFactorToken);
+            response.addCookie(sessionCookie);
+            return ResponseBuilder.buildSuccess(
+                    ResponseType.LOGIN_INITIATED.name(),
+                    messageService.get(Message.TWO_FACTOR_SENT),
+                    HttpStatus.OK
+            );
         } else {
             final String sessionId = twoFactorService.sendPhoneVerify(phoneNumber);
             final String phoneVerifyToken = jwtService.generatePhoneVerifyToken(phoneNumber, sessionId);
@@ -60,13 +81,94 @@ public class AuthenticationController {
             response.addCookie(sessionCookie);
             return ResponseBuilder.buildSuccess(
                     ResponseType.REGISTER_INITIATED.name(),
-                    "",
+                    messageService.get(Message.TWO_FACTOR_SENT),
                     HttpStatus.OK
             );
         }
+    }
 
-        return null;
+    @PostMapping("/login")
+    public ResponseEntity<SimpleResponse> login(
+            @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        final String code = loginRequest.getTwoFactorCode();
+        final Optional<String> optionalSessionToken = jwtService.extractJwtFromRequest(request, JwtType.TWO_FACTOR_TOKEN);
 
+        // note: if user try to login with no active session this if can handle it
+        if (optionalSessionToken.isEmpty()) {
+            throw new InvalidTwoFactorException("invalid login two factor token");
+        }
+        final String loginTwoFactorToken = optionalSessionToken.get();
+        final String phoneNumber = jwtService.getPhoneNumber(loginTwoFactorToken);
+
+        // note: calling twoFactorService for validate and verify the received code with one that we stored in redis
+        twoFactorService.verifyTwoFactorSession(loginTwoFactorToken, code);
+        User user = userService.loadUserByPhoneNumber(phoneNumber);
+
+        // note: this is for SpringSecurity to fill security context and also checks if user is disabled, locked and etc... , also we updating last login here
+        authFactory.buildAuthentication(user, request);
+
+        final String accessToken= jwtService.generateAccessToken(user);
+        final Cookie accessTokenCookie;
+
+        // note: this if-else decide what will happen if user uses rememberMe feature
+        if (loginRequest.isRememberMe()) {
+            final String refreshToken = jwtService.generateRefreshToken(user);
+            final Cookie refreshTokenCookie = cookieFactory.buildRefreshTokenCookie(refreshToken);
+            response.addCookie(refreshTokenCookie);
+            // note: building access token cookie with refresh token expiration to refresh more securely, this only applies to cookie the jwt expiration still same as normal
+            accessTokenCookie = cookieFactory.buildAccessTokenCookie(accessToken, jwtProperties.refreshTokenTtl());
+        } else {
+            // note: building access token cookie with normal expiration
+            accessTokenCookie = cookieFactory.buildAccessTokenCookie(accessToken);
+        }
+
+        // note: removing two factor cookie from client
+        response.addCookie(cookieFactory.emptyCookie(JwtType.TWO_FACTOR_TOKEN));
+        response.addCookie(accessTokenCookie);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.LOGIN_SUCCESS.name(),
+                messageService.get(Message.AUTH_LOGIN_SUCCESS),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<SimpleResponse> register(
+            @Valid @RequestBody RegisterRequest registerRequest,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        final String code = registerRequest.getTwoFactorCode();
+        final Optional<String> optionalSessionToken = jwtService.extractJwtFromRequest(request, JwtType.PHONE_VERIFY_TOKEN);
+
+        if (optionalSessionToken.isEmpty()) {
+            throw new InvalidTwoFactorException("invalid phone verification token");
+        }
+
+        final String phoneVerifyToken = optionalSessionToken.get();
+        final String phoneNumber = jwtService.getPhoneNumber(phoneVerifyToken);
+
+        twoFactorService.verifyPhoneVerifySession(phoneVerifyToken, code);
+        // reminder: we have UnsupportedOperationException from Here !!!!!
+        userService.register(phoneNumber, registerRequest);
+        User user = userService.loadUserByPhoneNumber(phoneNumber);
+        // note: logging user in if register was successful, we don't have remember me option here.
+        authFactory.buildAuthentication(user, request);
+
+        final String accessToken = jwtService.generateAccessToken(user);
+        Cookie accessTokenCookie = cookieFactory.buildAccessTokenCookie(accessToken);
+        response.addCookie(accessTokenCookie);
+        // note: removing two factor cookie from client
+        response.addCookie(cookieFactory.emptyCookie(JwtType.PHONE_VERIFY_TOKEN));
+
+        return ResponseBuilder.buildSuccess(
+                ResponseType.REGISTER_SUCCESS.name(),
+                messageService.get(Message.REGISTER_SUCCESSFULLY_DONE),
+                HttpStatus.OK
+        );
     }
 
 }

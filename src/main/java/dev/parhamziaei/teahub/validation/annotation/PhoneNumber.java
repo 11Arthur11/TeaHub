@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.validation.annotation;
 
 import dev.parhamziaei.teahub.validation.validator.PasswordValidator;
+import dev.parhamziaei.teahub.validation.validator.PhoneNumberValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -11,7 +12,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PasswordValidator.class)
+@Constraint(validatedBy = PhoneNumberValidator.class)
 public @interface PhoneNumber {
     String message() default "phone number is invalid";
     Class<?>[] groups() default {};

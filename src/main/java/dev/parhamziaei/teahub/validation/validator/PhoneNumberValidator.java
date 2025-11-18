@@ -16,12 +16,12 @@ public class PhoneNumberValidator implements ConstraintValidator<PhoneNumber, St
 
     }
 
-    // note: example number: 0912-345-1183
+    // note: example number: 09123451183
     @Override
     public boolean isValid(String phoneNumber, ConstraintValidatorContext context) {
         if (phoneNumber == null || phoneNumber.isEmpty()) return false;
 
-        Pattern pattern = Pattern.compile("^09[0-9]{9}$");
+        Pattern pattern = Pattern.compile("^\\+98[0-9]{10}$");
         Matcher matcher = pattern.matcher(phoneNumber);
         return matcher.matches();
     }

@@ -1,9 +1,6 @@
 package dev.parhamziaei.teahub;
 
-import dev.parhamziaei.teahub.configuration.properties.CookieFactoryProperties;
-import dev.parhamziaei.teahub.configuration.properties.IPPanelProperties;
-import dev.parhamziaei.teahub.configuration.properties.JwtProperties;
-import dev.parhamziaei.teahub.configuration.properties.SessionProperties;
+import dev.parhamziaei.teahub.configuration.properties.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,6 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
         IPPanelProperties.class,
         JwtProperties.class,
         SessionProperties.class,
+        InitializeProperties.class
 })
 public class TeaHubApplication {
     public static void main(String[] args) {

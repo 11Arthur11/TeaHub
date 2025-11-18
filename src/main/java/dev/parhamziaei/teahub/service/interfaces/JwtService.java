@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.service.interfaces;
 
 import dev.parhamziaei.teahub.entity.jpa.User;
 import dev.parhamziaei.teahub.enums.JwtType;
+import dev.parhamziaei.teahub.exception.custom.service.JwtValidationException;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -21,12 +22,14 @@ public interface JwtService {
     boolean isTokenValid(String token, JwtType tokenType);
     boolean isSignatureValid(String token);
     String generateAccessToken(User user);
+    String generateAccessToken(User user, Date expiration);
     String generateRefreshToken(User user);
+    String rotateRefreshToken(User user, String oldRefreshToken);
     String generateTwoFactorLoginToken(String phoneNumber, String sessionId);
     String generatePhoneVerifyToken(String phoneNumber, String sessionId);
     void deActivateRefreshToken(String token);
     Optional<String> extractPhoneNumber(String token);
     String getPhoneNumber(String token);
-    Optional<String> extractJwtFromRequest(HttpServletRequest request, JwtType type);
+    Optional<String> extractJwtFromRequest(HttpServletRequest request, JwtType type) throws JwtValidationException;
 
 }

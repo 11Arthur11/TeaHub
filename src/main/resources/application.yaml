@@ -16,18 +16,30 @@ spring:
     hibernate:
       ddl-auto: update
 
+
 logging:
   threshold:
     console: TRACE
   pattern:
     console: "%d{HH:mm:ss.SSS} | %highlight(%-5level) | %logger{0} | %msg%n"
+  level:
+    dev.parhamziaei.teahub: debug
 
 app:
+  initialize:
+    admin-email: javadtoktamp@gmail.com
+    admin-phone-number: "+989053781183"
+    admin-first-name: parham
+    admin-last-name: ziaei
+
   integration:
     ip-panel:
       base-url: BASE_URL
       api-key: API_KEY
       two-facto-message-pattern-code: PATTERN_CODE # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
+      # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
+      two-facto-message-pattern-code: gaibs13nb08a8ku
+      from-number: 100016949
 
   cookie-factory:
     secure-cookie: false
@@ -45,4 +57,7 @@ app:
     phone-verify-session-ttl: 300s
     two-factor-session-ttl: 120s
 
-
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs

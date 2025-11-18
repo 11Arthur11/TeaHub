@@ -11,14 +11,9 @@ public enum Message {
     AUTH_LOGIN_SUCCESS("success.auth.login"),
     AUTH_LOGOUT_SUCCESS("success.auth.logout"),
 
-    TWO_FACTOR_RESEND("success.2fa.resend"),
     TWO_FACTOR_SENT("success.2fa.sent"),
     TWO_FACTOR_VERIFIED("success.2fa.verified"),
-    TWO_FACTOR_PHONE_VERIFY_RESEND("success.2fa.phone_verify.resend"),
-    TWO_FACTOR_PHONE_VERIFY_SEND("success.2fa.phone_verify.send"),
     TWO_FACTOR_INVALID("error.2fa.invalid"),
-    TWO_FACTOR_RESEND_SESSION_EXPIRED("error.2fa.resend_session_expired"),
-    TWO_FACTOR_FORGOT_PASSWORD_CODE_SEND("success.2fa.forgot_password_code_send"),
 
     REGISTER_SUCCESSFULLY_DONE("success.register.user_registered"),
     REGISTER_ACCOUNT_ALREADY_EXIST("error.register.account_already_exist"),

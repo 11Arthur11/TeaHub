@@ -12,7 +12,7 @@ public interface UserRepository {
     void update(User user);
     void delete(User user);
     Optional<User> findById(Long id);
-    Optional<User> findByPhoneNumber(String name);
+    Optional<User> findByPhoneNumber(String phoneNumber);
     boolean existsByPhoneNumber(String phoneNumber);
 
 

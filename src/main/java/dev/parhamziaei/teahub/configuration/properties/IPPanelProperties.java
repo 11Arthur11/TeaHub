@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record IPPanelProperties(
         String baseUrl,
         String apiKey,
-        String twoFactoMessagePatternCode
+        String twoFactoMessagePatternCode,
+        String fromNumber
 ) {
 }

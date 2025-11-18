@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.configuration.properties.JwtProperties;
 import dev.parhamziaei.teahub.entity.jpa.RefreshToken;
 import dev.parhamziaei.teahub.entity.jpa.User;
 import dev.parhamziaei.teahub.enums.JwtType;
+import dev.parhamziaei.teahub.exception.custom.service.JwtValidationException;
 import dev.parhamziaei.teahub.repository.jpa.RefreshTokenRepository;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import io.jsonwebtoken.Claims;
@@ -14,12 +15,14 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
 
+@Slf4j
 @Service
 public class JwtServiceImpl implements JwtService {
 
@@ -80,7 +83,7 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public boolean isTokenNotExpired(String token) {
-        return !extractExpiration(token).before(new Date());
+        return extractExpiration(token).after(new Date());
     }
 
     @Override
@@ -100,6 +103,8 @@ public class JwtServiceImpl implements JwtService {
                 );
             }
         }
+
+        log.debug("for purpose: {}, expired: {}, signature valid: {}", forPurpose, isTokenNotExpired(token),  isSignatureValid(token));
 
         return (
                 isTokenNotExpired(token) &&
@@ -124,7 +129,10 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateAccessToken(User user) {
-        Date expiryDate = new Date(System.currentTimeMillis() + jwtProperties.accessTokenTtl().toMillis());
+        return generateAccessToken(user, new Date(System.currentTimeMillis() + jwtProperties.accessTokenTtl().toMillis()));
+    }
+
+    public String generateAccessToken(User user, Date expiryDate) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("full_name", user.getFullName());
         claims.put("role", user.getHigherAuthority().getName());
@@ -150,6 +158,24 @@ public class JwtServiceImpl implements JwtService {
         RefreshToken refreshToken = new RefreshToken(token, user.getPhone());
         refreshTokenRepo.save(refreshToken);
         return token;
+    }
+
+    @Override
+    public String rotateRefreshToken(User user, String oldRefreshToken) {
+        refreshTokenRepo.findByToken(oldRefreshToken)
+                .ifPresent(refreshTokenRepo::delete);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("purpose", JwtType.REFRESH_TOKEN.value());
+        Date expiryDate = new Date(extractExpiration(oldRefreshToken).getTime());
+        String rotatedToken = buildToken(
+                claims,
+                user.getPhone(),
+                expiryDate
+        );
+        RefreshToken refreshToken = new RefreshToken(rotatedToken, user.getPhone());
+        refreshTokenRepo.save(refreshToken);
+        return rotatedToken;
     }
 
     @Override
@@ -191,7 +217,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public void deActivateRefreshToken(String token) {
         Optional<RefreshToken> dbToken = refreshTokenRepo.findByToken(token);
-        dbToken.ifPresent(refreshToken -> refreshTokenRepo.delete(refreshToken));
+        dbToken.ifPresent(refreshTokenRepo::delete);
     }
 
     @Override
@@ -205,7 +231,7 @@ public class JwtServiceImpl implements JwtService {
         if (phoneNumber.isPresent()) {
             return phoneNumber.get();
         }
-        throw new RuntimeException("Invalid token");
+        throw new JwtValidationException("Invalid token");
     }
 
 }

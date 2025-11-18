@@ -5,6 +5,7 @@ import dev.parhamziaei.teahub.enums.Message;
 import dev.parhamziaei.teahub.exception.custom.authentication.AlreadyLoggedInException;
 import dev.parhamziaei.teahub.exception.custom.authentication.PhoneNumberAlreadyTakenException;
 import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
+import dev.parhamziaei.teahub.exception.custom.service.JwtValidationException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +67,11 @@ public class AuthenticationExceptionHandler {
                 messageService.get(Message.TWO_FACTOR_INVALID),
                 HttpStatus.BAD_REQUEST
         );
+    }
+
+    @ExceptionHandler(JwtValidationException.class)
+    public ResponseEntity<SimpleResponse> jwtValidationException() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @ExceptionHandler(DisabledException.class)
