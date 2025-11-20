@@ -1,5 +1,6 @@
-package dev.parhamziaei.teahub.entity.jpa;
+package dev.parhamziaei.teahub.entity.jpa.ticket;
 
+import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,11 +14,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Ticket {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Ticket extends BaseEntity<Long> {
 
     @Column(name = "subject", nullable = false)
     private String subject;

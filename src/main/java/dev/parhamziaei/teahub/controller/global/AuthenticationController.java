@@ -7,7 +7,7 @@ import dev.parhamziaei.teahub.dto.request.authentication.AuthEntryRequest;
 import dev.parhamziaei.teahub.dto.request.authentication.LoginRequest;
 import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
-import dev.parhamziaei.teahub.entity.jpa.User;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.JwtType;
 import dev.parhamziaei.teahub.enums.Message;
 import dev.parhamziaei.teahub.enums.ResponseType;
@@ -44,7 +44,7 @@ public class AuthenticationController {
     private final MessageService messageService;
     private final AuthenticationFactory authFactory;
 
-    @PostMapping("/init")
+    @PostMapping("/initiate")
     public ResponseEntity<SimpleResponse> authEntry(
             @Valid @RequestBody AuthEntryRequest entryRequest,
             HttpServletRequest request,

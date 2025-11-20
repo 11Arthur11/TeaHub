@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -35,6 +36,7 @@ public class IPPanelService {
                 .build();
     }
 
+    @Async
     public void sendTwoFactorSMS(String code, String toNumber) {
         if (PhoneNumbers.isFormatted.test(toNumber)) {
             toNumber = PhoneNumbers.formatedOf(toNumber);

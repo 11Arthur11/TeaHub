@@ -1,0 +1,31 @@
+servercreate virtualserver_name=TeamSpeak\s]\p[\sServer virtualserver_port=9288
+sid=6 error virtualserver_port=9288 token=JEfZqI01iwULS1K6V8L3BQyWb6A03G2S time_create=22 time_start=0 time_global=23 time_wait=0
+error id=0 msg=ok
+
+{
+msg=ok,
+time_create=28,
+virtualserver_port=9288,
+time_start=0,
+time_global=28,
+time_wait=0
+error,
+id=0,
+error=could\snot\sstart\svoice\sserver.\sMessage:\sfailed\sto\sbind\sto\sany\shost,
+sid=8,
+token=U5vasdNVE2pX7Ut8O0uZpXdRdtNTrlIb
+}
+
+servercreate
+virtualserver_name=TeamSpeak\s]\p[\sServer
+virtualserver_port=9288
+virtualserver_maxclients=32
+sid=10
+error
+virtualserver_port=9288
+token=GJAQ3EXTnqGsD5TZT8ghzO7ZK63G18dA
+time_create=35
+time_start=0
+time_global=36
+time_wait=0
+error id=0 msg=ok

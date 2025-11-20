@@ -1,5 +1,6 @@
-package dev.parhamziaei.teahub.entity.jpa;
+package dev.parhamziaei.teahub.entity.jpa.user;
 
+import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,10 +17,10 @@ public class UserSetting extends BaseEntity<Long> {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "sms_notification_enabled")
-    private boolean smsNotification = true;
+    @Column(name = "sms_enabled")
+    private boolean smsEnabled = true;
 
-    @Column(name = "email_notification_enabled")
-    private boolean emailNotification = true;
+    @Column(name = "email_enabled")
+    private boolean emailEnabled = true;
 
 }

@@ -1,12 +1,12 @@
-package dev.parhamziaei.teahub.entity.jpa;
+package dev.parhamziaei.teahub.entity.jpa.user;
 
+import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter

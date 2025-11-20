@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
-import dev.parhamziaei.teahub.entity.jpa.RefreshToken;
+import dev.parhamziaei.teahub.entity.jpa.user.RefreshToken;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

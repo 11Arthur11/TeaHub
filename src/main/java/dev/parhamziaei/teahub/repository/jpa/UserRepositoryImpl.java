@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
-import dev.parhamziaei.teahub.entity.jpa.User;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

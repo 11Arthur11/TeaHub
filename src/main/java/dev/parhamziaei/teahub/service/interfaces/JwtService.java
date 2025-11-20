@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.service.interfaces;
 
-import dev.parhamziaei.teahub.entity.jpa.User;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.JwtType;
 import dev.parhamziaei.teahub.exception.custom.service.JwtValidationException;
 import io.jsonwebtoken.Claims;

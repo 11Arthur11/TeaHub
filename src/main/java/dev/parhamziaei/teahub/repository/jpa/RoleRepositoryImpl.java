@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
-import dev.parhamziaei.teahub.entity.jpa.Role;
+import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

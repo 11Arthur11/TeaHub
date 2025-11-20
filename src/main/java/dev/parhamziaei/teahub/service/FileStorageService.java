@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.configuration.properties.ImageStorageProperties;
-import dev.parhamziaei.teahub.entity.jpa.TicketMessageAttachment;
+import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessageAttachment;
 import dev.parhamziaei.teahub.exception.custom.service.FileStorageServiceException;
 import dev.parhamziaei.teahub.exception.custom.service.MediaSizeTooLargeException;
 import dev.parhamziaei.teahub.exception.custom.service.MediaTypeNotAllowedException;

@@ -1,5 +1,6 @@
-package dev.parhamziaei.teahub.entity.jpa;
+package dev.parhamziaei.teahub.entity.jpa.ticket;
 
+import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,11 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketMessageAttachment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class TicketMessageAttachment extends BaseEntity<Long> {
 
     @Column(name = "original_name")
     private String originalName;

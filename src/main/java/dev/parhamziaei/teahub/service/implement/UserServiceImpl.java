@@ -1,31 +1,23 @@
 package dev.parhamziaei.teahub.service.implement;
 
 import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
-import dev.parhamziaei.teahub.entity.jpa.Role;
-import dev.parhamziaei.teahub.entity.jpa.User;
-import dev.parhamziaei.teahub.entity.jpa.UserSetting;
-import dev.parhamziaei.teahub.entity.jpa.Wallet;
+import dev.parhamziaei.teahub.entity.jpa.user.Role;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
+import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
+import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.Roles;
 import dev.parhamziaei.teahub.exception.custom.authentication.PhoneNumberAlreadyTakenException;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.repository.jpa.RoleRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
-import dev.parhamziaei.teahub.utils.PhoneNumbers;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleNotFoundException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor

@@ -1,5 +1,6 @@
-package dev.parhamziaei.teahub.entity.jpa;
+package dev.parhamziaei.teahub.entity.jpa.user;
 
+import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,6 @@ public class Wallet extends BaseEntity<Long> {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @Column(precision = 19, scale = 2, name = "balance")
-    private BigDecimal balance = BigDecimal.ZERO;
+
 
 }

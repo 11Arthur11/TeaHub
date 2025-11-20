@@ -1,8 +1,7 @@
 package dev.parhamziaei.teahub.service.interfaces;
 
 import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
-import dev.parhamziaei.teahub.entity.jpa.Role;
-import dev.parhamziaei.teahub.entity.jpa.User;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.Roles;
 import org.springframework.security.core.userdetails.UserDetailsService;
 

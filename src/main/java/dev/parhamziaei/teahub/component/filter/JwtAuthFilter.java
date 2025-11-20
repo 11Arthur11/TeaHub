@@ -2,9 +2,10 @@ package dev.parhamziaei.teahub.component.filter;
 
 import dev.parhamziaei.teahub.component.CookieFactory;
 import dev.parhamziaei.teahub.component.CurrentUser;
-import dev.parhamziaei.teahub.entity.jpa.User;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.JwtType;
 import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
+import dev.parhamziaei.teahub.exception.custom.service.JwtValidationException;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
 import jakarta.servlet.FilterChain;
@@ -63,12 +64,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-        // note: collecting user tokens
-        final String accessToken = jwtService.extractJwtFromRequest(request, JwtType.ACCESS_TOKEN)
-                .orElseThrow(BrokenJwtException::new); // reminder: handle this exception
+
+        final String accessToken;
         final Optional<String> refreshToken = jwtService.extractJwtFromRequest(request, JwtType.REFRESH_TOKEN);
-        final String phoneNumber = jwtService.extractPhoneNumber(accessToken)
-                .orElseThrow(BrokenJwtException::new);
+        final String phoneNumber;
+
+        // note: collecting user tokens
+        try {
+            accessToken = jwtService.extractJwtFromRequest(request, JwtType.ACCESS_TOKEN)
+                    .orElseThrow(() -> new BrokenJwtException("Could not extract access token from request " + requestURI));
+            phoneNumber = jwtService.extractPhoneNumber(accessToken)
+                    .orElseThrow(() -> new BrokenJwtException("Cannot extract phone number from token: " + accessToken));
+        } catch (BrokenJwtException | JwtValidationException e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            log.info("Broken or empty jwt detected: {}", e.getMessage());
+            return;
+        }
 
         if (currentAuth == null || currentAuth instanceof AnonymousAuthenticationToken) {
             log.debug("entered main if statement");

@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
-import dev.parhamziaei.teahub.entity.jpa.Role;
+import dev.parhamziaei.teahub.entity.jpa.user.Role;
 
 import java.util.List;
 import java.util.Optional;

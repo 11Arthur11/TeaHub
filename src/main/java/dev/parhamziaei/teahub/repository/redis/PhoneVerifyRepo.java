@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor

@@ -30,7 +30,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/tickets")
+@RequestMapping("/v1/tickets")
 public class TicketController {
 
     private final TicketService ticketService;
@@ -41,7 +41,7 @@ public class TicketController {
     @Operation(summary = "Getting all user tickets as list")
     @GetMapping
     public ResponseEntity<?> getTickets(@ModelAttribute TicketFilterRequest filterRequest) {
-        final String userEmail = currentUser.getEmail();
+        final String userPhone = currentUser.getPhone();
         Pageable pageable = PageRequest.of(
                 filterRequest.getPage(),
                 filterRequest.getSize(),
@@ -50,7 +50,7 @@ public class TicketController {
 
         PagedModel<TicketListUserResponse> userTickets = ticketService.getUserTickets(
                 pageable,
-                userEmail,
+                userPhone,
                 TicketListUserResponse.class
         );
 
@@ -77,8 +77,8 @@ public class TicketController {
         if (files == null) {
             files = new ArrayList<>();
         }
-        final String userEmail = currentUser.getEmail();
-        ticketService.submit(userEmail, ticketRequest, files);
+        final String userPhone = currentUser.getPhone();
+        ticketService.submit(userPhone, ticketRequest, files);
         return ResponseBuilder.buildSuccess(
                 "SUCCESS",
                 messageService.get(Message.SERVICE_TICKET_SUBMITTED),
@@ -89,10 +89,10 @@ public class TicketController {
     @Operation(summary = "Ticket Details with all messages")
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> getTicketDetails(@PathVariable Long id) {
-        final String userEmail = currentUser.getEmail();
+        final String userPhone = currentUser.getPhone();
         TicketDetailBaseResponse ticketDetails = ticketService.getTicketDetails(
                 id,
-                userEmail,
+                userPhone,
                 TicketDetailBaseResponse.class
         );
 
@@ -113,9 +113,9 @@ public class TicketController {
             @RequestPart("content") String content,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        final String userEmail = currentUser.getEmail();
+        final String userPhone = currentUser.getPhone();
         TicketMessageRequest ticketMessageRequest = new TicketMessageRequest(content);
-        ticketService.addNewMessage(ticketMessageRequest, userEmail, ticketId, files);
+        ticketService.addNewMessage(ticketMessageRequest, userPhone, ticketId, files);
         return ResponseBuilder.buildSuccess(
                 "SUCCESS",
                 messageService.get(Message.SERVICE_TICKET_MESSAGE_SENT),
@@ -125,8 +125,8 @@ public class TicketController {
 
     @GetMapping("/attachment/{identifier}")
     public ResponseEntity<?> getAttachment(@PathVariable String identifier) {
-        final String userEmail = currentUser.getEmail();
-        ImageInternal image = ticketService.getTicketAttachment(identifier, userEmail);
+        final String userPhone = currentUser.getPhone();
+        ImageInternal image = ticketService.getTicketAttachment(identifier, userPhone);
         return ResponseBuilder.buildImageResponse(image);
     }
 
