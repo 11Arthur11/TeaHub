@@ -25,6 +25,9 @@ logging:
     console: TRACE
 
 app:
+  components:
+    telnet:
+      default-timeout-millis: 10000
   service:
     media-storage:
       allowed-media-extension:
@@ -48,6 +51,8 @@ app:
     admin-last-name: ziaei
 
   integration:
+    teaspeak_query:
+      port-step: 5
     ip-panel:
       base-url: BASE_URL
       api-key: API_KEY
