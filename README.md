@@ -9,5 +9,10 @@
 # 🍃 Explain concept of Spring & Spring Security
 <img width="2175" height="1226" alt="Untitled-2025-10-22-2359" src="https://github.com/user-attachments/assets/c3034c6f-6ed1-43a6-b315-2a158b372314" />
 
+
 # 🔒 Explain of Jwt Authentication Filter LifeCycle
 <img width="1831" height="1283" alt="jwt lifecycle" src="https://github.com/user-attachments/assets/fbcef073-612e-4678-9ee3-320560416e58" />
+
+
+# 🔒 Explain of TeaSpeak Order Placement
+<img width="1653" height="714" alt="Untitled-2025-10-22-2359" src="https://github.com/user-attachments/assets/7d2847ca-5cb3-4a85-9f0a-da8dc840a8b8" />
