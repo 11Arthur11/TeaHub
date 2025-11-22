@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user_settings")
+@Table(name = "user_setting")
 public class UserSetting extends BaseEntity<Long> {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

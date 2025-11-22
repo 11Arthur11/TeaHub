@@ -17,6 +17,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
         TicketServiceProperties.class,
         ImageStorageProperties.class,
         NotificationProperties.class,
+        TelnetProperties.class,
+        QueryInstanceProperties.class
 })
 public class TeaHubApplication {
     public static void main(String[] args) {

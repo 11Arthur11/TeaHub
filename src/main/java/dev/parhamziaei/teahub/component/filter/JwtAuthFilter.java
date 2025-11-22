@@ -5,7 +5,7 @@ import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.JwtType;
 import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
-import dev.parhamziaei.teahub.exception.custom.service.JwtValidationException;
+import dev.parhamziaei.teahub.exception.custom.authentication.JwtValidationException;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
 import jakarta.servlet.FilterChain;

@@ -7,9 +7,7 @@ import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.Roles;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
-import dev.parhamziaei.teahub.integration.ippanel.IPPanelService;
-import dev.parhamziaei.teahub.integration.yatqa.TelnetConnectionManager;
-import dev.parhamziaei.teahub.integration.yatqa.model.ServerQueryCredentials;
+import dev.parhamziaei.teahub.integration.teaspeak_query.component.TelnetConnectionPool;
 import dev.parhamziaei.teahub.repository.jpa.RoleRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +26,7 @@ public class Initialization implements CommandLineRunner {
     private final InitializeProperties initProperties;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final TelnetConnectionManager telnetConnectionManager;
+    private final TelnetConnectionPool telnetConnectionManager;
 
     @Override
     public void run(String... args) throws Exception {

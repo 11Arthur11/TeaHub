@@ -5,7 +5,7 @@ import dev.parhamziaei.teahub.enums.Message;
 import dev.parhamziaei.teahub.exception.custom.authentication.AlreadyLoggedInException;
 import dev.parhamziaei.teahub.exception.custom.authentication.PhoneNumberAlreadyTakenException;
 import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
-import dev.parhamziaei.teahub.exception.custom.service.JwtValidationException;
+import dev.parhamziaei.teahub.exception.custom.authentication.JwtValidationException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;

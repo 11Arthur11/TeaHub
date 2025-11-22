@@ -8,7 +8,7 @@ import dev.parhamziaei.teahub.dto.request.ticket.user.TicketUserRequest;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketDetailBaseResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketListUserResponse;
 import dev.parhamziaei.teahub.enums.Message;
-import dev.parhamziaei.teahub.exception.custom.service.NoSuchDataException;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import dev.parhamziaei.teahub.service.interfaces.TicketService;

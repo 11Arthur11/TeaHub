@@ -1,0 +1,13 @@
+-> servercreate virtualserver_name=TeamSpeak\s]\p[\sServer virtualserver_port=9988 virtualserver_maxclients=320
+
+sid=13
+error
+virtualserver_port=9988
+token=tvq9ATTzhthCeEUqv0MVy0wgFAPYtmtT
+time_create=9
+time_start=0
+time_global=9
+time_wait=0
+error
+id=0
+msg=ok
