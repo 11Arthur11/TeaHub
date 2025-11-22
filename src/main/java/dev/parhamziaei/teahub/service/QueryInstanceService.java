@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.service;
 
-import dev.parhamziaei.teahub.dto.request.teaspeak.QueryInstanceInitRequest;
+import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.YatqaNotEnoughPortsException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.YatqaServerAlreadyInitiatedException;
@@ -9,6 +9,7 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.enums.QueryInstanceStat
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +19,7 @@ public class QueryInstanceService {
     private final QueryInstanceRepository yatqaRepository;
     private final TelnetConnectionPool connectionPool;
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void initQueryInstance(QueryInstanceInitRequest initRequest) {
         if (yatqaRepository.existByIp(initRequest.getYatqaIp()))
             throw new YatqaServerAlreadyInitiatedException();
@@ -43,5 +45,7 @@ public class QueryInstanceService {
         yatqaRepository.save(queryInstance);
         connectionPool.addConnection(credentials);
     }
+
+
 
 }

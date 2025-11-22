@@ -3,10 +3,16 @@ spring:
     name: TeaHub
 
   datasource:
-    url: jdbc:mysql://localhost:3306/tea_hub
-    username: admin
-    password: admin123456
+    url: jdbc:mysql://${DB_HOST:localhost}/tea_hub
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 
   servlet:
     multipart:
@@ -39,7 +45,7 @@ app:
         - image/jpeg
         - image/webp
       maximum-media-size-mb: 10
-      ticket-attachments-path: /home/arthur/spring-boot/uploads/ticket-attachments
+      ticket-attachments-path: /app/uploads/ticket-attachments
 
     ticket:
       max-attachment-per-message: 5

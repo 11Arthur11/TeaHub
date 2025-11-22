@@ -3,11 +3,10 @@ package dev.parhamziaei.teahub.entity.jpa.teaspeak;
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.integration.teaspeak_query.enums.QueryInstanceStatus;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,5 +31,8 @@ public class QueryInstance extends BaseEntity<Long> {
     private Integer startPort;
 
     private Integer endPort;
+
+    @OneToMany(mappedBy = "parentQueryInstance", fetch = FetchType.LAZY)
+    private List<TeaSpeakInstance> instances;
 
 }
