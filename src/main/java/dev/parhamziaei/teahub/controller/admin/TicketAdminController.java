@@ -6,7 +6,8 @@ import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketAdminRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketEditAdminRequest;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketListAdminResponse;
-import dev.parhamziaei.teahub.enums.Message;
+import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.TicketService;
@@ -44,7 +45,7 @@ public class TicketAdminController {
             throw new NoSuchDataException();
         }
         return ResponseBuilder.buildSuccess(
-                "DATA",
+                ResponseType.DATA,
                 tickets,
                 HttpStatus.OK
         );
@@ -66,7 +67,7 @@ public class TicketAdminController {
             throw new NoSuchDataException();
         }
         return ResponseBuilder.buildSuccess(
-                "DATA",
+                ResponseType.SUCCESS,
                 tickets,
                 HttpStatus.OK
         );
@@ -79,8 +80,8 @@ public class TicketAdminController {
     ) {
         ticketService.editTicket(editRequest, ticketId);
         return ResponseBuilder.buildSuccess(
-                "SUCCESS",
-                messageService.get(Message.SERVICE_TICKET_EDITED),
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.TICKET_EDITED),
                 HttpStatus.OK
         );
     }
@@ -95,7 +96,7 @@ public class TicketAdminController {
         );
 
         return ResponseBuilder.buildSuccess(
-                "DATA",
+                ResponseType.DATA,
                 ticket,
                 HttpStatus.OK
         );
@@ -113,8 +114,8 @@ public class TicketAdminController {
         final String submitterPhone = currentUser.getPhone();
         ticketService.submit(submitterPhone, ticketRequest, files);
         return ResponseBuilder.buildSuccess(
-                "SUCCESS",
-                messageService.get(Message.SERVICE_TICKET_SUBMITTED),
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.TICKET_SUBMITTED),
                 HttpStatus.OK
         );
     }

@@ -7,7 +7,8 @@ import dev.parhamziaei.teahub.dto.request.ticket.user.TicketMessageRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketUserRequest;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketDetailBaseResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketListUserResponse;
-import dev.parhamziaei.teahub.enums.Message;
+import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
@@ -59,7 +60,7 @@ public class TicketController {
         }
 
         return ResponseBuilder.buildSuccess(
-                "DATA",
+                ResponseType.DATA,
                 userTickets,
                 HttpStatus.OK
         );
@@ -80,8 +81,8 @@ public class TicketController {
         final String userPhone = currentUser.getPhone();
         ticketService.submit(userPhone, ticketRequest, files);
         return ResponseBuilder.buildSuccess(
-                "SUCCESS",
-                messageService.get(Message.SERVICE_TICKET_SUBMITTED),
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.TICKET_SUBMITTED),
                 HttpStatus.OK
         );
     }
@@ -97,7 +98,7 @@ public class TicketController {
         );
 
         return ResponseBuilder.buildSuccess(
-                "DATA",
+                ResponseType.DATA,
                 ticketDetails,
                 HttpStatus.OK
         );
@@ -117,8 +118,8 @@ public class TicketController {
         TicketMessageRequest ticketMessageRequest = new TicketMessageRequest(content);
         ticketService.addNewMessage(ticketMessageRequest, userPhone, ticketId, files);
         return ResponseBuilder.buildSuccess(
-                "SUCCESS",
-                messageService.get(Message.SERVICE_TICKET_MESSAGE_SENT),
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.TICKET_MESSAGE_SENT),
                 HttpStatus.OK
         );
     }

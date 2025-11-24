@@ -1,7 +1,9 @@
 package dev.parhamziaei.teahub.exception.handler;
 
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
-import dev.parhamziaei.teahub.enums.Message;
+import dev.parhamziaei.teahub.enums.messages.Message;
+import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
@@ -34,8 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<SimpleResponse> generalException() {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
+        return ResponseBuilder.buildError(
                 messageService.get(Message.SERVER_INTERNAL_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
@@ -43,8 +44,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<SimpleResponse> noResourceFoundException(HttpServletResponse response, HttpServletRequest request) {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
+        return ResponseBuilder.buildError(
                 messageService.get(Message.SERVER_RESOURCE_NOT_FOUND),
                 HttpStatus.NOT_FOUND
         );
@@ -52,8 +52,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<SimpleResponse> ioException() {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
+        return ResponseBuilder.buildError(
                 messageService.get(Message.SERVER_IO_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
@@ -65,8 +64,7 @@ public class GlobalExceptionHandler {
 //                .map(FieldError::getDefaultMessage)
 //                .orElse("REQUEST_ARGUMENT_ERROR");
 
-        return ResponseBuilder.buildFailed(
-                "ERROR",
+        return ResponseBuilder.buildError(
                 messageService.get(Message.SERVER_VALIDATION_ERROR),
                 HttpStatus.BAD_REQUEST
         );
@@ -74,8 +72,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TicketServiceException.class)
     public ResponseEntity<SimpleResponse> handleTicketServiceException() {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
+        return ResponseBuilder.buildError(
                 messageService.get(Message.DEFAULT_FAILED),
                 HttpStatus.FORBIDDEN
         );
@@ -83,36 +80,32 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TicketMaxAttachmentReachedException.class)
     public ResponseEntity<SimpleResponse> handleTicketMaxAttachmentReachedException() {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
-                messageService.get(Message.SERVICE_TICKET_MAX_ATTACHMENT_REACHED),
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.TICKET_MAX_ATTACHMENT_REACHED),
                 HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(FileStorageServiceException.class)
     public ResponseEntity<SimpleResponse> handleFileStorageService() {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
-                messageService.get(Message.SERVICE_FILE_STORAGE_ERROR),
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.FILE_STORAGE_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
 
     @ExceptionHandler(MediaTypeNotAllowedException.class)
     public ResponseEntity<SimpleResponse> handleUnsupportedMediaTypeException() {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
-                messageService.get(Message.SERVICE_MEDIA_TYPE_NOT_ALLOWED),
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.MEDIA_TYPE_NOT_ALLOWED),
                 HttpStatus.UNSUPPORTED_MEDIA_TYPE
         );
     }
 
     @ExceptionHandler(MediaSizeTooLargeException.class)
     public ResponseEntity<SimpleResponse> handleMediaSizeTooLargeException() {
-        return ResponseBuilder.buildFailed(
-                "ERROR",
-                messageService.get(Message.SERVICE_PAYLOAD_TOO_LARGE),
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.PAYLOAD_TOO_LARGE),
                 HttpStatus.PAYLOAD_TOO_LARGE
         );
     }
@@ -120,7 +113,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchDataException.class)
     public ResponseEntity<SimpleResponse> handleNoSuchDataException() {
         return ResponseBuilder.buildFailed(
-                "NO_DATA",
+                ResponseType.NO_DATA,
                 "",
                 HttpStatus.OK
         );
@@ -129,8 +122,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchRoleException.class)
     public ResponseEntity<SimpleResponse> handleNoSuchRoleException() {
         log.error("Error on finding role, did you removed roles from database?");
-        return ResponseBuilder.buildFailed(
-                "ERROR",
+        return ResponseBuilder.buildError(
                 messageService.get(Message.SERVER_INTERNAL_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );

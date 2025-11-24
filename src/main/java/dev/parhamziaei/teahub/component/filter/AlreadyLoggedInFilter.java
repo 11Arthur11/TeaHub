@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.component.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.parhamziaei.teahub.enums.JwtType;
-import dev.parhamziaei.teahub.enums.Message;
+import dev.parhamziaei.teahub.enums.messages.AuthMessage;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import jakarta.servlet.FilterChain;
@@ -55,7 +55,7 @@ public class AlreadyLoggedInFilter extends OncePerRequestFilter {
         Map<String,Object> body = new LinkedHashMap<>();
         body.put("success", false);
         body.put("type", "ERROR");
-        body.put("message", messageService.get(Message.AUTH_ALREADY_LOGGED_IN));
+        body.put("message", messageService.get(AuthMessage.ALREADY_LOGGED_IN));
         objectMapper.writeValue(response.getWriter(), body);
     }
 }

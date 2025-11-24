@@ -5,4 +5,10 @@ public enum ResponseType {
     LOGIN_INITIATED,
     REGISTER_SUCCESS,
     LOGIN_SUCCESS,
+    NO_DATA,
+    SUCCESS,
+    DATA,
+    FAILURE,
+    PROCESSING,
+    ERROR,
 }

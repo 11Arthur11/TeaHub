@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.dto.internal.ImageInternal;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.DetailedDataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
+import dev.parhamziaei.teahub.enums.ResponseType;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,23 +15,23 @@ public class ResponseBuilder {
 
     private ResponseBuilder() {}
 
-    public static ResponseEntity<SimpleResponse> buildFailed(String type, String message, HttpStatus status) {
-        SimpleResponse response = new SimpleResponse(false, type, message);
+    public static ResponseEntity<SimpleResponse> buildFailed(ResponseType responseType, String message, HttpStatus status) {
+        SimpleResponse response = new SimpleResponse(false, responseType.name(), message);
         return ResponseEntity.status(status).body(response);
     }
 
-    public static <T> ResponseEntity<DetailedDataResponse<T>> buildFailed(String type, String message, T data, HttpStatus status) {
-        DetailedDataResponse<T> response = new DetailedDataResponse<>(false, type, message, data);
+    public static ResponseEntity<SimpleResponse> buildError(String message, HttpStatus status) {
+        SimpleResponse response = new SimpleResponse(false, ResponseType.ERROR.name(), message);
         return ResponseEntity.status(status).body(response);
     }
 
-    public static ResponseEntity<SimpleResponse> buildSuccess(String type, String message, HttpStatus status) {
-        SimpleResponse response = new SimpleResponse(true, type, message);
+    public static ResponseEntity<SimpleResponse> buildSuccess(ResponseType responseType, String message, HttpStatus status) {
+        SimpleResponse response = new SimpleResponse(true, responseType.name(), message);
         return ResponseEntity.status(status).body(response);
     }
 
-    public static <T> ResponseEntity<Object> buildSuccess(String type, T data, HttpStatus status) {
-        DataResponse<T> response = new DataResponse<>(true, type, data);
+    public static <T> ResponseEntity<Object> buildSuccess(ResponseType responseType, T data, HttpStatus status) {
+        DataResponse<T> response = new DataResponse<>(true, responseType.name(), data);
         return ResponseEntity.status(status).body(response);
     }
 

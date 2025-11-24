@@ -9,7 +9,7 @@ import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.JwtType;
-import dev.parhamziaei.teahub.enums.Message;
+import dev.parhamziaei.teahub.enums.messages.AuthMessage;
 import dev.parhamziaei.teahub.enums.ResponseType;
 import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -69,8 +69,8 @@ public class AuthenticationController {
             Cookie sessionCookie = cookieFactory.twoFactorCookie(twoFactorToken);
             response.addCookie(sessionCookie);
             return ResponseBuilder.buildSuccess(
-                    ResponseType.LOGIN_INITIATED.name(),
-                    messageService.get(Message.TWO_FACTOR_SENT),
+                    ResponseType.LOGIN_INITIATED,
+                    messageService.get(AuthMessage.TWO_FACTOR_SENT),
                     HttpStatus.OK
             );
         } else {
@@ -79,8 +79,8 @@ public class AuthenticationController {
             Cookie sessionCookie = cookieFactory.phoneVerifyCookie(phoneVerifyToken);
             response.addCookie(sessionCookie);
             return ResponseBuilder.buildSuccess(
-                    ResponseType.REGISTER_INITIATED.name(),
-                    messageService.get(Message.TWO_FACTOR_SENT),
+                    ResponseType.REGISTER_INITIATED,
+                    messageService.get(AuthMessage.TWO_FACTOR_SENT),
                     HttpStatus.OK
             );
         }
@@ -128,8 +128,8 @@ public class AuthenticationController {
         response.addCookie(cookieFactory.emptyCookie(JwtType.TWO_FACTOR_TOKEN));
         response.addCookie(accessTokenCookie);
         return ResponseBuilder.buildSuccess(
-                ResponseType.LOGIN_SUCCESS.name(),
-                messageService.get(Message.AUTH_LOGIN_SUCCESS),
+                ResponseType.LOGIN_SUCCESS,
+                messageService.get(AuthMessage.LOGIN_SUCCESS),
                 HttpStatus.OK
         );
     }
@@ -164,8 +164,8 @@ public class AuthenticationController {
         response.addCookie(cookieFactory.emptyCookie(JwtType.PHONE_VERIFY_TOKEN));
 
         return ResponseBuilder.buildSuccess(
-                ResponseType.REGISTER_SUCCESS.name(),
-                messageService.get(Message.REGISTER_SUCCESSFULLY_DONE),
+                ResponseType.REGISTER_SUCCESS,
+                messageService.get(AuthMessage.REGISTER_SUCCESSFUL),
                 HttpStatus.OK
         );
     }
