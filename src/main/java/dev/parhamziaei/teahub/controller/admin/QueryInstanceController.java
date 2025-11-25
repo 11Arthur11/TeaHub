@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
-import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
+import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +26,8 @@ public class QueryInstanceController {
     private final QueryInstanceService queryInstanceService;
     private final MessageService messageService;
 
-    public ResponseEntity<?> addQueryInstance(@Valid @RequestBody QueryInstanceInitRequest queryInitRequest) {
+    @PostMapping
+    public ResponseEntity<SimpleResponse> addQueryInstance(@Valid @RequestBody QueryInstanceInitRequest queryInitRequest) {
         queryInstanceService.initQueryInstance(queryInitRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
@@ -33,5 +35,7 @@ public class QueryInstanceController {
                 HttpStatus.OK
         );
     }
+
+
 
 }

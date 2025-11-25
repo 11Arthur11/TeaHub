@@ -5,25 +5,21 @@ import dev.parhamziaei.teahub.enums.TicketStatus;
 import java.util.Arrays;
 
 public enum QueryInstanceStatus {
-    READY("ticket.status.ready", "ready"),
-    FULL("ticket.status.full", "full"),
-    UNREACHABLE("ticket.status.unreachable", "unreachable"),
-    DISPATCHED("ticket.status.dispatched", "dispatched"),
-    INITIALIZING("ticket.status.initializing", "initializing");
+    READY("query-instance.status.ready"),
+    FULL("query-instance.status.full"),
+    UNREACHABLE("query-instance.status.unreachable"),
+    LOGIN_FAILED("query-instance.status.login-failed"),
+    DISPATCHED("query-instance.status.dispatched"),
+    INITIALIZING("query-instance.status.initializing");
 
     private final String key;
-    private final String value;
 
-    QueryInstanceStatus(String key, String value) {
+    QueryInstanceStatus(String key) {
         this.key = key;
-        this.value = value;
     }
 
     public String key() {
         return key;
-    }
-    public String value() {
-        return value;
     }
 
     public static TicketStatus fromValue(String value) {

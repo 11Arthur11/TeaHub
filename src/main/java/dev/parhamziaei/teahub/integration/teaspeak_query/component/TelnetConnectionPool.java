@@ -1,6 +1,8 @@
 package dev.parhamziaei.teahub.integration.teaspeak_query.component;
 
 import dev.parhamziaei.teahub.configuration.properties.TelnetProperties;
+import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryConnectionPoolingException;
+import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryLoginFailedException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.TelnetSession;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,7 @@ public class TelnetConnectionPool {
         this.timeout = telnetProperties.defaultTimeoutMillis();
     }
 
-    public void addConnection(ServerQueryCredentials credentials) {
+    public void addConnection(ServerQueryCredentials credentials) throws QueryConnectionPoolingException, QueryLoginFailedException {
         TelnetClient client = new TelnetClient();
         client.setConnectTimeout(timeout);
         try {
@@ -41,8 +43,7 @@ public class TelnetConnectionPool {
             connections.put(key, session);
             log.debug("Connection session added to pool -> {}", key);
         } catch (Exception e) {
-            log.error("failed adding new connection with credentials: {}:{} - {}:{}",
-                    credentials.ip(), credentials.port(), credentials.username(), credentials.password(), e);
+            throw new QueryConnectionPoolingException("error while trying to add new connection to pool: " + e.getMessage());
         }
     }
 

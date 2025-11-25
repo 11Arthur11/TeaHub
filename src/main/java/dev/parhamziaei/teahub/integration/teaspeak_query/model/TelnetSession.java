@@ -42,9 +42,11 @@ public class TelnetSession {
                                 + credentials.username() + ":" + credentials.password());
             }
 
-            log.info("login successful to {}", credentials.ip());
+            log.info("login successful to {}:{}", credentials.ip(), credentials.port());
         } catch (IOException e) {
-            log.error("failed login to {}", credentials.ip());
+            throw new QueryLoginFailedException(
+                    "unexpected error while login to " + credentials.ip() + ":" + credentials.port()
+            );
         }
     }
 

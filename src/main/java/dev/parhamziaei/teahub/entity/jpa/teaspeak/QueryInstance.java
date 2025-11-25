@@ -6,6 +6,8 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCreden
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,13 +28,32 @@ public class QueryInstance extends BaseEntity<Long> {
     @Enumerated(EnumType.STRING)
     private QueryInstanceStatus status;
 
-    private Integer maxVM;
+    private Integer maxTeaSpeakInstance;
 
     private Integer startPort;
 
-    private Integer endPort;
+    private Integer stopPort;
+
+    private boolean isFull;
+
+    @Column(columnDefinition = "TIMESTAMP(0)", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime lastUsed;
 
     @OneToMany(mappedBy = "parentQueryInstance", fetch = FetchType.LAZY)
-    private List<TeaSpeakInstance> instances;
+    private List<TeaSpeakInstance> instances = new ArrayList<>();
 
+    @PreUpdate
+    public void preUpdate() {
+        this.lastUsed = LocalDateTime.now().withNano(0);
+        this.isFull = instances.size() >= maxTeaSpeakInstance;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now().withNano(0);
+        this.lastUsed = LocalDateTime.now().withNano(0);
+    }
 }

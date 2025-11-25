@@ -1,6 +1,5 @@
 package dev.parhamziaei.teahub.integration.teaspeak_query.internal_service;
 
-import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryProvisionException;
@@ -8,25 +7,30 @@ import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
 
-@Component("BIN_PACKING")
+@Component("RANDOMIZED")
 @RequiredArgsConstructor
-public class BinPackingProvisionStrategy implements TeaSpeakProvisionStrategyHandler {
-
+public class RandomizedProvisionStrategy implements TeaSpeakProvisionStrategyHandler {
+    
     private final QueryInstanceRepository queryInstanceRepo;
-
+    
     @Override
     public QueryInstance getProviderQueryInstance() {
-        return queryInstanceRepo.findAll()
+        List<QueryInstance> available =  queryInstanceRepo.findAll()
                 .stream()
                 .filter(queryInstance -> !queryInstance.isFull())
-                .min(Comparator.comparing(QueryInstance::getId))
-                .orElseThrow(QueryProvisionException::new);
+                .toList();
+        if (available.isEmpty())
+            throw new QueryProvisionException();
+
+        Random random = new Random();
+        return available.get(random.nextInt(available.size()));
     }
 
     @Override
     public ProvisionStrategy getType() {
-        return ProvisionStrategy.BIN_PACKING;
+        return ProvisionStrategy.RANDOMIZED;
     }
 }

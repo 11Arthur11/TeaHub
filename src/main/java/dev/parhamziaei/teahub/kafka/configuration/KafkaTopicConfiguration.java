@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.configuration;
+package dev.parhamziaei.teahub.kafka.configuration;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
