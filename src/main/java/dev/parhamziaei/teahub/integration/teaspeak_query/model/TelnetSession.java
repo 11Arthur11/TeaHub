@@ -50,4 +50,8 @@ public class TelnetSession {
         }
     }
 
+    public static String buildKey(ServerQueryCredentials credentials) {
+        return credentials.ip() + ":" + credentials.port();
+    }
+
 }

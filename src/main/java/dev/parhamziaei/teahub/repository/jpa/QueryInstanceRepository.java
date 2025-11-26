@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface QueryInstanceRepository {
 
     Optional<QueryInstance> findById(Long id);
-    Optional<QueryInstance> findByIp(String ip);
+    Optional<QueryInstance> findByAddress(String ip, Integer port);
     List<QueryInstance> findAll();
     void save(QueryInstance queryInstance);
     void delete(QueryInstance queryInstance);

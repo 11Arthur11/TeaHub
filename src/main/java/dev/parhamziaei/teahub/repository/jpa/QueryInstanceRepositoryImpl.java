@@ -24,8 +24,10 @@ public class QueryInstanceRepositoryImpl implements QueryInstanceRepository {
     }
 
     @Override
-    public Optional<QueryInstance> findByIp(String ip) {
-        return em.createQuery("SELECT y FROM QueryInstance y WHERE y.credentials.ip =:ip", QueryInstance.class).setParameter("ip", ip)
+    public Optional<QueryInstance> findByAddress(String ip, Integer port) {
+        return em.createQuery("SELECT y FROM QueryInstance y WHERE y.credentials.ip =:ip AND y.credentials.port = :port", QueryInstance.class)
+                .setParameter("ip", ip)
+                .setParameter("port", port)
                 .getResultList()
                 .stream()
                 .findFirst();

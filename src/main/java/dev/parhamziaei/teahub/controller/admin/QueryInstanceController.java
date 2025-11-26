@@ -12,10 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/admin/query-instances")
@@ -26,12 +23,21 @@ public class QueryInstanceController {
     private final QueryInstanceService queryInstanceService;
     private final MessageService messageService;
 
-    @PostMapping
-    public ResponseEntity<SimpleResponse> addQueryInstance(@Valid @RequestBody QueryInstanceInitRequest queryInitRequest) {
+    @PostMapping("/initiate")
+    public ResponseEntity<SimpleResponse> initQueryInstance(@Valid @RequestBody QueryInstanceInitRequest queryInitRequest) {
         queryInstanceService.initQueryInstance(queryInitRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.QUERY_INSTANCE_INITIATED),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllQueryInstance() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                queryInstanceService.getAllQueryInstance(),
                 HttpStatus.OK
         );
     }

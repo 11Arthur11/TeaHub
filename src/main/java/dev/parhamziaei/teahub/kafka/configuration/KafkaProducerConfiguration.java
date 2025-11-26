@@ -1,14 +1,15 @@
 package dev.parhamziaei.teahub.kafka.configuration;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.UUIDSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,9 @@ public class KafkaProducerConfiguration {
     @Value("spring.kafka.bootstrap-server")
     private String bootstrapServers;
 
-    public Map<String, Object> producerConfigs() {
+    @Bean
+    @Qualifier("producerConfig")
+    public Map<String, Object> producerConfig() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, UUIDSerializer.class);
@@ -28,16 +31,18 @@ public class KafkaProducerConfiguration {
         return properties;
     }
 
-//    @Bean
-//    public ProducerFactory<UUID, > queryInstanceInitEventProducerFactory() {
-//         return new DefaultKafkaProducerFactory<>(producerConfigs());
-//    }
-//
-//    @Bean
-//    public KafkaTemplate<UUID, > kafkaTemplate(
-//            ProducerFactory<UUID, > producerFactory
-//    ) {
-//        return new KafkaTemplate<>(producerFactory);
-//    }
+    @Bean
+    public ProducerFactory<UUID, Object> queryInstanceInitEventProducerFactory(
+            Map<String, Object> producerConfig
+    ) {
+         return new DefaultKafkaProducerFactory<>(producerConfig);
+    }
+
+    @Bean
+    public KafkaTemplate<UUID, Object> kafkaTemplate(
+            ProducerFactory<UUID, Object> producerFactory
+    ) {
+        return new KafkaTemplate<>(producerFactory);
+    }
 
 }

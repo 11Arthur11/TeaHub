@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.kafka.configuration;
 
+import dev.parhamziaei.teahub.enums.KafkaTopic;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,7 @@ public class KafkaTopicConfiguration {
 
     @Bean
     public NewTopic newTopic() {
-        return TopicBuilder.name("hello").build();
+        return TopicBuilder.name(KafkaTopic.INTERNAL_TELNET_ERROR_TOPIC.value()).build();
     }
 
 }

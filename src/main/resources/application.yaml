@@ -36,6 +36,8 @@ app:
   components:
     telnet:
       default-timeout-millis: 10000
+      reconnect-tries: 10
+      reconnect-delay: 60s
   service:
     media-storage:
       allowed-media-extension:

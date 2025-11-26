@@ -16,6 +16,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"ip", "port"})
+)
 public class QueryInstance extends BaseEntity<Long> {
 
     private String name;
@@ -37,7 +40,7 @@ public class QueryInstance extends BaseEntity<Long> {
     private boolean isFull;
 
     @Column(columnDefinition = "TIMESTAMP(0)", updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime initiatedAt;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime lastUsed;
@@ -48,12 +51,15 @@ public class QueryInstance extends BaseEntity<Long> {
     @PreUpdate
     public void preUpdate() {
         this.lastUsed = LocalDateTime.now().withNano(0);
-        this.isFull = instances.size() >= maxTeaSpeakInstance;
+        if (instances.size() >= maxTeaSpeakInstance) {
+            this.isFull = true;
+            this.status = QueryInstanceStatus.FULL;
+        }
     }
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now().withNano(0);
+        this.initiatedAt = LocalDateTime.now().withNano(0);
         this.lastUsed = LocalDateTime.now().withNano(0);
     }
 }

@@ -2,7 +2,9 @@ package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
+import dev.parhamziaei.teahub.dto.response.teaspeak.QueryInstanceListResponse;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.InstancePortRangeNotValidException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceNotFoundException;
@@ -18,9 +20,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.telnet.TelnetClient;
+import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -30,17 +36,20 @@ public class QueryInstanceService {
     private final TelnetConnectionPool connectionPool;
     private final QueryInstanceProperties queryInstanceProperties;
     private final TeaSpeakProvisionStrategyHandler strategyHandler;
+    private final ModelMapper modelMapper;
 
     public QueryInstanceService(
             QueryInstanceRepository queryInstanceRepo,
             TelnetConnectionPool connectionPool,
             QueryInstanceProperties queryInstanceProperties,
-            ProvisionStrategyFactory provisionStrategyFactory
+            ProvisionStrategyFactory provisionStrategyFactory,
+            ModelMapper modelMapper
     ) {
         this.queryInstanceRepo = queryInstanceRepo;
         this.connectionPool = connectionPool;
         this.queryInstanceProperties = queryInstanceProperties;
         this.strategyHandler = provisionStrategyFactory.getStrategy();
+        this.modelMapper = modelMapper;
     }
 
     private boolean isPortRangeMatchSlots(QueryInstanceInitRequest request) {
@@ -54,6 +63,12 @@ public class QueryInstanceService {
 
     public void changeQueryInstanceStatus(Long id, QueryInstanceStatus status) {
         QueryInstance queryInstance = queryInstanceRepo.findById(id)
+                .orElseThrow(QueryInstanceNotFoundException::new);
+        queryInstance.setStatus(status);
+    }
+
+    public void changeQueryInstanceStatus(String ip, Integer port, QueryInstanceStatus status) {
+        QueryInstance queryInstance = queryInstanceRepo.findByAddress(ip, port)
                 .orElseThrow(QueryInstanceNotFoundException::new);
         queryInstance.setStatus(status);
     }
@@ -104,6 +119,11 @@ public class QueryInstanceService {
 
         try {
             connectionPool.addConnection(credentials);
+            if (queryInstance.isEnabled())
+                changeQueryInstanceStatus(instanceId, QueryInstanceStatus.DISPATCHED);
+            else
+                changeQueryInstanceStatus(instanceId, QueryInstanceStatus.READY);
+
         } catch (QueryConnectionPoolingException e) {
             changeQueryInstanceStatus(instanceId, QueryInstanceStatus.UNREACHABLE);
             log.error("failed adding new connection with credentials: {}:{} - {}:{}",
@@ -112,6 +132,23 @@ public class QueryInstanceService {
             changeQueryInstanceStatus(instanceId, QueryInstanceStatus.LOGIN_FAILED);
             log.error(e.getMessage());
         }
+    }
+
+    @Transactional
+    public List<QueryInstanceListResponse> getAllQueryInstance() {
+        List<QueryInstanceListResponse> queryInstanceListResponse = queryInstanceRepo.findAll()
+                .stream()
+                .map(q -> {
+                    QueryInstanceListResponse response = modelMapper.map(q, QueryInstanceListResponse.class);
+                    response.setUsedInstanceSlot(q.getInstances().size());
+                    return response;
+                })
+                .toList();
+
+        if (queryInstanceListResponse.isEmpty())
+            throw new NoSuchDataException("No query instance found.");
+
+        return queryInstanceListResponse;
     }
 
 

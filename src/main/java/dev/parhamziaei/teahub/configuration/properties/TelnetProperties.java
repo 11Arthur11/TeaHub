@@ -2,8 +2,12 @@ package dev.parhamziaei.teahub.configuration.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.time.Duration;
+
 @ConfigurationProperties("app.components.telnet")
 public record TelnetProperties(
-        Integer defaultTimeoutMillis
+        Integer defaultTimeoutMillis,
+        Duration reconnectDelay,
+        Integer reconnectTries
 ) {
 }
