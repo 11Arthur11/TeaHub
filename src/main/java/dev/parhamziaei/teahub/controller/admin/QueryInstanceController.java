@@ -23,6 +23,15 @@ public class QueryInstanceController {
     private final QueryInstanceService queryInstanceService;
     private final MessageService messageService;
 
+    @GetMapping
+    public ResponseEntity<?> getAllQueryInstance() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                queryInstanceService.getAllQueryInstance(),
+                HttpStatus.OK
+        );
+    }
+
     @PostMapping("/initiate")
     public ResponseEntity<SimpleResponse> initQueryInstance(@Valid @RequestBody QueryInstanceInitRequest queryInitRequest) {
         queryInstanceService.initQueryInstance(queryInitRequest);
@@ -33,11 +42,32 @@ public class QueryInstanceController {
         );
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllQueryInstance() {
+    @PatchMapping("/{id}/enable")
+    public ResponseEntity<SimpleResponse> enableQueryInstance(@PathVariable Long id) {
+        queryInstanceService.dispatchQueryInstance(id);
         return ResponseBuilder.buildSuccess(
-                ResponseType.DATA,
-                queryInstanceService.getAllQueryInstance(),
+                ResponseType.PROCESSING,
+                messageService.get(ServiceMessage.QUERY_INSTANCE_ENABLING),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping("/{id}/disable")
+    public ResponseEntity<SimpleResponse> disableQueryInstance(@PathVariable Long id) {
+        queryInstanceService.disableQueryInstance(id);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.PROCESSING,
+                messageService.get(ServiceMessage.QUERY_INSTANCE_DISABLING),
+                HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/{id}/remove")
+    public ResponseEntity<SimpleResponse> removeQueryInstance(@PathVariable Long id) {
+        queryInstanceService.removeQueryInstance(id);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.QUERY_INSTANCE_DELETED),
                 HttpStatus.OK
         );
     }

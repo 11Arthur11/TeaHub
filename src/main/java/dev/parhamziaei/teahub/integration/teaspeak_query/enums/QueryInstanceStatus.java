@@ -5,7 +5,7 @@ import dev.parhamziaei.teahub.enums.TicketStatus;
 import java.util.Arrays;
 
 public enum QueryInstanceStatus {
-    READY("query-instance.status.ready"),
+    DISABLED("query-instance.status.disabled"),
     FULL("query-instance.status.full"),
     UNREACHABLE("query-instance.status.unreachable"),
     LOGIN_FAILED("query-instance.status.login-failed"),

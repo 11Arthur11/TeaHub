@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.kafka.producer;
 
 import dev.parhamziaei.teahub.enums.KafkaTopic;
+import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionLoginFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionUnreachableEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,6 +16,10 @@ public class TelnetEventProducer {
     private final KafkaTemplate<UUID, Object> kafkaTemplate;
 
     public void sendUnreachableEvent(TelnetSessionUnreachableEvent event) {
+        kafkaTemplate.send(KafkaTopic.INTERNAL_TELNET_ERROR_TOPIC.value(), UUID.randomUUID(), event);
+    }
+
+    public void sendLoginFailedEvent(TelnetSessionLoginFailedEvent event) {
         kafkaTemplate.send(KafkaTopic.INTERNAL_TELNET_ERROR_TOPIC.value(), UUID.randomUUID(), event);
     }
 

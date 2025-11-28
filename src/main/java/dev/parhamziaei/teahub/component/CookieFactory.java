@@ -31,7 +31,7 @@ public class CookieFactory {
 
     public Cookie phoneVerifyCookie(String token) {
         Cookie cookie = new Cookie(JwtType.PHONE_VERIFY_TOKEN.value(), token);
-        cookie.setPath("/v1/auth/register");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) cookieProperties.phoneVerifyCookieTtl().toSeconds());
         cookie.setSecure(cookieProperties.secureCookie());

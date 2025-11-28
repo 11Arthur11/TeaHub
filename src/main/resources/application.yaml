@@ -66,7 +66,7 @@ app:
       port-step: 5
     ip-panel:
       base-url: https://edge.ippanel.com/v1
-      api-key: OWYxNGU1Y2EtNDUwOC00NTYzLThiMTctMjIwMzQzNDAyODQ2YTMyYTg5MTM0NjBkNWNiOWMxZTY2ODhlNmQ1OWMzMjg=
+      api-key: YTA3NTJkZDctOGExMi00NzdlLTg1ZTMtNDdlZmM3Y2NlZjVlN2RmNDkyMWMxNjllNjZiZmZjNmQ1OWQ2NzBhNmVlYjk=
       # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
       two-facto-message-pattern-code: gaibs13nb08a8ku
       from-number: 100016949

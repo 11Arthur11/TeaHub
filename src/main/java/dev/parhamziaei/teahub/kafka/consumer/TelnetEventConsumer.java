@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.kafka.consumer;
 
+import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionLoginFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionUnreachableEvent;
 import dev.parhamziaei.teahub.kafka.handler.TelnetEventHandler;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,11 @@ public class TelnetEventConsumer {
     @KafkaHandler
     public void consumeUnreachableEvent(TelnetSessionUnreachableEvent event) {
         telnetEventHandler.handleUnreachableEvent(event);
+    }
+
+    @KafkaHandler
+    public void consumeLoginFailedEvent(TelnetSessionLoginFailedEvent event) {
+
     }
 
 }

@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
 import dev.parhamziaei.teahub.dto.response.teaspeak.QueryInstanceListResponse;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
+import dev.parhamziaei.teahub.entity.jpa.teaspeak.TeaSpeakInstance;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.InstancePortRangeNotValidException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
@@ -37,19 +38,26 @@ public class QueryInstanceService {
     private final QueryInstanceProperties queryInstanceProperties;
     private final TeaSpeakProvisionStrategyHandler strategyHandler;
     private final ModelMapper modelMapper;
+    private final MessageService messageService;
 
     public QueryInstanceService(
             QueryInstanceRepository queryInstanceRepo,
             TelnetConnectionPool connectionPool,
             QueryInstanceProperties queryInstanceProperties,
             ProvisionStrategyFactory provisionStrategyFactory,
-            ModelMapper modelMapper
-    ) {
+            ModelMapper modelMapper,
+            MessageService messageService) {
         this.queryInstanceRepo = queryInstanceRepo;
         this.connectionPool = connectionPool;
         this.queryInstanceProperties = queryInstanceProperties;
         this.strategyHandler = provisionStrategyFactory.getStrategy();
         this.modelMapper = modelMapper;
+        this.messageService = messageService;
+    }
+
+    public QueryInstance loadQueryInstance(Long id) {
+        return queryInstanceRepo.findById(id)
+                .orElseThrow(QueryInstanceNotFoundException::new);
     }
 
     private boolean isPortRangeMatchSlots(QueryInstanceInitRequest request) {
@@ -76,7 +84,7 @@ public class QueryInstanceService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void initQueryInstance(QueryInstanceInitRequest initRequest) {
-        if (queryInstanceRepo.existByIp(initRequest.getQueryIpAddress()))
+        if (queryInstanceRepo.existByAddress(initRequest.getQueryIpAddress(), initRequest.getQueryPort()))
             throw new QueryInstanceAlreadyInitiatedException();
         if (!isPortRangeMatchSlots(initRequest))
             throw new InstancePortRangeNotValidException("given port range dos not enough for specified maxInstance slot.");
@@ -88,17 +96,21 @@ public class QueryInstanceService {
                 initRequest.getQueryPassword()
         );
 
+        List<TeaSpeakInstance> instances = new ArrayList<>();
         QueryInstance queryInstance = QueryInstance.builder()
+                .name(initRequest.getName())
                 .credentials(credentials)
                 .startPort(initRequest.getStartPort())
                 .stopPort(initRequest.getStopPort())
                 .maxTeaSpeakInstance(initRequest.getMaxTeaSpeakInstance())
-                .status(QueryInstanceStatus.INITIALIZING)
-                .enabled(initRequest.isEnabled())
+                .instances(instances)
                 .build();
 
         queryInstanceRepo.save(queryInstance);
-        addInstanceToPool(queryInstance);
+        if (initRequest.isEnabled())
+            dispatchQueryInstance(queryInstance);
+        else
+            queryInstance.setStatus(QueryInstanceStatus.DISABLED);
     }
 
     public QueryInstance getAvailableQueryInstance() {
@@ -112,26 +124,21 @@ public class QueryInstanceService {
         return queryInstance;
     }
 
+    public void dispatchQueryInstance(Long id) {
+        dispatchQueryInstance(loadQueryInstance(id));
+    }
+
     @Async
-    protected void addInstanceToPool(QueryInstance queryInstance) {
-        final Long instanceId = queryInstance.getId();
-        final ServerQueryCredentials credentials = queryInstance.getCredentials();
+    public void dispatchQueryInstance(QueryInstance queryInstance) {
+        connectionPool.addConnection(queryInstance.getCredentials());
+        changeQueryInstanceStatus(queryInstance.getId(), QueryInstanceStatus.DISPATCHED);
+    }
 
-        try {
-            connectionPool.addConnection(credentials);
-            if (queryInstance.isEnabled())
-                changeQueryInstanceStatus(instanceId, QueryInstanceStatus.DISPATCHED);
-            else
-                changeQueryInstanceStatus(instanceId, QueryInstanceStatus.READY);
-
-        } catch (QueryConnectionPoolingException e) {
-            changeQueryInstanceStatus(instanceId, QueryInstanceStatus.UNREACHABLE);
-            log.error("failed adding new connection with credentials: {}:{} - {}:{}",
-                    credentials.ip(), credentials.port(), credentials.username(), credentials.password(), e);
-        } catch (QueryLoginFailedException e) {
-            changeQueryInstanceStatus(instanceId, QueryInstanceStatus.LOGIN_FAILED);
-            log.error(e.getMessage());
-        }
+    @Async
+    public void disableQueryInstance(Long id) {
+        QueryInstance queryInstance = loadQueryInstance(id);
+        connectionPool.removeConnection(queryInstance.getCredentials());
+        queryInstance.setStatus(QueryInstanceStatus.DISABLED);
     }
 
     @Transactional
@@ -141,6 +148,7 @@ public class QueryInstanceService {
                 .map(q -> {
                     QueryInstanceListResponse response = modelMapper.map(q, QueryInstanceListResponse.class);
                     response.setUsedInstanceSlot(q.getInstances().size());
+                    response.setStatus(messageService.get(q.getStatus()));
                     return response;
                 })
                 .toList();
@@ -149,6 +157,12 @@ public class QueryInstanceService {
             throw new NoSuchDataException("No query instance found.");
 
         return queryInstanceListResponse;
+    }
+
+    public void removeQueryInstance(Long id) {
+        QueryInstance instance = loadQueryInstance(id);
+        connectionPool.removeConnection(instance.getCredentials());
+        queryInstanceRepo.delete(instance);
     }
 
 

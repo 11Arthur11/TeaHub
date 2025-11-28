@@ -61,7 +61,7 @@ public class JwtServiceImpl implements JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            throw new JwtValidationException("Invalid token structure for token: (" + token + ")");
+            throw new JwtValidationException("Invalid token structure for token: (" + token + ") :" + e);
         }
         return claims;
     }

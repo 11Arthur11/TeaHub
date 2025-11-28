@@ -26,8 +26,6 @@ public class QueryInstance extends BaseEntity<Long> {
     @Embedded
     private ServerQueryCredentials credentials;
 
-    private boolean enabled;
-
     @Enumerated(EnumType.STRING)
     private QueryInstanceStatus status;
 
@@ -61,5 +59,10 @@ public class QueryInstance extends BaseEntity<Long> {
     public void prePersist() {
         this.initiatedAt = LocalDateTime.now().withNano(0);
         this.lastUsed = LocalDateTime.now().withNano(0);
+        this.isFull = instances.size() >= maxTeaSpeakInstance;
+    }
+
+    public String getAddress() {
+        return this.credentials.ip() + ":" + this.credentials.port();
     }
 }

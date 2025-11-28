@@ -54,9 +54,10 @@ public class QueryInstanceRepositoryImpl implements QueryInstanceRepository {
     }
 
     @Override
-    public boolean existByIp(String ip) {
-        return em.createQuery("select COUNT(y) from QueryInstance y where y.credentials.ip = :ip", Long.class)
+    public boolean existByAddress(String ip, Integer port) {
+        return em.createQuery("select COUNT(y) from QueryInstance y where y.credentials.ip = :ip AND y.credentials.port = :port", Long.class)
                 .setParameter("ip", ip)
+                .setParameter("port", port)
                 .getSingleResult() > 0;
     }
 }

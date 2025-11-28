@@ -13,7 +13,11 @@ public enum ServiceMessage {
     MEDIA_TYPE_NOT_ALLOWED("error.service.file.type-not-allowed"),
     FILE_STORAGE_ERROR("error.service.file.storage"),
 
-    QUERY_INSTANCE_INITIATED("success.service.query-instance.initiated");
+    QUERY_INSTANCE_INITIATED("success.service.query-instance.initiated"),
+    QUERY_INSTANCE_ALREADY_EXIST("error.service.query-instance.already-exists"),
+    QUERY_INSTANCE_ENABLING("success.service.query-instance.enabling"),
+    QUERY_INSTANCE_DISABLING("success.service.query-instance.disabling"),
+    QUERY_INSTANCE_DELETED("success.service.query-instance.deleted"),;
 
     private final String key;
 

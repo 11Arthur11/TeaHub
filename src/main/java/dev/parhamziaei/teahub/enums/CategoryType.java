@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.enums;
 
-public enum ProductsType {
+public enum CategoryType {
     FIXED,
     HOURLY,
     PERMANENT,

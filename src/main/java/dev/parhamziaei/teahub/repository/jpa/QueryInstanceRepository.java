@@ -13,6 +13,6 @@ public interface QueryInstanceRepository {
     void save(QueryInstance queryInstance);
     void delete(QueryInstance queryInstance);
     void update(QueryInstance queryInstance);
-    boolean existByIp(String ip);
+    boolean existByAddress(String ip, Integer port);
 
 }

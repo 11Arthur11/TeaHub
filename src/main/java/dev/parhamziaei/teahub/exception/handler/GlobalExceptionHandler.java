@@ -10,6 +10,7 @@ import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.FileStorageServiceException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.MediaSizeTooLargeException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.MediaTypeNotAllowedException;
+import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmentReachedException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -125,6 +126,14 @@ public class GlobalExceptionHandler {
         return ResponseBuilder.buildError(
                 messageService.get(Message.SERVER_INTERNAL_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    @ExceptionHandler(QueryInstanceAlreadyInitiatedException.class)
+    public ResponseEntity<SimpleResponse> handleQueryInstanceAlreadyInitiatedException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.QUERY_INSTANCE_ALREADY_EXIST),
+                HttpStatus.BAD_REQUEST
         );
     }
 

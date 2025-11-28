@@ -82,7 +82,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (currentAuth == null || currentAuth instanceof AnonymousAuthenticationToken) {
-            log.debug("entered main if statement");
             User user = userService.loadUserByPhoneNumber(phoneNumber);
             if (jwtService.isTokenValid(accessToken, JwtType.ACCESS_TOKEN)) {
                 buildAuthentication(user, request);

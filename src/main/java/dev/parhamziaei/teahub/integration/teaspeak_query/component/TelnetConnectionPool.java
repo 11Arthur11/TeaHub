@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.SocketException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,12 +36,12 @@ public class TelnetConnectionPool {
         this.telnetEventProducer = telnetEventProducer;
     }
 
-    public void addConnection(ServerQueryCredentials credentials) throws QueryConnectionPoolingException, QueryLoginFailedException {
+    public void addConnection(ServerQueryCredentials credentials) {
         TelnetClient client = new TelnetClient();
         client.setConnectTimeout(timeout);
         try {
             client.connect(credentials.ip(), credentials.port());
-            log.debug("Connected to {}:{}", credentials.ip(), credentials.port());
+            log.debug("Pooling-Operation -> Connected to {}:{}", credentials.ip(), credentials.port());
             TelnetSession session = TelnetSession.builder()
                     .credentials(credentials)
                     .client(client)
@@ -53,15 +52,40 @@ public class TelnetConnectionPool {
             String key = session.getKey();
             session.login();
             connections.put(key, session);
-            log.debug("Connection session added to pool -> {}", key);
-        } catch (Exception e) {
+            log.debug("Pooling-Operation -> Connection session added to pool -> {}", key);
+        } catch (IOException e) {
             throw new QueryConnectionPoolingException("error while trying to add new connection to pool: " + e.getMessage());
+        } catch (QueryLoginFailedException e) {
+            log.error("Pooling-Operation -> failed to login to {}:{} with this credentials {}:{} because: {}",
+                    credentials.ip(), credentials.port(),
+                    credentials.username(), credentials.password(), e.getMessage());
+
+            throw new QueryConnectionPoolingException("error while trying to add new connection to pool: " + e.getMessage());
+
+            //note: produce new event
+        }
+    }
+
+    public void removeConnection(ServerQueryCredentials credentials) {
+        String key = credentials.ip() + ":" + credentials.port();
+        TelnetSession telnetSession = connections.get(key);
+        if (telnetSession != null) {
+            TelnetClient client = telnetSession.getClient();
+            try {
+                client.disconnect();
+                log.info("Remove-Operation -> Client disconnected: {}", key);
+                connections.remove(key);
+                log.info("Remove-Operation -> Connection session removed: {}", key);
+            } catch (IOException e) {
+                log.error("Remove-Operation -> error while trying to remove connection: {} from the pool: {}", key, e.getMessage());
+            }
         }
     }
 
     @Async
     @Scheduled(fixedRate = 300000)
     public void heartbeat() {
+        log.debug("Heartbeat-Operation -> started...");
         connections.values().forEach(session -> {
             if (!session.getClient().isConnected()) {
                 log.debug("Heartbeat-Operation -> new dead connection detected trying to heartbeat...");
@@ -109,6 +133,11 @@ public class TelnetConnectionPool {
                 }
             }
         });
+    }
+
+    @Async
+    public void reLogin(TelnetSession session) {
+
     }
 
     @Async

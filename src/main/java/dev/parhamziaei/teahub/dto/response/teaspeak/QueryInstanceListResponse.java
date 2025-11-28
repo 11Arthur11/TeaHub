@@ -14,10 +14,9 @@ public class QueryInstanceListResponse {
 
     private boolean enabled;
 
-    @Enumerated(EnumType.STRING)
-    private QueryInstanceStatus status;
+    private String status;
 
-    private Integer maxTeaSpeakInstances;
+    private Integer maxTeaSpeakInstance;
 
     private Integer usedInstanceSlot;
 

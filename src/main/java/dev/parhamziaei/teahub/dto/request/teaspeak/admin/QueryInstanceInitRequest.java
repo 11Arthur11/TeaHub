@@ -2,36 +2,40 @@ package dev.parhamziaei.teahub.dto.request.teaspeak.admin;
 
 import dev.parhamziaei.teahub.validation.annotation.IpAddress;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
 @Data
 public class QueryInstanceInitRequest {
 
+    @NotEmpty
+    private String name;
+
     @IpAddress
     private String queryIpAddress;
 
-    @NotEmpty
-    @Length(min = 1, max = 5)
+    @Range(min = 1, max = 65535)
     private Integer queryPort;
 
-    @NotEmpty
+    @NotNull
     private String queryUsername;
 
     @NotEmpty
     private String queryPassword;
 
-    @NotEmpty
+    @NotNull
     private Integer maxTeaSpeakInstance;
 
-    @NotEmpty
-    @Length(min = 1, max = 5)
+    @Range(min = 1, max = 65535)
     private Integer startPort;
 
-    @Length(min = 1, max = 5)
+    @Range(min = 1, max = 65535)
     private Integer stopPort;
 
-    @NotEmpty
+    @NotNull
     private boolean enabled;
 
 }

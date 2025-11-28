@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.shop;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
-import dev.parhamziaei.teahub.enums.ProductsType;
+import dev.parhamziaei.teahub.enums.CategoryType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +24,7 @@ public class Category extends BaseEntity<Long> {
     private String slug;
 
     @Enumerated(EnumType.STRING)
-    private ProductsType productsType;
+    private CategoryType productsType;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<BaseProduct> products;
