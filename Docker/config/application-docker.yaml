@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: TeaHub
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+
+  servlet:
+    multipart:
+      file-size-threshold: 10MB
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} | %highlight(%-5level) | %logger{0} | %msg%n"
+  level:
+    dev.parhamziaei: trace
+  threshold:
+    console: TRACE
+
+app:
+  components:
+    telnet:
+      default-timeout-millis: 10000
+  service:
+    media-storage:
+      allowed-media-extension:
+        - jpg
+        - png
+        - webp
+      allowed-media-mime-type:
+        - image/png
+        - image/jpeg
+        - image/webp
+      maximum-media-size-mb: 10
+      ticket-attachments-path: /app/uploads/ticket-attachments
+
+    ticket:
+      max-attachment-per-message: 5
+
+  initialize:
+    admin-email: javadtoktamp@gmail.com
+    admin-phone-number: "+989053781183"
+    admin-first-name: parham
+    admin-last-name: ziaei
+
+  integration:
+    teaspeak-query:
+      provision-strategy: balanced
+      port-step: 5
+    ip-panel:
+      base-url: https://edge.ippanel.com/v1
+      api-key: OWYxNGU1Y2EtNDUwOC00NTYzLThiMTctMjIwMzQzNDAyODQ2YTMyYTg5MTM0NjBkNWNiOWMxZTY2ODhlNmQ1OWMzMjg=
+      # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
+      two-facto-message-pattern-code: gaibs13nb08a8ku
+      from-number: 100016949
+
+  cookie-factory:
+    secure-cookie: false
+    two-factor-cookie-ttl: 1800s
+    phone-verify-cookie-ttl: 300s
+
+  jason-web-token:
+    base64-secret: f633915d212d5159e506d6d69f6d1adcad3aff7396b05545df48183e1331d537 #Change this value on production phase, this is the whole authentication layer key , keep it secret ;)
+    access-token-ttl: 1800s
+    phone-verify-token-ttl: 300s
+    refresh-token-ttl: 86400s
+    two-factor-token-ttl: 120s
+
+  sessions:
+    phone-verify-session-ttl: 300s
+    two-factor-session-ttl: 120s
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs
