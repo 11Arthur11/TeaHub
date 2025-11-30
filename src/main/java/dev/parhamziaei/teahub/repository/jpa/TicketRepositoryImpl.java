@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class TicketRepoImpl implements TicketRepo {
+public class TicketRepositoryImpl implements TicketRepository {
 
     private final EntityManager em;
 

@@ -20,7 +20,7 @@ import dev.parhamziaei.teahub.enums.TicketStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmentReachedException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
-import dev.parhamziaei.teahub.repository.jpa.TicketRepo;
+import dev.parhamziaei.teahub.repository.jpa.TicketRepository;
 import dev.parhamziaei.teahub.service.FileStorageService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.TicketService;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TicketServiceImpl implements TicketService {
 
-    private final TicketRepo ticketRepo;
+    private final TicketRepository ticketRepo;
     private final ModelMapper modelMapper;
     private final UserService userService;
     private final FileStorageService fileStorageService;

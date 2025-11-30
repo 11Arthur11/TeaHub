@@ -1,7 +1,9 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
+import dev.parhamziaei.teahub.enums.QueryInstanceStatus;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +15,6 @@ import java.util.Optional;
 public class QueryInstanceRepositoryImpl implements QueryInstanceRepository {
 
     private final EntityManager em;
-
 
     @Override
     public Optional<QueryInstance> findById(Long id) {
@@ -39,15 +40,25 @@ public class QueryInstanceRepositoryImpl implements QueryInstanceRepository {
     }
 
     @Override
+    public List<QueryInstance> findByStatus(QueryInstanceStatus status) {
+        return em.createQuery("SELECT y FROM QueryInstance y WHERE y.status = :status", QueryInstance.class)
+                .setParameter("status", status)
+                .getResultList();
+    }
+
+    @Transactional
+    @Override
     public void save(QueryInstance queryInstance) {
         em.persist(queryInstance);
     }
 
+    @Transactional
     @Override
     public void delete(QueryInstance queryInstance) {
         em.remove(queryInstance);
     }
 
+    @Transactional
     @Override
     public void update(QueryInstance queryInstance) {
         em.merge(queryInstance);

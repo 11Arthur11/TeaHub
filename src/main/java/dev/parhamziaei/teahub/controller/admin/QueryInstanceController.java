@@ -34,7 +34,7 @@ public class QueryInstanceController {
 
     @PostMapping("/initiate")
     public ResponseEntity<SimpleResponse> initQueryInstance(@Valid @RequestBody QueryInstanceInitRequest queryInitRequest) {
-        queryInstanceService.initQueryInstance(queryInitRequest);
+        queryInstanceService.initiateQueryInstance(queryInitRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.QUERY_INSTANCE_INITIATED),

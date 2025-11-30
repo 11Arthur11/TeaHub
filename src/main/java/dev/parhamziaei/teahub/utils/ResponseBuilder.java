@@ -30,8 +30,13 @@ public class ResponseBuilder {
         return ResponseEntity.status(status).body(response);
     }
 
-    public static <T> ResponseEntity<Object> buildSuccess(ResponseType responseType, T data, HttpStatus status) {
+    public static <T> ResponseEntity<DataResponse<T>> buildSuccess(ResponseType responseType, T data, HttpStatus status) {
         DataResponse<T> response = new DataResponse<>(true, responseType.name(), data);
+        return ResponseEntity.status(status).body(response);
+    }
+
+    public static <T> ResponseEntity<DetailedDataResponse<T>> buildSuccess(ResponseType responseType, String message, T data, HttpStatus status) {
+        DetailedDataResponse<T> response = new DetailedDataResponse<>(true, responseType.name(), message, data);
         return ResponseEntity.status(status).body(response);
     }
 

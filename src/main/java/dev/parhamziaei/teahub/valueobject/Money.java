@@ -17,4 +17,14 @@ public class Money {
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
+    public Money(BigDecimal amount, Currency currency) {
+        this.amount = amount;
+        this.currency = currency;
+    }
+
+    public Money(BigDecimal amount) {
+        this.amount = amount;
+        this.currency = Currency.IRR;
+    }
+
 }

@@ -69,6 +69,9 @@ public class User extends BaseEntity<Long> implements UserDetails {
     @Column(name = "locked")
     private boolean locked = false;
 
+    @OneToMany(mappedBy = "owner")
+    private List<Invoice> invoices;
+
     @Column(name = "credentials_expired")
     private boolean credentialsExpired = false;
 

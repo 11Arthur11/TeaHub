@@ -10,18 +10,17 @@ import dev.parhamziaei.teahub.exception.custom.service.teaspeak.InstancePortRang
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceNotFoundException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.TelnetConnectionPool;
-import dev.parhamziaei.teahub.integration.teaspeak_query.enums.QueryInstanceStatus;
-import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryConnectionPoolingException;
-import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryLoginFailedException;
+import dev.parhamziaei.teahub.enums.QueryInstanceStatus;
 import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.ProvisionStrategyFactory;
 import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.TeaSpeakProvisionStrategyHandler;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.net.telnet.TelnetClient;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,8 @@ public class QueryInstanceService {
             QueryInstanceProperties queryInstanceProperties,
             ProvisionStrategyFactory provisionStrategyFactory,
             ModelMapper modelMapper,
-            MessageService messageService) {
+            MessageService messageService
+    ) {
         this.queryInstanceRepo = queryInstanceRepo;
         this.connectionPool = connectionPool;
         this.queryInstanceProperties = queryInstanceProperties;
@@ -73,6 +73,7 @@ public class QueryInstanceService {
         QueryInstance queryInstance = queryInstanceRepo.findById(id)
                 .orElseThrow(QueryInstanceNotFoundException::new);
         queryInstance.setStatus(status);
+        queryInstanceRepo.update(queryInstance);
     }
 
     public void changeQueryInstanceStatus(String ip, Integer port, QueryInstanceStatus status) {
@@ -83,7 +84,7 @@ public class QueryInstanceService {
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public void initQueryInstance(QueryInstanceInitRequest initRequest) {
+    public void initiateQueryInstance(QueryInstanceInitRequest initRequest) {
         if (queryInstanceRepo.existByAddress(initRequest.getQueryIpAddress(), initRequest.getQueryPort()))
             throw new QueryInstanceAlreadyInitiatedException();
         if (!isPortRangeMatchSlots(initRequest))
@@ -113,9 +114,34 @@ public class QueryInstanceService {
             queryInstance.setStatus(QueryInstanceStatus.DISABLED);
     }
 
+    @Transactional
+    @EventListener(ContextClosedEvent.class)
+    public void gracefulShutdown() {
+        queryInstanceRepo.findByStatus(QueryInstanceStatus.DISPATCHED)
+                .forEach(q -> {
+                    log.info("Shutdown-Operation -> Instance ({} with address: {}) shutting down...",
+                            q.getName(), q.getAddress());
+                    connectionPool.removeConnection(q.getCredentials());
+                    q.setStatus(QueryInstanceStatus.INITIATED);
+                });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void initializeRuntimePooling() {
+        // note: getting dispatched instances in case of ungraceful shutdown.
+        queryInstanceRepo.findAll()
+                .stream().filter(q -> q.getStatus() == QueryInstanceStatus.DISPATCHED || q.getStatus() == QueryInstanceStatus.INITIATED)
+                .forEach(queryInstance -> {
+                    log.info("Initialization-Operation -> Initializing ({} with address: {}) query instance...",
+                            queryInstance.getName(),  queryInstance.getAddress());
+                    dispatchQueryInstance(queryInstance);
+                });
+    }
+
+    @Transactional
     public QueryInstance getAvailableQueryInstance() {
         QueryInstance queryInstance = strategyHandler.getProviderQueryInstance();
-        log.info("Selected query instance is (ID={} - HOST={}:{}) by {} Strategy",
+        log.info("Provision-Operation -> Selected query instance is (ID={} - HOST={}:{}) by {} Strategy",
                 queryInstance.getId(),
                 queryInstance.getCredentials().ip(),
                 queryInstance.getCredentials().port(),
@@ -134,11 +160,11 @@ public class QueryInstanceService {
         changeQueryInstanceStatus(queryInstance.getId(), QueryInstanceStatus.DISPATCHED);
     }
 
-    @Async
     public void disableQueryInstance(Long id) {
         QueryInstance queryInstance = loadQueryInstance(id);
         connectionPool.removeConnection(queryInstance.getCredentials());
         queryInstance.setStatus(QueryInstanceStatus.DISABLED);
+        queryInstanceRepo.update(queryInstance);
     }
 
     @Transactional

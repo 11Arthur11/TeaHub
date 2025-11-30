@@ -6,8 +6,8 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class TelnetSessionLoginFailedEvent extends AbstractTelnetEvent {
-    public TelnetSessionLoginFailedEvent(ServerQueryCredentials sessionCredentials) {
-        super(sessionCredentials);
+public class TelnetSessionReviveFailedEvent extends AbstractTelnetEvent {
+    public TelnetSessionReviveFailedEvent(ServerQueryCredentials credentials) {
+        super(credentials);
     }
 }

@@ -1,6 +1,4 @@
-package dev.parhamziaei.teahub.integration.teaspeak_query.enums;
-
-import dev.parhamziaei.teahub.enums.TicketStatus;
+package dev.parhamziaei.teahub.enums;
 
 import java.util.Arrays;
 
@@ -8,9 +6,10 @@ public enum QueryInstanceStatus {
     DISABLED("query-instance.status.disabled"),
     FULL("query-instance.status.full"),
     UNREACHABLE("query-instance.status.unreachable"),
+    RECONNECTING("query-instance.status.reconnecting"),
     LOGIN_FAILED("query-instance.status.login-failed"),
     DISPATCHED("query-instance.status.dispatched"),
-    INITIALIZING("query-instance.status.initializing");
+    INITIATED("query-instance.status.initiated");
 
     private final String key;
 
