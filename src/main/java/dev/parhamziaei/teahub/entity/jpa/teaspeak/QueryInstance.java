@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.teaspeak;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
-import dev.parhamziaei.teahub.integration.teaspeak_query.enums.QueryInstanceStatus;
+import dev.parhamziaei.teahub.enums.QueryInstanceStatus;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import jakarta.persistence.*;
 import lombok.*;

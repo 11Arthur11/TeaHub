@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
-public interface TicketRepo {
+public interface TicketRepository {
 
     void save(Ticket ticket);
 

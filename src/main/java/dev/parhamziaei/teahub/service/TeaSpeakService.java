@@ -3,9 +3,10 @@ package dev.parhamziaei.teahub.service;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.TeaSpeakProductRequest;
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
-import dev.parhamziaei.teahub.exception.custom.service.product.CategoryNotFoundException;
+import dev.parhamziaei.teahub.exception.custom.service.shop.CategoryNotFoundException;
 import dev.parhamziaei.teahub.repository.jpa.CategoryRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ public class TeaSpeakService {
 
     private final CategoryRepository categoryRepo;
     private final TeaSpeakProductRepository teaSpeakProductRepo;
+    private final QueryInstanceService queryInstanceService;
 
     public void addNewTeaSpeakProduct(TeaSpeakProductRequest productRequest) {
         Category category = categoryRepo.findBySlug(productRequest.getCategorySlug())
@@ -32,6 +34,7 @@ public class TeaSpeakService {
         teaSpeakProductRepo.save(product);
     }
 
+    @Transactional
     public void deployTeaSpeakInstance() {
 
     }

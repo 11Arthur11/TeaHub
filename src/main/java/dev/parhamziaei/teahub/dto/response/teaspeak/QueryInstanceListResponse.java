@@ -1,8 +1,5 @@
 package dev.parhamziaei.teahub.dto.response.teaspeak;
 
-import dev.parhamziaei.teahub.integration.teaspeak_query.enums.QueryInstanceStatus;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 @Data

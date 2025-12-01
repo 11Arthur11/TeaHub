@@ -5,6 +5,8 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryConnecti
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryLoginFailedException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.TelnetSession;
+import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionLoginFailedEvent;
+import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionReviveFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionUnreachableEvent;
 import dev.parhamziaei.teahub.kafka.producer.TelnetEventProducer;
 import lombok.extern.slf4j.Slf4j;
@@ -54,15 +56,20 @@ public class TelnetConnectionPool {
             connections.put(key, session);
             log.debug("Pooling-Operation -> Connection session added to pool -> {}", key);
         } catch (IOException e) {
+            log.error("Pooling-Operation -> Pooling failed (IOException)", e);
+
+            TelnetSessionUnreachableEvent unreachableEvent = new TelnetSessionUnreachableEvent(credentials);
+            telnetEventProducer.sendUnreachableEvent(unreachableEvent);
+
             throw new QueryConnectionPoolingException("error while trying to add new connection to pool: " + e.getMessage());
         } catch (QueryLoginFailedException e) {
-            log.error("Pooling-Operation -> failed to login to {}:{} with this credentials {}:{} because: {}",
-                    credentials.ip(), credentials.port(),
-                    credentials.username(), credentials.password(), e.getMessage());
+            log.error("Pooling-Operation -> failed to login to {}:{} query",
+                    credentials.ip(), credentials.port());
+
+            TelnetSessionLoginFailedEvent event = new TelnetSessionLoginFailedEvent(credentials);
+            telnetEventProducer.sendLoginFailedEvent(event);
 
             throw new QueryConnectionPoolingException("error while trying to add new connection to pool: " + e.getMessage());
-
-            //note: produce new event
         }
     }
 
@@ -77,7 +84,7 @@ public class TelnetConnectionPool {
                 connections.remove(key);
                 log.info("Remove-Operation -> Connection session removed: {}", key);
             } catch (IOException e) {
-                log.error("Remove-Operation -> error while trying to remove connection: {} from the pool: {}", key, e.getMessage());
+                log.error("Remove-Operation -> error while trying to remove connection: {} from the pool because: {}", key, e.getMessage());
             }
         }
     }
@@ -121,7 +128,8 @@ public class TelnetConnectionPool {
                             credentials.ip(), credentials.port(),
                             credentials.username(), credentials.password(), e.getMessage());
 
-                    //note: produce new event
+                    TelnetSessionLoginFailedEvent event = new TelnetSessionLoginFailedEvent(session.getCredentials());
+                    telnetEventProducer.sendLoginFailedEvent(event);
                 } catch (IOException e) {
                     log.error("Heartbeat-Operation -> failed to send heartbeat and adding new connection: {}:{} (IOException)",
                             credentials.ip(), credentials.port(), e);
@@ -185,10 +193,13 @@ public class TelnetConnectionPool {
             try {Thread.sleep(reconnectDelay);} catch (InterruptedException ignored) {}
         }
 
-        if (!connected)
+        if (!connected) {
             log.info("Reconnect-Operation -> failed to connect after {} attempts, giving up (try to reconnect by yourself)", tries);
-        else
+            TelnetSessionReviveFailedEvent event = new TelnetSessionReviveFailedEvent(credentials);
+            telnetEventProducer.sendReviveFailedEvent(event);
+        } else {
             log.debug("Reconnect-Operation -> connection {}:{} revived successfully in {} attempts", credentials.ip(), credentials.port(), tries);
+        }
     }
 
 }

@@ -5,8 +5,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableAsync
+@EnableScheduling
 @SpringBootApplication
 @EnableConfigurationProperties({
         CookieFactoryProperties.class,
@@ -18,7 +20,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
         ImageStorageProperties.class,
         NotificationProperties.class,
         TelnetProperties.class,
-        QueryInstanceProperties.class
+        QueryInstanceProperties.class,
+        PaymentServiceProperties.class,
+        ApplicationSettingProperties.class
 })
 public class TeaHubApplication {
     public static void main(String[] args) {
