@@ -14,6 +14,7 @@ public enum ServiceMessage {
     FILE_STORAGE_ERROR("error.service.file.storage"),
 
     PAYMENT_INVOICE_CREATED("success.service.invoice.created"),
+    PAYMENT_INVOICE_PAID("success.service.invoice.paid"),
 
     QUERY_INSTANCE_INITIATED("success.service.query-instance.initiated"),
     QUERY_INSTANCE_ALREADY_EXIST("error.service.query-instance.already-exists"),

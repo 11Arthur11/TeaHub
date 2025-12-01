@@ -37,7 +37,8 @@ logging:
 
 app:
   settings:
-    domain: 'localhost:8080'
+    backend-domain: 'dev.xperia.top'
+    frontend-domain: 'xperia.top'
   components:
     telnet:
       default-timeout-millis: 10000

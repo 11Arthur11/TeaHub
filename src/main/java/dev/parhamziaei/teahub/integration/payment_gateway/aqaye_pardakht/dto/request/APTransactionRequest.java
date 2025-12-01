@@ -1,11 +1,11 @@
-package dev.parhamziaei.teahub.integration.payment_gateway.aghaye_pardakht.dto;
+package dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class AghayePardakhtTransactionRequest {
+public class APTransactionRequest {
     private String pin;
     private String amount;
     private String callback;

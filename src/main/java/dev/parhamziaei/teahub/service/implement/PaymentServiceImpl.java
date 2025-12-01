@@ -4,10 +4,14 @@ import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
 import dev.parhamziaei.teahub.entity.jpa.payment.PaymentGateway;
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
+import dev.parhamziaei.teahub.enums.InvoiceStatus;
+import dev.parhamziaei.teahub.enums.PaymentGatewayType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.exception.custom.service.payment.InvoiceException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayNotFoundException;
+import dev.parhamziaei.teahub.exception.custom.service.payment.PaymentFailedException;
 import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
-import dev.parhamziaei.teahub.integration.payment_gateway.dto.TransactionGatewayResponse;
+import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APCallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayFactory;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayHandler;
 import dev.parhamziaei.teahub.repository.jpa.GatewayRepository;
@@ -22,6 +26,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Service
@@ -52,16 +57,36 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentGateway gatewayEntity = gatewayRepository.findById(gatewayId)
                 .orElseThrow(GatewayNotFoundException::new);
 
+        Invoice invoice = invoiceRepository.findOne(
+                Specification.allOf(InvoiceSpecification.hasInvoiceToken(invoiceToken)
+                )
+        ).orElseThrow(NoSuchEntityException::new);
+
+        if (!invoice.getStatus().equals(InvoiceStatus.PENDING)) {
+            throw new InvoiceException("invoice is not pending for payment : " + invoiceToken);
+        }
+
         PaymentGatewayHandler paymentHandler = paymentGatewayFactory.getGateway(gatewayEntity.getGatewayType());
+        return paymentHandler.createTransaction(invoice);
+    }
 
-        Invoice invoice = invoiceRepository.findOne(Specification.allOf(InvoiceSpecification.hasInvoiceToken(invoiceToken)))
-                .orElseThrow(NoSuchEntityException::new);
+    @Override
+    public void verifyAPCallback(APCallbackRequest callbackRequest) {
+        PaymentGatewayHandler paymentHandler = paymentGatewayFactory.getGateway(PaymentGatewayType.AQAYE_PARDAKHT);
+        if (paymentHandler.verifyTransaction(callbackRequest)) {
+            Invoice invoice = invoiceRepository.findOne(
+                    Specification.allOf(InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceToken())
+                    )
+            ).orElseThrow(NoSuchEntityException::new);
 
-        TransactionGatewayResponse gatewayResponse = paymentHandler.createTransaction(invoice);
-
-        return null;
-        //note -> add a transaction and return redirect payment address
-        //reminder -> continue from here !!!
+            if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
+                invoice.setStatus(InvoiceStatus.PAID);
+                invoice.setPaidAt(LocalDateTime.now().withNano(0));
+                invoiceRepository.save(invoice);
+            } else {
+                throw new InvoiceException("invoice is cancelled and cannot be payment verified : " + invoice.getInvoiceToken());
+            }
+        }
     }
 
 }
