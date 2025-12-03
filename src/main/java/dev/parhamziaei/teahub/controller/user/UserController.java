@@ -1,8 +1,7 @@
 package dev.parhamziaei.teahub.controller.user;
 
 import dev.parhamziaei.teahub.component.CurrentUser;
-import dev.parhamziaei.teahub.dto.request.shop.user.BalanceChargeRequest;
-import dev.parhamziaei.teahub.dto.response.global.RedirectResponse;
+import dev.parhamziaei.teahub.dto.request.payment.user.BalanceChargeRequest;
 import dev.parhamziaei.teahub.enums.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;

@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.service.implement;
 
 import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
-import dev.parhamziaei.teahub.entity.jpa.payment.PaymentGateway;
+import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.InvoiceStatus;
@@ -9,7 +9,6 @@ import dev.parhamziaei.teahub.enums.PaymentGatewayType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.InvoiceException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayNotFoundException;
-import dev.parhamziaei.teahub.exception.custom.service.payment.PaymentFailedException;
 import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APCallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayFactory;
@@ -54,7 +53,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public String createPaymentGateway(String invoiceToken, Long gatewayId) {
-        PaymentGateway gatewayEntity = gatewayRepository.findById(gatewayId)
+        Gateway gatewayEntity = gatewayRepository.findById(gatewayId)
                 .orElseThrow(GatewayNotFoundException::new);
 
         Invoice invoice = invoiceRepository.findOne(

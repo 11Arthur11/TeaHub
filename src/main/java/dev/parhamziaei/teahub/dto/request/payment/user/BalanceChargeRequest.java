@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.dto.request.shop.user;
+package dev.parhamziaei.teahub.dto.request.payment.user;
 
 import lombok.Data;
 

@@ -6,6 +6,8 @@ import dev.parhamziaei.teahub.integration.payment_gateway.dto.CallbackRequest;
 
 public interface PaymentGatewayHandler {
 
+    void initialize();
+    boolean testGateway();
     PaymentGatewayType getGatewayType();
     String createTransaction(Invoice invoice);
     <T extends CallbackRequest> boolean verifyTransaction(T callbackRequest);

@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.controller.global;
 
+import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,8 @@ public class TestController {
     public ResponseEntity<?> getIp(
             HttpServletRequest request
     ) {
-        return ResponseEntity.ok(request.getRemoteAddr());
+        throw new QueryInstanceAlreadyInitiatedException();
+//        return ResponseEntity.ok(request.getRemoteAddr());
     }
 
 }

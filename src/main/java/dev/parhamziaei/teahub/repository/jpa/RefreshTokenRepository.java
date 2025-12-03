@@ -1,16 +1,11 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
 import dev.parhamziaei.teahub.entity.jpa.user.RefreshToken;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface RefreshTokenRepository {
-
-    void save(RefreshToken refreshToken);
-
-    void update(RefreshToken refreshToken);
-
-    void delete(RefreshToken refreshToken);
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
 
     Optional<RefreshToken> findByToken(String token);
 

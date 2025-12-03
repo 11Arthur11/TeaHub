@@ -2,10 +2,7 @@ package dev.parhamziaei.teahub.exception.handler;
 
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.messages.AuthMessage;
-import dev.parhamziaei.teahub.exception.custom.authentication.AlreadyLoggedInException;
-import dev.parhamziaei.teahub.exception.custom.authentication.PhoneNumberAlreadyTakenException;
-import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
-import dev.parhamziaei.teahub.exception.custom.authentication.JwtValidationException;
+import dev.parhamziaei.teahub.exception.custom.authentication.*;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
@@ -84,5 +81,11 @@ public class AuthenticationExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    @ExceptionHandler(BrokenJwtException.class)
+    public ResponseEntity<Void> handleBrokenJwtException() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
 
 }

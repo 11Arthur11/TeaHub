@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht;
 
 import dev.parhamziaei.teahub.configuration.properties.ApplicationSettingProperties;
 import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
-import dev.parhamziaei.teahub.entity.jpa.payment.AghayePardakhtGateway;
+import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
 import dev.parhamziaei.teahub.enums.PaymentGatewayType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
@@ -15,7 +15,7 @@ import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.res
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.response.APVerifyResponse;
 import dev.parhamziaei.teahub.integration.payment_gateway.dto.CallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayHandler;
-import dev.parhamziaei.teahub.repository.jpa.AghayePardakhtGatewayRepository;
+import dev.parhamziaei.teahub.repository.jpa.GatewayRepository;
 import dev.parhamziaei.teahub.repository.jpa.InvoiceRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
 
     private final PaymentServiceProperties paymentProperties;
     private final InvoiceRepository invoiceRepo;
-    private final AghayePardakhtGatewayRepository aptGatewayRepo;
+    private final GatewayRepository gatewayRepo;
     private final RestClient restClient;
     private String apPinCode;
     private static String AP_PAYMENT_URL = "https://panel.aqayepardakht.ir/startpay/sandbox/";
@@ -43,13 +43,13 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
 
     public AqayePardakhtService(
             PaymentServiceProperties paymentProperties,
-            AghayePardakhtGatewayRepository aptGatewayRepo,
+            GatewayRepository gatewayRepo,
             ApplicationSettingProperties appSetting,
             InvoiceRepository invoiceRepo
     ) {
         this.invoiceRepo = invoiceRepo;
         this.paymentProperties = paymentProperties;
-        this.aptGatewayRepo = aptGatewayRepo;
+        this.gatewayRepo = gatewayRepo;
         this.callbackUrl = appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
         this.restClient = RestClient.builder()
                 .defaultHeaders(httpHeaders -> {
@@ -60,15 +60,50 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
                 .build();
     }
 
+    @Override
     @EventListener(ApplicationReadyEvent.class)
     public void initialize() {
         try {
-            AghayePardakhtGateway gateway = aptGatewayRepo.findByGatewayType(PaymentGatewayType.AQAYE_PARDAKHT)
+            Gateway gateway = gatewayRepo.findByGatewayType(PaymentGatewayType.AQAYE_PARDAKHT)
                     .orElseThrow(GatewayNotFoundException::new);
-            this.apPinCode = gateway.getGatewayPin();
+            this.apPinCode = gateway.getMerchantId();
         } catch (GatewayNotFoundException e) {
-            log.warn("Payment-Gateway -> Aghaye pardakht gateway not configured.");
+            log.warn("Payment-Gateway -> Aqaye pardakht gateway not configured.");
         }
+    }
+
+    @Override
+    public boolean testGateway() {
+        APTransactionRequest request = APTransactionRequest.builder()
+                .pin(apPinCode)
+                .amount("10000")
+                .callback("callbackUrl")
+                .invoice_id("test")
+                .build();
+
+        APTransactionResponse response = sendCreateRequest(request);
+        return response.getStatus().equals("success");
+    }
+
+    private APTransactionResponse sendCreateRequest(APTransactionRequest request) {
+        try {
+            ResponseEntity<APTransactionResponse> response = restClient.post()
+                    .uri("/create")
+                    .body(request)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toEntity(APTransactionResponse.class);
+
+            log.info("Retrieved Aqaye Pardakht transaction response: {}", response.getStatusCode());
+            if (response.getBody() != null) {
+                return response.getBody();
+            }
+            throw new GatewayException("gateway verify response is null");
+        } catch (RestClientException e) {
+            log.error("API call failed for aqaye pardakht transaction create, because: {}", e.getMessage());
+            throw new GatewayException("API call failed for aqaye pardakht transaction create");
+        }
+
     }
 
     @Override
@@ -78,7 +113,6 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
 
     @Override
     public String createTransaction(Invoice invoice) {
-
         APTransactionRequest request = APTransactionRequest.builder()
                 .pin(apPinCode)
                 .amount(String.valueOf(invoice.getMoney().getAmount().intValue()))
@@ -86,21 +120,11 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
                 .invoice_id(invoice.getInvoiceToken())
                 .build();
 
-        try {
-            ResponseEntity<APTransactionResponse> response = restClient.post()
-                    .uri("/create")
-                    .body(request)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .toEntity(APTransactionResponse.class);
-
-            assert response.getBody() != null;
-            log.info("Retrieved Aqaye Pardakht transaction response: {}", response.getStatusCode());
-            return AP_PAYMENT_URL + response.getBody().getTransid();
-        } catch (RestClientException e) {
-            log.error("API call failed for aqaye pardakht transaction create, because: {}", e.getMessage());
-            throw new GatewayException("API call failed for aqaye pardakht transaction create");
+        APTransactionResponse response = sendCreateRequest(request);
+        if (response.getStatus().equals("success")) {
+            return AP_PAYMENT_URL + response.getTransid();
         }
+        throw new GatewayException("Payment Gateway creation failure");
     }
 
     @Override

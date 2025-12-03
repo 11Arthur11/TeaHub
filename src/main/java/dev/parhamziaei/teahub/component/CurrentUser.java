@@ -7,7 +7,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
 @Component
-@EqualsAndHashCode(callSuper = true)
 @RequestScope
 @Data
-public class CurrentUser extends User {}
+public class CurrentUser {
+
+    private Long id;
+    private String phone;
+    private String firstName;
+    private String lastName;
+    private String ip;
+
+}

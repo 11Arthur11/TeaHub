@@ -32,8 +32,8 @@ logging:
   threshold:
     console: TRACE
   file:
-    path: ./logs
-    name: application.log
+    path: logs
+    name: logs/application.log
 
 app:
   settings:
@@ -101,3 +101,6 @@ springdoc:
   api-docs:
     enabled: true
     path: /docs
+
+server:
+  forward-headers-strategy: framework

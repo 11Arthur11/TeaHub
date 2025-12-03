@@ -11,6 +11,7 @@ import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.JwtType;
 import dev.parhamziaei.teahub.enums.messages.AuthMessage;
 import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
 import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.TwoFactorService;
@@ -24,6 +25,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -95,7 +97,7 @@ public class AuthenticationController {
         final String code = loginRequest.getTwoFactorCode();
         final Optional<String> optionalSessionToken = jwtService.extractJwtFromRequest(request, JwtType.TWO_FACTOR_TOKEN);
 
-        // note: if user try to login with no active session this if can handle it
+        // note: if user try to log in with no active session this will handle it
         if (optionalSessionToken.isEmpty()) {
             throw new InvalidTwoFactorException("invalid login two factor token");
         }
@@ -106,7 +108,7 @@ public class AuthenticationController {
         twoFactorService.verifyTwoFactorSession(loginTwoFactorToken, code);
         User user = userService.loadUserByPhoneNumber(phoneNumber);
 
-        // note: this is for SpringSecurity to fill security context and also checks if user is disabled, locked and etc... , also we updating last login here
+        // note: this is for SpringSecurity to fill security context and also checks if user is disabled, locked etc... , also we're updating last login here
         authFactory.buildAuthentication(user, request);
 
         final String accessToken= jwtService.generateAccessToken(user);
@@ -154,7 +156,7 @@ public class AuthenticationController {
         // reminder: we have UnsupportedOperationException from Here !!!!!
         userService.register(phoneNumber, registerRequest);
         User user = userService.loadUserByPhoneNumber(phoneNumber);
-        // note: logging user in if register was successful, we don't have remember me option here.
+        // note: logging user in if register was successful, we don't have remember-me option here.
         authFactory.buildAuthentication(user, request);
 
         final String accessToken = jwtService.generateAccessToken(user);
@@ -166,6 +168,29 @@ public class AuthenticationController {
         return ResponseBuilder.buildSuccess(
                 ResponseType.REGISTER_SUCCESS,
                 messageService.get(AuthMessage.REGISTER_SUCCESSFUL),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<SimpleResponse> logout(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        SecurityContextHolder.clearContext();
+        final Optional<String> refreshToken = jwtService.extractJwtFromRequest(request, JwtType.REFRESH_TOKEN);
+        jwtService.extractJwtFromRequest(request, JwtType.ACCESS_TOKEN)
+                .orElseThrow(BrokenJwtException::new);
+
+        response.addCookie(cookieFactory.emptyCookie(JwtType.ACCESS_TOKEN));
+        if (refreshToken.isPresent()) {
+            response.addCookie(cookieFactory.emptyCookie(JwtType.REFRESH_TOKEN));
+            jwtService.deActivateRefreshToken(refreshToken.get());
+        }
+
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(AuthMessage.LOGOUT_SUCCESS),
                 HttpStatus.OK
         );
     }
