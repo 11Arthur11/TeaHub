@@ -20,8 +20,8 @@ public class TestController {
     public ResponseEntity<?> getIp(
             HttpServletRequest request
     ) {
-        throw new QueryInstanceAlreadyInitiatedException();
-//        return ResponseEntity.ok(request.getRemoteAddr());
+//        throw new QueryInstanceAlreadyInitiatedException();
+        return ResponseEntity.ok(request.getRemoteAddr());
     }
 
 }

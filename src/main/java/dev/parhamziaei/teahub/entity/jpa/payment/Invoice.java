@@ -28,6 +28,9 @@ public class Invoice extends BaseEntity<Long> {
     private LocalDateTime createdAt;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime dueDate;
+
+    @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime paidAt;
 
     @Enumerated(EnumType.STRING)
@@ -37,6 +40,7 @@ public class Invoice extends BaseEntity<Long> {
         this.owner = owner;
         this.money = money;
         this.invoiceToken = "INVOICE_" + UUID.randomUUID();
+        this.status = InvoiceStatus.PENDING;
     }
 
     @PrePersist

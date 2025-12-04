@@ -33,13 +33,12 @@ import org.springframework.web.client.RestClientException;
 @Slf4j
 public class AqayePardakhtService implements PaymentGatewayHandler {
 
-    private final PaymentServiceProperties paymentProperties;
     private final InvoiceRepository invoiceRepo;
     private final GatewayRepository gatewayRepo;
     private final RestClient restClient;
     private String apPinCode;
-    private static String AP_PAYMENT_URL = "https://panel.aqayepardakht.ir/startpay/sandbox/";
-    private String callbackUrl;
+    private final static String AP_PAYMENT_URL = "https://panel.aqayepardakht.ir/startpay/sandbox/";
+    private final String callbackUrl;
 
     public AqayePardakhtService(
             PaymentServiceProperties paymentProperties,
@@ -48,9 +47,8 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
             InvoiceRepository invoiceRepo
     ) {
         this.invoiceRepo = invoiceRepo;
-        this.paymentProperties = paymentProperties;
         this.gatewayRepo = gatewayRepo;
-        this.callbackUrl = appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
+        this.callbackUrl = appSetting.backendDomain() + "/v1/payments/gateway/callback/ap"; //appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
         this.restClient = RestClient.builder()
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -131,20 +129,21 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
     public <T extends CallbackRequest> boolean verifyTransaction(T callbackRequest) {
         if (
                 callbackRequest == null
-                || !callbackRequest.getStatus().equals("success")
+                || !callbackRequest.getStatus().equals("1")
         ) {
             throw new PaymentFailedException("payment failed on gateway side");
         }
+        log.debug("retrieved callback: {} - {} - {}", callbackRequest.getTransid(), callbackRequest.getStatus(), callbackRequest.getInvoiceId());
 
         Invoice invoice = invoiceRepo.findOne(
                 Specification.allOf(
-                        InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceToken())
+                        InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceId())
                 )
         ).orElseThrow(NoSuchEntityException::new);
 
         APVerifyRequest verifyRequest = APVerifyRequest.builder()
                 .pin(apPinCode)
-                .transid(callbackRequest.getTransactionId())
+                .transid(callbackRequest.getTransid())
                 .amount(invoice.getMoney().getAmount().intValue())
                 .build();
 

@@ -17,9 +17,9 @@ import java.time.Duration;
 @NoArgsConstructor
 public class TeaSpeakProduct extends BaseProduct {
 
-    Integer maxClients;
+    private Integer maxClients;
 
-    Duration expiration;
+    private Duration expiration;
 
     @Builder
     public TeaSpeakProduct(

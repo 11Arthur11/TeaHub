@@ -45,6 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final ObjectFactory<CurrentUser> currentUserObjectFactory;
 
     public final static List<String> SKIP_URLs = Arrays.asList(
+            "/v1/payments/gateway/callback/**",
             "/v1/auth/**",
             "/docs/**",
             "/swagger-ui/**"

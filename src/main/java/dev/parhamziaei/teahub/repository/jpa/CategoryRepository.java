@@ -1,7 +1,6 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
-import dev.parhamziaei.teahub.enums.CategoryType;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +12,6 @@ public interface CategoryRepository {
     Optional<Category> findBySlug(String slug);
     List<Category> findAll();
     List<Category> findAllByEnabled(boolean enabled);
-    List<Category> findAllByType(CategoryType type);
     boolean existsByCategory(Category category);
     void save(Category category);
     void update(Category category);

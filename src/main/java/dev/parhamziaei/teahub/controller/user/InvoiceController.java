@@ -22,7 +22,7 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @GetMapping
-    public ResponseEntity<?> getInvoices(@Valid @RequestParam InvoiceFilterRequest request) {
+    public ResponseEntity<?> getInvoices(@ModelAttribute InvoiceFilterRequest request) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 invoiceService.getByUserId(

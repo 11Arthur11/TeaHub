@@ -9,7 +9,9 @@ import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,8 +45,15 @@ public class PaymentController {
         );
     }
 
-    @PostMapping("/gateway/callback/ap")
-    public ResponseEntity<?> aqayePardakhtCallback(@RequestBody APCallbackRequest callbackRequest) {
+    @RequestMapping(
+            value = "/gateway/callback/ap",
+            consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
+            method = RequestMethod.POST,
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public ResponseEntity<?> aqayePardakhtCallback(@ModelAttribute APCallbackRequest callbackRequest) {
         paymentService.verifyAPCallback(callbackRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,

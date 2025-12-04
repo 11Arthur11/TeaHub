@@ -74,7 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentGatewayHandler paymentHandler = paymentGatewayFactory.getGateway(PaymentGatewayType.AQAYE_PARDAKHT);
         if (paymentHandler.verifyTransaction(callbackRequest)) {
             Invoice invoice = invoiceRepository.findOne(
-                    Specification.allOf(InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceToken())
+                    Specification.allOf(InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceId())
                     )
             ).orElseThrow(NoSuchEntityException::new);
 

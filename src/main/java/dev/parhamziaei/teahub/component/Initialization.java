@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.component;
 
 import dev.parhamziaei.teahub.configuration.properties.InitializeProperties;
+import dev.parhamziaei.teahub.entity.jpa.ApplicationSetting;
 import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
@@ -8,6 +9,7 @@ import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.Roles;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.TelnetConnectionPool;
+import dev.parhamziaei.teahub.repository.jpa.ApplicationSettingRepository;
 import dev.parhamziaei.teahub.repository.jpa.RoleRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,17 +29,21 @@ public class Initialization implements CommandLineRunner {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final TelnetConnectionPool telnetConnectionManager;
+    private final ApplicationSettingRepository applicationSettingRepository;
 
     @Override
     public void run(String... args) throws Exception {
 //        ipPanelService.sendTwoFactorSMS("0000", PhoneNumbers.formatedOf(initProperties.adminPhoneNumber()));
+        initApplicationSetting();
+        log.info("Initialization-Operation -> Application settings initialized");
         initRoles();
         if (!userRepository.existsByPhoneNumber(initProperties.adminPhoneNumber()))
             initAdmin();
-        testTelnetConnection();
     }
 
-    public void testTelnetConnection()  {
+    public void initApplicationSetting() {
+        if (applicationSettingRepository.findAll().isEmpty())
+            applicationSettingRepository.save(new ApplicationSetting());
     }
 
     public void initRoles() {
@@ -46,7 +52,7 @@ public class Initialization implements CommandLineRunner {
         internalRoles.forEach(role -> {
             if (!dbRoles.contains(role.value())) {
                 roleRepository.save(new Role(role.value(), role.hierarchy()));
-                log.info("Role ({}) created by system", role.value());
+                log.info("Initialization-Operation -> Role ({}) created by system", role.value());
             }
         });
     }
