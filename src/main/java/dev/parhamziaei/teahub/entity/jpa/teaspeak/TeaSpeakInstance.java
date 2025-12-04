@@ -25,6 +25,8 @@ public class TeaSpeakInstance extends BaseEntity<Long> {
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime expiration;
 
+    private boolean autoProlong = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "query_instance_id")
     private QueryInstance parentQueryInstance;

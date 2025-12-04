@@ -1,11 +1,14 @@
 package dev.parhamziaei.teahub.integration.payment_gateway.handler;
 
 import dev.parhamziaei.teahub.enums.PaymentGatewayType;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Component
 public class PaymentGatewayFactory {
 
     private final Map<PaymentGatewayType, PaymentGatewayHandler> gateways;

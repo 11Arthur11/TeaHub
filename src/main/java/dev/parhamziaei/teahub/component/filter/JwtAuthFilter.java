@@ -8,6 +8,7 @@ import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException
 import dev.parhamziaei.teahub.exception.custom.authentication.JwtValidationException;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,9 +42,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserService userService;
     private final CookieFactory cookieFactory;
-    private final CurrentUser currentUser;
+    private final ObjectFactory<CurrentUser> currentUserObjectFactory;
 
     public final static List<String> SKIP_URLs = Arrays.asList(
+            "/v1/payments/gateway/callback/**",
             "/v1/auth/**",
             "/docs/**",
             "/swagger-ui/**"
@@ -73,18 +76,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             accessToken = jwtService.extractJwtFromRequest(request, JwtType.ACCESS_TOKEN)
                     .orElseThrow(() -> new BrokenJwtException("Could not extract access token from request " + requestURI));
-            phoneNumber = jwtService.extractPhoneNumber(accessToken)
-                    .orElseThrow(() -> new BrokenJwtException("Cannot extract phone number from token: " + accessToken));
-        } catch (BrokenJwtException | JwtValidationException e) {
+            phoneNumber = jwtService.getPhoneNumber(accessToken);
+        } catch (BrokenJwtException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             log.info("Broken or empty jwt detected: {}", e.getMessage());
             return;
         }
 
+
         if (currentAuth == null || currentAuth instanceof AnonymousAuthenticationToken) {
             User user = userService.loadUserByPhoneNumber(phoneNumber);
             if (jwtService.isTokenValid(accessToken, JwtType.ACCESS_TOKEN)) {
                 buildAuthentication(user, request);
+                buildCurrentUserContext(user, request);
                 log.debug("JWT Token is valid, access granted for phone number: {} to URI: {}", phoneNumber, requestURI);
             } else if (refreshToken.isPresent() && jwtService.isTokenValid(refreshToken.get(), JwtType.REFRESH_TOKEN)) {
                 // note: extracting remaining time to both access and refresh token to expire.
@@ -99,6 +103,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 response.addCookie(accessTokenCookie);
                 response.addCookie(refreshTokenCookie);
                 buildAuthentication(user, request);
+                buildCurrentUserContext(user, request);
 
                 log.debug("User {} refreshed access token success", user.getUsername());
             }
@@ -107,14 +112,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         currentAuth = SecurityContextHolder.getContext().getAuthentication();
         if (currentAuth == null || currentAuth instanceof AnonymousAuthenticationToken) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            log.debug("JwtFilter unauthorized user {}", phoneNumber);
+            log.debug("JwtFilter unauthorized for request: {}", requestURI);
             return;
         }
         filterChain.doFilter(request, response);
     }
 
-    private void buildCurrentUserContext(UserDetails user, HttpServletRequest request) {
-
+    private void buildCurrentUserContext(User user, HttpServletRequest request) {
+        CurrentUser currentUser = currentUserObjectFactory.getObject();
+        currentUser.setIp(request.getRemoteAddr());
+        currentUser.setId(user.getId());
+        currentUser.setFirstName(user.getFirstName());
+        currentUser.setLastName(user.getLastName());
+        currentUser.setPhone(user.getPhone());
     }
 
     private boolean requestMatcher(String requestUri) {

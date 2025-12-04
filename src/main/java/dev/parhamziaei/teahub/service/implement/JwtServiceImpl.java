@@ -8,9 +8,7 @@ import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException
 import dev.parhamziaei.teahub.exception.custom.authentication.JwtValidationException;
 import dev.parhamziaei.teahub.repository.jpa.RefreshTokenRepository;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -60,6 +58,8 @@ public class JwtServiceImpl implements JwtService {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+        } catch (ExpiredJwtException e) {
+          return e.getClaims();
         } catch (Exception e) {
             throw new JwtValidationException("Invalid token structure for token: (" + token + ") :" + e);
         }
@@ -92,24 +92,28 @@ public class JwtServiceImpl implements JwtService {
         if (token == null || extractPhoneNumber(token).isEmpty()) return false;
         boolean forPurpose = (extractClaim(token, claims -> claims.get("purpose", String.class).equals(tokenType.value())));
 
-        if (tokenType.equals(JwtType.REFRESH_TOKEN) && isTokenNotExpired(token) && isSignatureValid(token) && forPurpose) {
-            Optional<RefreshToken> dbToken = refreshTokenRepo.findByToken(token);
-            Optional<String> phoneNumber = extractPhoneNumber(token);
-            if (dbToken.isPresent() && phoneNumber.isPresent()) {
-                RefreshToken refreshToken = dbToken.get();
-                return (
-                        refreshToken.isActive() &&
-                        refreshToken.getTokenOwner().equals(phoneNumber.get()) &&
-                        refreshToken.getToken().equals(token)
-                );
+        try {
+            if (tokenType.equals(JwtType.REFRESH_TOKEN) && isTokenNotExpired(token) && isSignatureValid(token) && forPurpose) {
+                Optional<RefreshToken> dbToken = refreshTokenRepo.findByToken(token);
+                Optional<String> phoneNumber = extractPhoneNumber(token);
+                if (dbToken.isPresent() && phoneNumber.isPresent()) {
+                    RefreshToken refreshToken = dbToken.get();
+                    return (
+                            refreshToken.isActive() &&
+                            refreshToken.getTokenOwner().equals(phoneNumber.get()) &&
+                            refreshToken.getToken().equals(token)
+                    );
+                }
             }
-        }
 
-        return (
-                isTokenNotExpired(token) &&
-                isSignatureValid(token) &&
-                forPurpose
-        );
+            return (
+                    isTokenNotExpired(token) &&
+                            isSignatureValid(token) &&
+                            forPurpose
+            );
+        } catch (JwtException ignored) {
+            return false;
+        }
     }
 
     @Override

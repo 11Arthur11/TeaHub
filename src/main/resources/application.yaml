@@ -32,10 +32,13 @@ logging:
   threshold:
     console: TRACE
   file:
-    path: ./logs
-    name: application.log
+    path: logs
+    name: logs/application.log
 
 app:
+  settings:
+    backend-domain: 'dev.xperia.top'
+    frontend-domain: 'xperia.top'
   components:
     telnet:
       default-timeout-millis: 10000
@@ -45,7 +48,7 @@ app:
   service:
     payment:
       tax-percentage: 9
-
+      minimum-wallet-charge-amount-irt: 50000
     media-storage:
       allowed-media-extension:
         - jpg
@@ -98,3 +101,6 @@ springdoc:
   api-docs:
     enabled: true
     path: /docs
+
+server:
+  forward-headers-strategy: framework

@@ -5,6 +5,7 @@ import dev.parhamziaei.teahub.dto.request.query.InvoiceFilterRequest;
 import dev.parhamziaei.teahub.enums.ResponseType;
 import dev.parhamziaei.teahub.service.InvoiceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +22,7 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @GetMapping
-    public ResponseEntity<?> getInvoices(@Valid @RequestParam InvoiceFilterRequest request) {
+    public ResponseEntity<?> getInvoices(@ModelAttribute InvoiceFilterRequest request) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 invoiceService.getByUserId(

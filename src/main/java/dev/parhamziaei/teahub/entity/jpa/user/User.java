@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.user;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
 import dev.parhamziaei.teahub.enums.Roles;
 import jakarta.persistence.*;
 import lombok.*;

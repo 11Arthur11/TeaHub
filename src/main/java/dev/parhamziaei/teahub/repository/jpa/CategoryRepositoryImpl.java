@@ -1,7 +1,6 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
-import dev.parhamziaei.teahub.enums.CategoryType;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -52,13 +51,6 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     public List<Category> findAllByEnabled(boolean enabled) {
         return em.createQuery("SELECT c FROM Category c WHERE c.active = :active", Category.class)
                 .setParameter("active", enabled)
-                .getResultList();
-    }
-
-    @Override
-    public List<Category> findAllByType(CategoryType type) {
-        return em.createQuery("SELECT c FROM Category c WHERE c.productsType = :type", Category.class)
-                .setParameter("type", type)
                 .getResultList();
     }
 

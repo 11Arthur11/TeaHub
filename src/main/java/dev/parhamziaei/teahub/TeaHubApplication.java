@@ -21,7 +21,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         NotificationProperties.class,
         TelnetProperties.class,
         QueryInstanceProperties.class,
-        PaymentServiceProperties.class
+        PaymentServiceProperties.class,
+        ApplicationSettingProperties.class
 })
 public class TeaHubApplication {
     public static void main(String[] args) {

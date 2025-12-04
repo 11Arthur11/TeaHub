@@ -90,7 +90,7 @@ public class TelnetConnectionPool {
     }
 
     @Async
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(cron = "0 */5 * * * *")
     public void heartbeat() {
         log.debug("Heartbeat-Operation -> started...");
         connections.values().forEach(session -> {

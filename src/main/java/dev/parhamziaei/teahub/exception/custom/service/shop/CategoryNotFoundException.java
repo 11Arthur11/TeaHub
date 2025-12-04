@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.exception.custom.service.product;
+package dev.parhamziaei.teahub.exception.custom.service.shop;
 
 public class CategoryNotFoundException extends RuntimeException {
     public CategoryNotFoundException(String message) {

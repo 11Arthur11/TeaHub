@@ -7,12 +7,18 @@ import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
+import dev.parhamziaei.teahub.exception.custom.service.payment.*;
+import dev.parhamziaei.teahub.exception.custom.service.shop.CategoryNotFoundException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.FileStorageServiceException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.MediaSizeTooLargeException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.MediaTypeNotAllowedException;
+import dev.parhamziaei.teahub.exception.custom.service.teaspeak.InstancePortRangeNotValidException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
+import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceException;
+import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceNotFoundException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmentReachedException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
+import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +41,7 @@ public class GlobalExceptionHandler {
 
     private final MessageService messageService;
 
+    // TODO <Global, Default Exceptions>
     @ExceptionHandler(Exception.class)
     public ResponseEntity<SimpleResponse> generalException() {
         return ResponseBuilder.buildError(
@@ -71,6 +78,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(NoSuchDataException.class)
+    public ResponseEntity<SimpleResponse> handleNoSuchDataException() {
+        return ResponseBuilder.buildFailed(
+                ResponseType.NO_DATA,
+                "Requested data not exist",
+                HttpStatus.OK
+        );
+    }
+
+    // TODO <Ticket Service Exceptions>
     @ExceptionHandler(TicketServiceException.class)
     public ResponseEntity<SimpleResponse> handleTicketServiceException() {
         return ResponseBuilder.buildError(
@@ -87,6 +104,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // TODO <File storage , storing exceptions>
     @ExceptionHandler(FileStorageServiceException.class)
     public ResponseEntity<SimpleResponse> handleFileStorageService() {
         return ResponseBuilder.buildError(
@@ -111,15 +129,9 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(NoSuchDataException.class)
-    public ResponseEntity<SimpleResponse> handleNoSuchDataException() {
-        return ResponseBuilder.buildFailed(
-                ResponseType.NO_DATA,
-                "",
-                HttpStatus.OK
-        );
-    }
 
+
+    // TODO <Authorization Exceptions>
     @ExceptionHandler(NoSuchRoleException.class)
     public ResponseEntity<SimpleResponse> handleNoSuchRoleException() {
         log.error("Error on finding role, did you removed roles from database?");
@@ -129,6 +141,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    // TODO <Query & TeaSpeak Service Exceptions>
     @ExceptionHandler(QueryInstanceAlreadyInitiatedException.class)
     public ResponseEntity<SimpleResponse> handleQueryInstanceAlreadyInitiatedException() {
         return ResponseBuilder.buildError(
@@ -137,9 +150,87 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(BrokenJwtException.class)
-    public ResponseEntity<Void> handleBrokenJwtException() {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    @ExceptionHandler(InstancePortRangeNotValidException.class)
+    public ResponseEntity<SimpleResponse> handleInstancePortRangeNotValidException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.QUERY_INSTANCE_PORT_RANGE_INVALID),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(QueryInstanceException.class)
+    public ResponseEntity<SimpleResponse> handleQueryInstanceException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.QUERY_INSTANCE_ERROR),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(QueryInstanceNotFoundException.class)
+    public ResponseEntity<SimpleResponse> handleQueryInstanceNotFoundException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.QUERY_INSTANCE_NOT_FOUND),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
+    //TODO <Gateway & Payment Exceptions>
+    @ExceptionHandler(GatewayException.class)
+    public ResponseEntity<SimpleResponse> handleGatewayException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.PAYMENT_GATEWAY_ERROR),
+                HttpStatus.GATEWAY_TIMEOUT
+        );
+    }
+
+    @ExceptionHandler(GatewayConfigException.class)
+    public ResponseEntity<SimpleResponse> handleGatewayConfigException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.PAYMENT_GATEWAY_CONFIG_ERROR),
+                HttpStatus.BAD_GATEWAY
+        );
+    }
+
+    @ExceptionHandler(GatewayNotFoundException.class)
+    public ResponseEntity<SimpleResponse> handleGatewayNotFoundException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.PAYMENT_GATEWAY_NOT_FOUND),
+                HttpStatus.GATEWAY_TIMEOUT
+        );
+    }
+
+    @ExceptionHandler(InvoiceException.class)
+    public ResponseEntity<SimpleResponse> handleInvoiceException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.PAYMENT_INVOICE_ERROR),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<SimpleResponse> handlePaymentFailedException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.PAYMENT_FAILED),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
+    //TODO <Shop Exceptions>
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<SimpleResponse> handleCategoryNotFoundException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.SHOP_CATEGORY_NOT_FOUND),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    //TODO <User Exceptions>
+    @ExceptionHandler(WalletChargeAmountTooSmallException.class)
+    public ResponseEntity<SimpleResponse> handleWalletChargeAmountTooSmallException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.USER_WALLET_CHARGE_AMOUNT_TOO_SMALL),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
 }

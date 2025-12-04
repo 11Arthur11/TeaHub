@@ -1,10 +1,10 @@
 package dev.parhamziaei.teahub.entity.jpa.shop;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
-import dev.parhamziaei.teahub.enums.CategoryType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,18 +15,17 @@ import java.util.List;
 @AllArgsConstructor
 public class Category extends BaseEntity<Long> {
 
+    @Column(unique = true)
     private String name;
 
     private boolean active;
 
     private String description;
 
+    @Column(unique = true)
     private String slug;
 
-    @Enumerated(EnumType.STRING)
-    private CategoryType productsType;
-
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<BaseProduct> products;
+    private List<BaseProduct> products = new ArrayList<>();
 
 }
