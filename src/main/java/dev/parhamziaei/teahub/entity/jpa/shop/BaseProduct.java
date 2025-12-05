@@ -4,9 +4,13 @@ import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Setter
+@Getter
 @Table(name = "product")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "product_type")

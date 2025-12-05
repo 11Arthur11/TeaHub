@@ -6,13 +6,13 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Duration;
 
 @Entity
+@Getter
+@Setter
 @DiscriminatorValue("TEASPEAK_PRODUCT")
 @NoArgsConstructor
 public class TeaSpeakProduct extends BaseProduct {

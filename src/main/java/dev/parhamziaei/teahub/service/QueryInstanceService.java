@@ -4,7 +4,7 @@ import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
 import dev.parhamziaei.teahub.dto.response.teaspeak.QueryInstanceListResponse;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
-import dev.parhamziaei.teahub.entity.jpa.teaspeak.TeaSpeakInstance;
+import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.InstancePortRangeNotValidException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
@@ -97,7 +97,7 @@ public class QueryInstanceService {
                 initRequest.getQueryPassword()
         );
 
-        List<TeaSpeakInstance> instances = new ArrayList<>();
+        List<TeaSpeakResource> instances = new ArrayList<>();
         QueryInstance queryInstance = QueryInstance.builder()
                 .name(initRequest.getName())
                 .credentials(credentials)

@@ -9,7 +9,7 @@ public interface PaymentGatewayHandler {
     void initialize();
     boolean testGateway();
     PaymentGatewayType getGatewayType();
-    String createTransaction(Invoice invoice);
+    String createPaymentGate(Invoice invoice);
     <T extends CallbackRequest> boolean verifyTransaction(T callbackRequest);
 
 }

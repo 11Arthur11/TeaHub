@@ -4,11 +4,13 @@ import dev.parhamziaei.teahub.configuration.properties.ApplicationSettingPropert
 import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
 import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
+import dev.parhamziaei.teahub.entity.jpa.payment.Payment;
 import dev.parhamziaei.teahub.enums.PaymentGatewayType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayNotFoundException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.PaymentFailedException;
+import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APCallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APTransactionRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APVerifyRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.response.APTransactionResponse;
@@ -17,7 +19,9 @@ import dev.parhamziaei.teahub.integration.payment_gateway.dto.CallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayHandler;
 import dev.parhamziaei.teahub.repository.jpa.GatewayRepository;
 import dev.parhamziaei.teahub.repository.jpa.InvoiceRepository;
+import dev.parhamziaei.teahub.repository.jpa.PaymentRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -110,7 +114,7 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
     }
 
     @Override
-    public String createTransaction(Invoice invoice) {
+    public String createPaymentGate(Invoice invoice) {
         APTransactionRequest request = APTransactionRequest.builder()
                 .pin(apPinCode)
                 .amount(String.valueOf(invoice.getMoney().getAmount().intValue()))
@@ -167,7 +171,6 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
         }
 
         if (responseEntity != null) {
-            //reminder -> make a payment entity here as transaction success entity !!
             return responseEntity.getCode().equals("1") && responseEntity.getStatus().equals("success");
         }
         throw new GatewayException("gateway verify response is null");

@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.request.shop.admin.CategoryAdminRequest;
-import dev.parhamziaei.teahub.dto.response.shop.admin.CategoryDetailAdminResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.CategoryListAdminResponse;
 
 import dev.parhamziaei.teahub.dto.response.shop.user.CategoryListResponse;
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
@@ -28,8 +28,8 @@ public class CategoryService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public CategoryDetailAdminResponse getCategoryDetailById(Long id) {
-        return modelMapper.map(categoryRepository.findById(id), CategoryDetailAdminResponse.class);
+    public CategoryListAdminResponse getCategoryDetailById(Long id) {
+        return modelMapper.map(categoryRepository.findById(id), CategoryListAdminResponse.class);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

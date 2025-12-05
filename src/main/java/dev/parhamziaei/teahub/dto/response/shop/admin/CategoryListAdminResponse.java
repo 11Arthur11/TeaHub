@@ -3,7 +3,7 @@ package dev.parhamziaei.teahub.dto.response.shop.admin;
 import lombok.Data;
 
 @Data
-public class CategoryDetailAdminResponse {
+public class CategoryListAdminResponse {
 
     private Long id;
     private String name;

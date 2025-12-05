@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.teaspeak;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.enums.QueryInstanceStatus;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import jakarta.persistence.*;
@@ -44,7 +45,7 @@ public class QueryInstance extends BaseEntity<Long> {
     private LocalDateTime lastUsed;
 
     @OneToMany(mappedBy = "parentQueryInstance", fetch = FetchType.LAZY)
-    private List<TeaSpeakInstance> instances = new ArrayList<>();
+    private List<TeaSpeakResource> instances = new ArrayList<>();
 
     @PreUpdate
     public void preUpdate() {

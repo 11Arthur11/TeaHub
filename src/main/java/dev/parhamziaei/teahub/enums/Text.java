@@ -1,6 +1,5 @@
 package dev.parhamziaei.teahub.enums;
 
-@Deprecated
 public enum Text {
 
     MAIL_TITLE_EMAIL_VERIFICATION("mail.title.email_verification"),
