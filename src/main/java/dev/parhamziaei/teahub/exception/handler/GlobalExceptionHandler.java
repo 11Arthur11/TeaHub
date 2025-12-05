@@ -6,7 +6,10 @@ import dev.parhamziaei.teahub.enums.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
+import dev.parhamziaei.teahub.exception.custom.global.ConflictEntityException;
+import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.*;
 import dev.parhamziaei.teahub.exception.custom.service.shop.CategoryNotFoundException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.FileStorageServiceException;
@@ -84,6 +87,33 @@ public class GlobalExceptionHandler {
                 ResponseType.NO_DATA,
                 "Requested data not exist",
                 HttpStatus.OK
+        );
+    }
+
+    @ExceptionHandler(NoSuchEntityException.class)
+    public ResponseEntity<SimpleResponse> handleNoSuchEntityException() {
+        return ResponseBuilder.buildFailed(
+                ResponseType.NO_DATA,
+                "Requested entity not exist",
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(ConflictEntityException.class)
+    public ResponseEntity<SimpleResponse> handleConflictEntityException() {
+        return ResponseBuilder.buildFailed(
+                ResponseType.FAILURE,
+                messageService.get(ServiceMessage.DEFAULT_CONFLICTION),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(EntityInUseException.class)
+    public ResponseEntity<SimpleResponse> handleEntityInUseException() {
+        return ResponseBuilder.buildFailed(
+                ResponseType.FAILURE,
+                messageService.get(ServiceMessage.DEFAULT_IN_USE),
+                HttpStatus.BAD_REQUEST
         );
     }
 

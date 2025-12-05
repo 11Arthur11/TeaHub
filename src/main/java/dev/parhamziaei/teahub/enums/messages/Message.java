@@ -7,7 +7,7 @@ public enum Message {
     SERVER_IO_ERROR("error.server.io"),
     SERVER_VALIDATION_ERROR("error.server.validation"),
     SERVER_RESOURCE_NOT_FOUND("error.server.resource_not_found"),
-    DEFAULT_FAILED("error.default_failed");
+    DEFAULT_FAILED("error.default.failed");
 
     //note: admin query instance managing service messages
 

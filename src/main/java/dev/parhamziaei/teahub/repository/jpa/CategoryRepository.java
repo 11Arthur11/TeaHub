@@ -8,13 +8,12 @@ import java.util.Optional;
 public interface CategoryRepository {
 
     Optional<Category> findById(Long id);
-    Optional<Category> findByName(String name);
     Optional<Category> findBySlug(String slug);
     List<Category> findAll();
-    List<Category> findAllByEnabled(boolean enabled);
     boolean existsByCategory(Category category);
+    boolean hasProduct(Long categoryId);
     void save(Category category);
     void update(Category category);
-    void delete(Category category);
+    void delete(Long categoryId);
 
 }

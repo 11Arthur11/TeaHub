@@ -1,7 +1,9 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -24,15 +26,6 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
-    public Optional<Category> findByName(String name) {
-        return em.createQuery("SELECT c FROM Category c WHERE c.name = :name", Category.class)
-                .setParameter("name", name)
-                .getResultList()
-                .stream()
-                .findFirst();
-    }
-
-    @Override
     public Optional<Category> findBySlug(String slug) {
         return em.createQuery("SELECT c FROM Category c WHERE c.slug = :slug", Category.class)
                 .setParameter("slug", slug)
@@ -48,13 +41,6 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
-    public List<Category> findAllByEnabled(boolean enabled) {
-        return em.createQuery("SELECT c FROM Category c WHERE c.active = :active", Category.class)
-                .setParameter("active", enabled)
-                .getResultList();
-    }
-
-    @Override
     public boolean existsByCategory(Category category) {
         return em.createQuery("SELECT COUNT(c) FROM Category c WHERE c.slug = :slug AND c.name = :name", Long.class)
                 .setParameter("slug", category.getSlug())
@@ -62,18 +48,32 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
+    public boolean hasProduct(Long categoryId) {
+        Category category = em.createQuery("SELECT c FROM Category c WHERE c.id = :id", Category.class)
+                .setParameter("id", categoryId)
+                .getResultList()
+                .stream()
+                .findFirst()
+                .orElseThrow(NoSuchEntityException::new);
+        return !category.getProducts().isEmpty();
+    }
+
+    @Transactional
+    @Override
     public void save(Category category) {
         em.persist(category);
     }
 
+    @Transactional
     @Override
     public void update(Category category) {
         em.merge(category);
     }
 
+    @Transactional
     @Override
-    public void delete(Category category) {
-        em.remove(category);
+    public void delete(Long categoryId) {
+        em.remove(em.find(Category.class, categoryId));
     }
 
 }
