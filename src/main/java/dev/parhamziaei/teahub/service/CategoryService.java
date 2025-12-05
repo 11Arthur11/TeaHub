@@ -29,7 +29,7 @@ public class CategoryService {
                 .map(c -> modelMapper.map(c, CategoryListAdminResponse.class))
                 .toList();
         if (responses.isEmpty())
-            throw new NoSuchDataException();
+            throw new NoSuchDataException("No Category Initiated");
         return responses;
     }
 
@@ -37,7 +37,7 @@ public class CategoryService {
     public void addCategory(CategoryAdminRequest request) {
         Category category = modelMapper.map(request, Category.class);
         if (categoryRepo.existsByCategory(category))
-            throw new ConflictEntityException("Category by this slug or name already exists");
+            throw new ConflictEntityException("Category Already Defined");
         else
             categoryRepo.save(category);
 
@@ -48,7 +48,7 @@ public class CategoryService {
         Category category = modelMapper.map(request, Category.class);
         category.setId(categoryId);
         if (categoryRepo.existsByCategory(category))
-            throw new ConflictEntityException("Category by this slug or name already exists");
+            throw new ConflictEntityException("Category Exists");
         else
             categoryRepo.update(category);
     }
@@ -56,7 +56,7 @@ public class CategoryService {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteCategory(Long categoryId) {
         if (categoryRepo.hasProduct(categoryId))
-            throw new EntityInUseException();
+            throw new EntityInUseException("Category has product children");
         else
             categoryRepo.delete(categoryId);
     }

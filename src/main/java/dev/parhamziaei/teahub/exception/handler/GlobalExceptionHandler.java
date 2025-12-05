@@ -100,19 +100,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConflictEntityException.class)
-    public ResponseEntity<SimpleResponse> handleConflictEntityException() {
+    public ResponseEntity<SimpleResponse> handleConflictEntityException(ConflictEntityException e) {
         return ResponseBuilder.buildFailed(
                 ResponseType.FAILURE,
-                messageService.get(ServiceMessage.DEFAULT_CONFLICTION),
+                messageService.get(ServiceMessage.DEFAULT_CONFLICTION) + e.getMessage(),
                 HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(EntityInUseException.class)
-    public ResponseEntity<SimpleResponse> handleEntityInUseException() {
+    public ResponseEntity<SimpleResponse> handleEntityInUseException(EntityInUseException e) {
         return ResponseBuilder.buildFailed(
                 ResponseType.FAILURE,
-                messageService.get(ServiceMessage.DEFAULT_IN_USE),
+                messageService.get(ServiceMessage.DEFAULT_IN_USE) +  e.getMessage(),
                 HttpStatus.BAD_REQUEST
         );
     }

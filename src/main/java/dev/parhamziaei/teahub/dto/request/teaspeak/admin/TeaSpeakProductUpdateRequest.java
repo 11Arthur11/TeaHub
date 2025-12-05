@@ -6,12 +6,12 @@ import lombok.Data;
 import java.time.Duration;
 
 @Data
-public class TeaSpeakProductRequest {
+public class TeaSpeakProductUpdateRequest {
 
-    private String name;
-    private Duration expiration;
+    private Long id;
+    private String productName;
     private Integer maxClients;
+    private Duration expiration;
     private Money price;
-    private String categorySlug;
 
 }

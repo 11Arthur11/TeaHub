@@ -8,12 +8,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "resource")
 @DiscriminatorColumn(name = "resource_type")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class BaseResource extends BaseEntity<Long> {
+public abstract class BaseResource extends BaseEntity<Long> {
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id", nullable = false)
     private BaseProduct product;
 
     private String label;

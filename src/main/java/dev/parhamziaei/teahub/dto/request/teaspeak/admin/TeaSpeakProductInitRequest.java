@@ -1,6 +1,7 @@
-package dev.parhamziaei.teahub.dto.request.shop.admin;
+package dev.parhamziaei.teahub.dto.request.teaspeak.admin;
 
-import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.dto.request.shop.admin.BaseProductInitRequest;
+import dev.parhamziaei.teahub.valueobject.Money;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,5 +13,6 @@ public class TeaSpeakProductInitRequest extends BaseProductInitRequest {
 
     private Integer maxClients;
     private Duration expiration;
+    private Money price;
 
 }

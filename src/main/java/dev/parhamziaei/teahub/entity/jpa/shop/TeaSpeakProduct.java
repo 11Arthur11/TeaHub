@@ -1,37 +1,34 @@
 package dev.parhamziaei.teahub.entity.jpa.shop;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.valueobject.Money;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Duration;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @DiscriminatorValue("TEASPEAK_PRODUCT")
 @NoArgsConstructor
-public class TeaSpeakProduct extends BaseProduct {
+public class TeaSpeakProduct extends BillableProduct {
 
     private Integer maxClients;
-
-    private Duration expiration;
 
     @Builder
     public TeaSpeakProduct(
             String productName,
             Category category,
             Money price,
-            Integer maxClients,
-            Duration expiration
+            boolean enabled,
+            Duration expiration,
+            Integer maxClients
     ) {
-        super(productName, category, price);
+        super(productName, category, price, enabled, expiration);
         this.maxClients = maxClients;
-        this.expiration = expiration;
     }
 
 }
