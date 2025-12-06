@@ -18,9 +18,7 @@ import java.util.List;
 @Table(name = "product")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "product_type")
-@AllArgsConstructor
-@NoArgsConstructor
-public abstract class BaseProduct extends BaseEntity<Long> {
+public class BaseProduct extends BaseEntity<Long> {
 
     private String productName;
 
@@ -40,7 +38,9 @@ public abstract class BaseProduct extends BaseEntity<Long> {
 
     private boolean enabled;
 
-    public BaseProduct(String productName, Category category, Money price, boolean enabled) {
+    protected BaseProduct() {}
+
+    protected BaseProduct(String productName, Category category, Money price, boolean enabled) {
         this.productName = productName;
         this.category = category;
         this.price = price;

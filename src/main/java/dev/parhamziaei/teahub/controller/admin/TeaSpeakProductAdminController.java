@@ -15,9 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/admin/products")
+@RequestMapping("/v1/admin/products/teaspeak")
 @RequiredArgsConstructor
-public class ProductAdminController {
+public class TeaSpeakProductAdminController {
 
     private final ProductService productService;
     private final MessageService messageService;
@@ -53,6 +53,19 @@ public class ProductAdminController {
     @PostMapping("/edit")
     public ResponseEntity<SimpleResponse> updateProduct(@Valid @RequestBody TeaSpeakProductUpdateRequest updateRequest) {
         productService.updateTeaSpeakProduct(updateRequest);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_EDITED),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/{productId}/{enabled}")
+    public ResponseEntity<?> changeEnabled(
+            @PathVariable Long productId,
+            @PathVariable boolean enabled
+    ) {
+        productService.changeEnabled(productId, enabled);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.DEFAULT_EDITED),

@@ -20,10 +20,10 @@ public class InvoiceSpecification {
         };
     }
 
-    public static Specification<Invoice> hasInvoiceToken(String invoicetoken) {
+    public static Specification<Invoice> hasInvoiceToken(String invoiceToken) {
         return (root, query, cb) -> {
-            if (invoicetoken == null) return null;
-            return cb.equal(root.get("invoiceToken"), invoicetoken);
+            if (invoiceToken == null) return null;
+            return cb.equal(root.get("invoiceToken"), invoiceToken);
         };
     }
 
