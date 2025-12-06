@@ -1,13 +1,6 @@
 # 📘 API Endpoints Documentation
 
-## 🎫 User Tickets
-| Method | Endpoint                                                 | Description |
-|--------|-----------------------------------------------------------|-------------|
-| **POST** | /v1/tickets/submit                                       | ارسال تیکت جدید توسط کاربر |
-| **PUT**  | /v1/tickets/detail/{ticketId}/message                    | افزودن پیام جدید به تیکت موجود |
-| **GET**  | /v1/tickets                                               | دریافت لیست تیکت‌های کاربر |
-| **GET**  | /v1/tickets/detail/{id}                                  | دریافت جزئیات کامل یک تیکت |
-| **GET**  | /v1/tickets/attachment/{identifier}                      | دریافت فایل پیوست تیکت |
+# Admin Controllers
 
 ## 🎫 Admin Tickets Manager
 | Method | Endpoint                                                 | Description |
@@ -18,17 +11,14 @@
 | **GET**  | /v1/admin/tickets/{phoneNumber}                          | دریافت تیکت‌های یک کاربر با شماره |
 | **GET**  | /v1/admin/tickets/detail/{ticketId}                      | مشاهده جزئیات تیکت توسط ادمین |
 
-## 👤 User Controller
-| Method | Endpoint                                                 | Description |
-|--------|-----------------------------------------------------------|-------------|
-| **POST** | /v1/users/wallet/charge                                  | شارژ کیف پول و دریافت invoiceToken |
-
-## 💵 Payment
-| Method | Endpoint                                                 | Description |
-|--------|-----------------------------------------------------------|-------------|
-| **POST** | /v1/payments/pay                                         | ارسال درخواست پرداخت |
-| **POST** | /v1/payments/gateway/callback/ap                         | کال‌بک درگاه پرداخت |
-| **GET**  | /v1/payments/gateways                                    | لیست درگاه‌های پرداخت |
+## 🎫 Admin Product Manager
+| Method   | Endpoint                               | Description |
+|----------|-----------------------------------------|-------------|
+| **GET**  | /v1/admin/products                      | دریافت همه محصولات TeaSpeak |
+| **POST** | /v1/admin/products                      | ایجاد محصول جدید TeaSpeak |
+| **GET**  | /v1/admin/products/{productId}          | دریافت اطلاعات یک محصول خاص |
+| **POST** | /v1/admin/products/edit                 | ویرایش/به‌روزرسانی محصول موجود |
+| **DELETE** | /v1/admin/products/{productId}        | حذف یک محصول |
 
 ## 💳 Admin Payment
 | Method | Endpoint                                                 | Description |
@@ -36,14 +26,6 @@
 | **POST** | /v1/admin/payments/gateways/init                         | ایجاد درگاه پرداخت |
 | **GET**  | /v1/admin/payments/gateways/{id}                         | مشاهده جزئیات یک درگاه |
 | **GET**  | /v1/admin/payments/gateways/modules                      | دریافت لیست ماژول‌های درگاه‌ها |
-
-## 🔐 Authentication
-| Method | Endpoint                                                 | Description |
-|--------|-----------------------------------------------------------|-------------|
-| **POST** | /v1/auth/register                                        | ثبت‌نام کاربر |
-| **POST** | /v1/auth/login                                           | ورود |
-| **POST** | /v1/auth/logout                                          | خروج |
-| **POST** | /v1/auth/initiate                                        | شروع فرآیند احراز هویت (مثل ارسال OTP) |
 
 ## 💻 Admin Query Instance Manager
 | Method | Endpoint                                                 | Description |
@@ -54,11 +36,44 @@
 | **GET**  | /v1/admin/query-instances                                | لیست همه Instances |
 | **DELETE** | /v1/admin/query-instances/{id}/remove                  | حذف Instance |
 
+# User Controllers
+
+## 👤 User Controller
+| Method | Endpoint                                                 | Description |
+|--------|-----------------------------------------------------------|-------------|
+| **POST** | /v1/users/wallet/charge                                  | شارژ کیف پول و دریافت invoiceToken |
+
+## 🎫 User Tickets
+| Method | Endpoint                                                 | Description |
+|--------|-----------------------------------------------------------|-------------|
+| **POST** | /v1/tickets/submit                                       | ارسال تیکت جدید توسط کاربر |
+| **PUT**  | /v1/tickets/detail/{ticketId}/message                    | افزودن پیام جدید به تیکت موجود |
+| **GET**  | /v1/tickets                                               | دریافت لیست تیکت‌های کاربر |
+| **GET**  | /v1/tickets/detail/{id}                                  | دریافت جزئیات کامل یک تیکت |
+| **GET**  | /v1/tickets/attachment/{identifier}                      | دریافت فایل پیوست تیکت |
+
+## 💵 Payment
+| Method | Endpoint                                                 | Description |
+|--------|-----------------------------------------------------------|-------------|
+| **POST** | /v1/payments/pay                                         | ارسال درخواست پرداخت |
+| **POST** | /v1/payments/gateway/callback/ap                         | کال‌بک درگاه پرداخت |
+| **GET**  | /v1/payments/gateways                                    | لیست درگاه‌های پرداخت |
+
 ## 💴 Invoices
 | Method | Endpoint                                                 | Description |
 |--------|-----------------------------------------------------------|-------------|
 | **GET**  | /v1/invoices                                              | لیست فاکتورها |
 | **GET**  | /v1/invoices/{invoiceToken}                               | مشاهده جزئیات فاکتور |
+
+# Global Controllers
+
+## 🔐 Authentication
+| Method | Endpoint                                                 | Description |
+|--------|-----------------------------------------------------------|-------------|
+| **POST** | /v1/auth/register                                        | ثبت‌نام کاربر |
+| **POST** | /v1/auth/login                                           | ورود |
+| **POST** | /v1/auth/logout                                          | خروج |
+| **POST** | /v1/auth/initiate                                        | شروع فرآیند احراز هویت (مثل ارسال OTP) |
 
 ## 📂 Test
 | Method | Endpoint                                                 | Description |
