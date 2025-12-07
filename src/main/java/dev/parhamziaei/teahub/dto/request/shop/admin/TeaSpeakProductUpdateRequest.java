@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.dto.request.teaspeak.admin;
+package dev.parhamziaei.teahub.dto.request.shop.admin;
 
 import dev.parhamziaei.teahub.valueobject.Money;
 import lombok.Data;
@@ -11,6 +11,7 @@ public class TeaSpeakProductUpdateRequest {
     private Long id;
     private String productName;
     private Integer maxClients;
+    private Long categoryId;
     private Duration expiration;
     private Money price;
 

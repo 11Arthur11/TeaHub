@@ -85,7 +85,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<SimpleResponse> handleNoSuchDataException() {
         return ResponseBuilder.buildFailed(
                 ResponseType.NO_DATA,
-                "Requested data not exist",
+                messageService.get(ServiceMessage.DEFAULT_NO_SUCH_DATA),
                 HttpStatus.OK
         );
     }
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<SimpleResponse> handleNoSuchEntityException() {
         return ResponseBuilder.buildFailed(
                 ResponseType.NO_DATA,
-                "Requested entity not exist",
+                messageService.get(ServiceMessage.DEFAULT_NO_SUCH_ENTITY),
                 HttpStatus.BAD_REQUEST
         );
     }

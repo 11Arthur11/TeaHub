@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,14 @@ public class BaseProduct extends BaseEntity<Long> {
         this.price = price;
         this.enabled = enabled;
         this.UserResources = new ArrayList<>();
+    }
+
+    public void setCategory(Category category) {
+        if (this.category != null)
+            this.category.getProducts().remove(this);
+        this.category = category;
+        Hibernate.initialize(category.getProducts());
+        category.getProducts().add(this);
     }
 
 }

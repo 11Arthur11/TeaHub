@@ -82,7 +82,7 @@ app:
       from-number: 100016949
 
   cookie-factory:
-    secure-cookie: false
+    secure-cookie: true
     two-factor-cookie-ttl: 1800s
     phone-verify-cookie-ttl: 300s
 

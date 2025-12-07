@@ -3,6 +3,8 @@ package dev.parhamziaei.teahub.dto.request.shop.admin;
 import dev.parhamziaei.teahub.valueobject.Money;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class BaseProductInitRequest {
 
@@ -10,6 +12,8 @@ public class BaseProductInitRequest {
 
     private Long categoryId;
 
-    private Money price;
+    private BigDecimal price;
+
+    private boolean enabled;
 
 }

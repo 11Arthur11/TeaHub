@@ -23,6 +23,14 @@ public class CategoryService {
     private final CategoryRepository categoryRepo;
     private final ModelMapper modelMapper;
 
+    public List<CategoryListResponse> getAvailableCategories() {
+       return categoryRepo.findAll()
+                .stream()
+                .filter(Category::isActive)
+                .map(c -> modelMapper.map(c, CategoryListResponse.class))
+                .toList();
+    }
+
     public List<CategoryListAdminResponse> getAllCategories() {
         List<CategoryListAdminResponse> responses = categoryRepo.findAll()
                 .stream()
@@ -33,9 +41,14 @@ public class CategoryService {
         return responses;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public void addCategory(CategoryAdminRequest request) {
-        Category category = modelMapper.map(request, Category.class);
+        Category category = Category.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .slug(request.getSlug())
+                .active(request.isActive())
+                .build();
+        
         if (categoryRepo.existsByCategory(category))
             throw new ConflictEntityException("Category Already Defined");
         else
@@ -43,7 +56,6 @@ public class CategoryService {
 
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public void updateCategory(Long categoryId, CategoryAdminRequest request) {
         Category category = modelMapper.map(request, Category.class);
         category.setId(categoryId);
@@ -53,7 +65,6 @@ public class CategoryService {
             categoryRepo.update(category);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public void deleteCategory(Long categoryId) {
         if (categoryRepo.hasProduct(categoryId))
             throw new EntityInUseException("Category has product children");

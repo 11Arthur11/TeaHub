@@ -33,8 +33,8 @@ public class TwoFactorService {
         if (jwtService.isTokenValid(twoFactorToken, JwtType.TWO_FACTOR_TOKEN) && session != null) {
             if (
                     encoder.matches(code, session.getCode()) &&
-                            session.getAttempts() < 3 &&
-                            session.getPhoneNumber().equals(jwtService.getPhoneNumber(twoFactorToken))
+                    session.getAttempts() < 3 &&
+                    session.getPhoneNumber().equals(jwtService.getPhoneNumber(twoFactorToken))
             ) {
                 session.setVerified(true);
                 twoFactorRepo.remove(sessionId);

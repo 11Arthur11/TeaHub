@@ -12,7 +12,7 @@ public class CategoryAdminRequest {
 
     private boolean active;
 
-    @Length(min = 5, max = 30)
+    @Length(min = 5, max = 50)
     private String description;
 
     @Slug(allowNull = true)

@@ -4,9 +4,11 @@ public enum ServiceMessage {
 
     DEFAULT_EDITED("success.service.default.edited"),
     DEFAULT_CREATED("success.service.default.created"),
-    DEFAULT_CONFLICTION("success.service.default.confliction"),
-    DEFAULT_IN_USE("success.service.default.in-use"),
+    DEFAULT_CONFLICTION("error.service.default.confliction"),
+    DEFAULT_IN_USE("error.service.default.in-use"),
     DEFAULT_DELETED("success.service.default.deleted"),
+    DEFAULT_NO_SUCH_DATA("error.service.default.no-such-data"),
+    DEFAULT_NO_SUCH_ENTITY("error.service.default.no-such-entity"),
 
     // ? ticket service messages
     TICKET_MAX_ATTACHMENT_REACHED("error.service.ticket.max_attachment_reached"),

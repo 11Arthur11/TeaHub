@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.service.interfaces;
 
-import dev.parhamziaei.teahub.dto.request.teaspeak.admin.TeaSpeakProductInitRequest;
-import dev.parhamziaei.teahub.dto.request.teaspeak.admin.TeaSpeakProductUpdateRequest;
+import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductInitRequest;
+import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductUpdateRequest;
 import dev.parhamziaei.teahub.dto.response.shop.TeaSpeakProductDTO;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductListAdminResponse;
@@ -15,6 +15,6 @@ public interface ProductService {
     void updateTeaSpeakProduct(TeaSpeakProductUpdateRequest updateRequest);
     void removeTeaSpeakProduct(Long productId);
     void changeEnabled(Long productId, boolean enabled);
+    void updateCategoryProductsType(Long oldCategoryId);
     List<? extends TeaSpeakProductDTO> getAvailableProductsByCategorySlug(String categorySlug);
-
 }

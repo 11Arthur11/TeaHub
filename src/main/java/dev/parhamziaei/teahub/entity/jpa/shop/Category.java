@@ -43,6 +43,13 @@ public class Category extends BaseEntity<Long> {
         this.description = description;
         this.slug = slug;
         this.products = new ArrayList<>();
+        this.productType = CategoryProductType.EMPTY;
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        if (this.products.isEmpty())
+            this.productType = CategoryProductType.EMPTY;
     }
 
 }

@@ -1,5 +1,7 @@
 package dev.parhamziaei.teahub.dto.response.shop.admin;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import dev.parhamziaei.teahub.dto.serializer.ExpirationDurationSerializer;
 import dev.parhamziaei.teahub.valueobject.Money;
 import lombok.Data;
 
@@ -18,6 +20,7 @@ public class TeaSpeakProductDetailAdminResponse {
 
     private Integer maxClients;
 
+    @JsonSerialize(using = ExpirationDurationSerializer.class)
     private Duration expiration;
 
     private Integer orderedResources;

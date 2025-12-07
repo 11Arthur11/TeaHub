@@ -4,10 +4,12 @@ import dev.parhamziaei.teahub.configuration.properties.embedded.InvoicePropertie
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.Duration;
 
 @Entity
+@Table
 public class ApplicationSetting {
 
     @Id

@@ -18,10 +18,9 @@ public class CookieFactory {
     private final JwtProperties jwtProperties;
     private final CookieFactoryProperties cookieProperties;
 
-
     public Cookie twoFactorCookie(String token) {
         Cookie cookie = new Cookie(JwtType.TWO_FACTOR_TOKEN.value(), token);
-        cookie.setPath("/v1/auth/login");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) cookieProperties.twoFactorCookieTtl().toSeconds());
         cookie.setSecure(cookieProperties.secureCookie());
