@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.enums.messages;
 
 public enum ServiceMessage {
 
+    // ? defaults
     DEFAULT_EDITED("success.service.default.edited"),
     DEFAULT_CREATED("success.service.default.created"),
     DEFAULT_CONFLICTION("error.service.default.confliction"),
@@ -21,10 +22,14 @@ public enum ServiceMessage {
     MEDIA_TYPE_NOT_ALLOWED("error.service.file.type-not-allowed"),
     FILE_STORAGE_ERROR("error.service.file.storage"),
 
+    // ? user messages
     USER_WALLET_CHARGE_AMOUNT_TOO_SMALL("error.service.wallet.charge-amount-too-small"),
+    USER_WALLET_INSUFFICIENT_BALANCE("error.service.wallet.insufficient-balance"),
 
+    // ? shop
     SHOP_CATEGORY_NOT_FOUND("error.service.shop.category-not-found"),
 
+    // ? payment messages
     PAYMENT_ERROR("error.service.payment"),
     PAYMENT_FAILED("error.service.payment-failed"),
     PAYMENT_INVOICE_ERROR("error.service.invoice"),
@@ -36,6 +41,10 @@ public enum ServiceMessage {
     PAYMENT_GATEWAY_CONFIG_ERROR("error.service.gateway.config"),
     PAYMENT_GATEWAY_NOT_FOUND("error.service.gateway.not-found"),
 
+    // ? resource management messages
+    RESOURCE_PROCESSING("success.service.resource.deploying"),
+
+    // ? query instance management messages
     QUERY_INSTANCE_INITIATED("success.service.query-instance.initiated"),
     QUERY_INSTANCE_ALREADY_EXIST("error.service.query-instance.already-exists"),
     QUERY_INSTANCE_ENABLING("success.service.query-instance.enabling"),

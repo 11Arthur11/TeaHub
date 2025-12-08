@@ -8,7 +8,7 @@ import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductListAdminRe
 import dev.parhamziaei.teahub.entity.jpa.shop.BaseProduct;
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
-import dev.parhamziaei.teahub.enums.CategoryProductType;
+import dev.parhamziaei.teahub.enums.ProductType;
 import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
@@ -72,8 +72,8 @@ public class ProductServiceImpl implements ProductService {
                 .expiration(initRequest.getExpiration())
                 .build();
 
-        if (category.getProductType() == CategoryProductType.EMPTY)
-            category.setProductType(CategoryProductType.TEA_SPEAK);
+        if (category.getProductType() == ProductType.EMPTY)
+            category.setProductType(ProductType.TEA_SPEAK);
 
         category.appendProduct(product);
         teaSpeakProductRepo.save(product);
@@ -102,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(NoSuchEntityException::new);
         Hibernate.initialize(category.getProducts());
         if (category.getProducts().isEmpty())
-            category.setProductType(CategoryProductType.EMPTY);
+            category.setProductType(ProductType.EMPTY);
     }
 
     @Override
@@ -136,6 +136,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<? extends TeaSpeakProductDTO> mappedResponse = category.getProducts()
                 .stream()
+                .filter(BaseProduct::isEnabled)
                 .map(baseProduct -> {
                     Class<? extends TeaSpeakProductDTO> dtoClass = ProductMapperRegistry.getListDto(category.getProductType());
                     return modelMapper.map(baseProduct, dtoClass);

@@ -4,14 +4,23 @@ import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.entity.jpa.shop.BaseProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 @Table(name = "resource")
 @DiscriminatorColumn(name = "resource_type")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public abstract class BaseResource extends BaseEntity<Long> {
+@AllArgsConstructor
+@NoArgsConstructor
+@SuperBuilder
+public class BaseResource extends BaseEntity<Long> {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id", nullable = false)
@@ -26,13 +35,14 @@ public abstract class BaseResource extends BaseEntity<Long> {
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime orderDate;
 
-    protected BaseResource() {}
-
-    public BaseResource(BaseProduct product, String label, User owner) {
+    public BaseResource(
+            BaseProduct product,
+            String label,
+            User owner
+    ) {
         this.product = product;
         this.label = label;
         this.owner = owner;
-        this.orderDate = LocalDateTime.now().withNano(0);
     }
 
 }

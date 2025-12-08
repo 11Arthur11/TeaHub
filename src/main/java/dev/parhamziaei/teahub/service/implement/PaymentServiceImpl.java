@@ -20,6 +20,7 @@ import dev.parhamziaei.teahub.repository.jpa.InvoiceRepository;
 import dev.parhamziaei.teahub.repository.jpa.PaymentRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
+import dev.parhamziaei.teahub.service.WalletService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
@@ -42,6 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentGatewayFactory paymentGatewayFactory;
     private final GatewayRepository gatewayRepository;
     private final PaymentRepository paymentRepository;
+    private final WalletService walletService;
 
     @Override
     public String createChargeWalletInvoice(Long userId, BigDecimal amount) {
@@ -83,6 +85,7 @@ public class PaymentServiceImpl implements PaymentService {
                     Specification.allOf(InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceId())
                     )
             ).orElseThrow(NoSuchEntityException::new);
+            walletService.credit(invoice.getOwner().getId(), invoice.getMoney().getAmount());
 
             if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
                 invoice.setStatus(InvoiceStatus.PAID);

@@ -4,10 +4,8 @@ import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.entity.jpa.resource.BaseResource;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.Hibernate;
 
 import java.util.ArrayList;
@@ -17,8 +15,10 @@ import java.util.List;
 @Setter
 @Getter
 @Table(name = "product")
+@NoArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "product_type")
+@SuperBuilder
 public class BaseProduct extends BaseEntity<Long> {
 
     private String productName;
@@ -39,9 +39,13 @@ public class BaseProduct extends BaseEntity<Long> {
 
     private boolean enabled;
 
-    protected BaseProduct() {}
-
-    protected BaseProduct(String productName, Category category, Money price, boolean enabled) {
+    @Builder
+    protected BaseProduct(
+            String productName,
+            Category category,
+            Money price,
+            boolean enabled
+    ) {
         this.productName = productName;
         this.category = category;
         this.price = price;

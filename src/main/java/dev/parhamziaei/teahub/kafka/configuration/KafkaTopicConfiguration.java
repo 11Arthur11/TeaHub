@@ -10,8 +10,18 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfiguration {
 
     @Bean
-    public NewTopic newTopic() {
+    public NewTopic telnetErrorTopic() {
         return TopicBuilder.name(KafkaTopic.INTERNAL_TELNET_ERROR_TOPIC.value()).build();
+    }
+
+    @Bean
+    public NewTopic teaSpeakTopic() {
+        return TopicBuilder.name(KafkaTopic.TEASPEAK_OPERATION_TOPIC.value()).build();
+    }
+
+    @Bean
+    public NewTopic queryInstanceTopic() {
+        return TopicBuilder.name(KafkaTopic.INTERNAL_QUERY_INSTANCE_TOPIC.value()).build();
     }
 
 }

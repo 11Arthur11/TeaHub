@@ -56,16 +56,27 @@ public class ResponseDecoder {
         return kv.split("=", 2)[0];
     }
 
-    public <T extends BaseQueryResponse> T mapSinglePipeResponse(InputStream in, Class<T> mapType) throws IOException {
-        String rawOutput = extractRawString(in);
+//    public <T extends BaseQueryResponse> T mapSinglePipeResponse(InputStream in, Class<T> mapType) throws IOException {
+//        String rawOutput = extractRawString(in);
+//        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+//        Arrays.stream(rawOutput.split(" ")).forEach(line -> {
+//            if (line.contains("=")) {
+//                String[] split = line.split("=", 2);
+//                map.put(split[0], split[1]);
+//            }
+//        });
+//        return modelMapper.map(map, mapType);
+//    }
+
+    public static LinkedHashMap<String, String> convertToMap(String rawResponse) {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        Arrays.stream(rawOutput.split(" ")).forEach(line -> {
+        Arrays.stream(rawResponse.split(" ")).forEach(line -> {
             if (line.contains("=")) {
                 String[] split = line.split("=", 2);
                 map.put(split[0], split[1]);
             }
         });
-        return modelMapper.map(map, mapType);
+        return map;
     }
 
 //    public static List<LinkedHashMap<String, String>> extractResponseRecords(InputStream in, long timeoutMillis) throws IOException {

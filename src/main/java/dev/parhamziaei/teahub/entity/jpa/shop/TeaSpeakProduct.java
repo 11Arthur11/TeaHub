@@ -5,6 +5,7 @@ import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Duration;
 import java.util.List;
@@ -14,21 +15,9 @@ import java.util.List;
 @Setter
 @DiscriminatorValue("TEASPEAK_PRODUCT")
 @NoArgsConstructor
+@SuperBuilder
 public class TeaSpeakProduct extends BillableProduct {
 
     private Integer maxClients;
-
-    @Builder
-    public TeaSpeakProduct(
-            String productName,
-            Category category,
-            Money price,
-            boolean enabled,
-            Duration expiration,
-            Integer maxClients
-    ) {
-        super(productName, category, price, enabled, expiration);
-        this.maxClients = maxClients;
-    }
 
 }

@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 @Data
 @Builder
 public class TSCreateQueryResponse extends BaseQueryResponse {
-    String virtualserver_port;
-    String virtualserver_maxclients;
-    String sid;
-    String token;
+    private String virtualserver_port;
+    private String virtualserver_maxclients;
+    private String sid;
+    private String token;
 }

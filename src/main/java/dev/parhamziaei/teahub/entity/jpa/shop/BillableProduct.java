@@ -3,11 +3,9 @@ package dev.parhamziaei.teahub.entity.jpa.shop;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.time.Duration;
 
 @Entity
@@ -15,19 +13,9 @@ import java.time.Duration;
 @Getter
 @DiscriminatorValue("BILLABLE_PRODUCT")
 @NoArgsConstructor
-public abstract class BillableProduct extends BaseProduct {
+@SuperBuilder
+public class BillableProduct extends BaseProduct {
 
     private Duration expiration;
-
-    public BillableProduct(
-            String productName,
-            Category category,
-            Money price,
-            boolean enabled,
-            Duration expiration
-    ) {
-        super(productName, category, price, enabled);
-        this.expiration = expiration;
-    }
 
 }

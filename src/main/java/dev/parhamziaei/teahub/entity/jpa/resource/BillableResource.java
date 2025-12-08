@@ -2,28 +2,27 @@ package dev.parhamziaei.teahub.entity.jpa.resource;
 
 import dev.parhamziaei.teahub.entity.jpa.shop.BaseProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
+import dev.parhamziaei.teahub.enums.ResourceStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 @DiscriminatorValue("BILLABLE_RESOURCE")
 @NoArgsConstructor
-public abstract class BillableResource extends BaseResource {
+@AllArgsConstructor
+@SuperBuilder
+public class BillableResource extends BaseResource {
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime expiration;
 
-    private boolean autoProlong = true;
+    @Enumerated(EnumType.STRING)
+    private ResourceStatus status;
 
-    public BillableResource(BaseProduct product, String label, User owner, LocalDateTime expiration) {
-        super(product, label, owner);
-        this.expiration = expiration;
-    }
+    private boolean autoProlong = true;
 
 }

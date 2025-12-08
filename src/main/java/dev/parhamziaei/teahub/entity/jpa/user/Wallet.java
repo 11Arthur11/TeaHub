@@ -14,10 +14,13 @@ import java.math.BigDecimal;
 @Setter
 public class Wallet extends BaseEntity<Long> {
 
-    @OneToOne
-    @JoinColumn(name = "owner_id", nullable = false)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private User owner;
 
     @Embedded
     private Money balance;
+
+    public Wallet() {
+        this.balance = new Money(BigDecimal.ZERO);
+    }
 }

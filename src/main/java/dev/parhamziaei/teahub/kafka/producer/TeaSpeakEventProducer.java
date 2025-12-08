@@ -1,9 +1,20 @@
 package dev.parhamziaei.teahub.kafka.producer;
 
+import dev.parhamziaei.teahub.enums.KafkaTopic;
+import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class TeaSpeakEventProducer {
+
+    private final KafkaTemplate<UUID, Object> kafkaTemplate;
+
+    public void sendDeployEvent(TeaSpeakDeployEvent event) {
+        kafkaTemplate.send(KafkaTopic.TEASPEAK_OPERATION_TOPIC.value(), UUID.randomUUID(), event);
+    }
 }

@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.shop;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
-import dev.parhamziaei.teahub.enums.CategoryProductType;
+import dev.parhamziaei.teahub.enums.ProductType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +26,7 @@ public class Category extends BaseEntity<Long> {
     private String slug;
 
     @Enumerated(EnumType.STRING)
-    private CategoryProductType productType;
+    private ProductType productType;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<BaseProduct> products = new ArrayList<>();
@@ -43,13 +43,13 @@ public class Category extends BaseEntity<Long> {
         this.description = description;
         this.slug = slug;
         this.products = new ArrayList<>();
-        this.productType = CategoryProductType.EMPTY;
+        this.productType = ProductType.EMPTY;
     }
 
     @PreUpdate
     private void preUpdate() {
         if (this.products.isEmpty())
-            this.productType = CategoryProductType.EMPTY;
+            this.productType = ProductType.EMPTY;
     }
 
 }

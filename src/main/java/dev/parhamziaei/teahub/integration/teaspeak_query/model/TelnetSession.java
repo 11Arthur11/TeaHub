@@ -1,5 +1,8 @@
 package dev.parhamziaei.teahub.integration.teaspeak_query.model;
 
+import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.BaseQueryResponse;
+import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSCreateQueryResponse;
+import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandExecutionException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryLoginFailedException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.ResponseDecoder;
 import lombok.AllArgsConstructor;
@@ -47,6 +50,17 @@ public class TelnetSession {
             throw new QueryLoginFailedException(
                     "unexpected error while login to " + credentials.ip() + ":" + credentials.port()
             );
+        }
+    }
+
+    public String sendCommand(String command) {
+        out.println(command);
+        out.flush();
+        try {
+            return ResponseDecoder.extractRawString(in);
+        } catch (IOException e) {
+            log.warn("unexpected error while executing ({}) to {}:{}",  command, credentials.ip(), credentials.port(), e);
+            throw new QueryCommandExecutionException("unexpected error while executing command: " + command);
         }
     }
 

@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.integration.teaspeak_query.component;
 import dev.parhamziaei.teahub.configuration.properties.TelnetProperties;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryConnectionPoolingException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryLoginFailedException;
+import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QuerySessionDisconnectedException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.TelnetSession;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionLoginFailedEvent;
@@ -74,7 +75,7 @@ public class TelnetConnectionPool {
     }
 
     public void removeConnection(ServerQueryCredentials credentials) {
-        String key = credentials.ip() + ":" + credentials.port();
+        String key = getKey(credentials);
         TelnetSession telnetSession = connections.get(key);
         if (telnetSession != null) {
             TelnetClient client = telnetSession.getClient();
@@ -87,6 +88,13 @@ public class TelnetConnectionPool {
                 log.error("Remove-Operation -> error while trying to remove connection: {} from the pool because: {}", key, e.getMessage());
             }
         }
+    }
+
+    public TelnetSession getSession(ServerQueryCredentials credentials) {
+        TelnetSession session = connections.get(getKey(credentials));
+        if (!session.getClient().isConnected())
+            throw new QuerySessionDisconnectedException("Instance " + getKey(credentials) + " is not available right now!");
+        return session;
     }
 
     @Async
@@ -200,6 +208,10 @@ public class TelnetConnectionPool {
         } else {
             log.debug("Reconnect-Operation -> connection {}:{} revived successfully in {} attempts", credentials.ip(), credentials.port(), tries);
         }
+    }
+
+    public String getKey(ServerQueryCredentials credentials) {
+        return credentials.ip() + ":" + credentials.port();
     }
 
 }

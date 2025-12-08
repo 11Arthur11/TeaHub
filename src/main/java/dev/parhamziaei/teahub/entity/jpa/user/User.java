@@ -35,7 +35,7 @@ public class User extends BaseEntity<Long> implements UserDetails {
     @Column(nullable = false, length = 80, name = "email")
     private String email;
 
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Wallet wallet;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
@@ -70,7 +70,7 @@ public class User extends BaseEntity<Long> implements UserDetails {
     @Column(name = "locked")
     private boolean locked = false;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private List<Invoice> invoices;
 
     @Column(name = "credentials_expired")
@@ -88,8 +88,8 @@ public class User extends BaseEntity<Long> implements UserDetails {
     }
 
     public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
         wallet.setOwner(this);
+        this.wallet = wallet;
     }
 
     public void setSetting(UserSetting setting) {
