@@ -6,19 +6,20 @@ import dev.parhamziaei.teahub.dto.request.resource.user.NewTeaSpeakResourceReque
 import dev.parhamziaei.teahub.enums.ResourceType;
 import lombok.Data;
 
-//@JsonTypeInfo(
-//        use = JsonTypeInfo.Id.NAME,
-//        include = JsonTypeInfo.As.EXISTING_PROPERTY,
-//        property = "type"
-//)
-//@JsonSubTypes({
-//        @JsonSubTypes.Type(value = NewTeaSpeakResourceRequest.class, name = "TEASPEAK")
-//})
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type",
+        visible = true
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = NewTeaSpeakResourceRequest.class, name = "TEASPEAK")
+})
 @Data
 public abstract class AbstractNewResourceRequest {
 
-    public abstract ResourceType getResourceType();
+//    public abstract ResourceType getResourceType();
+    private ResourceType type;
     private Long productId;
     private String label;
-
 }

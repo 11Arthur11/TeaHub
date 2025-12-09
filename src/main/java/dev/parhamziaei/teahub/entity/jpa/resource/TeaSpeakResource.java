@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.entity.jpa.resource;
 
 import dev.parhamziaei.teahub.entity.jpa.shop.BaseProduct;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
+import dev.parhamziaei.teahub.entity.jpa.teaspeak.TeaSpeakResourceToken;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.ResourceStatus;
 import jakarta.persistence.*;
@@ -11,6 +12,7 @@ import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Setter
@@ -28,16 +30,23 @@ public class TeaSpeakResource extends BillableResource {
     @JoinColumn(name = "query_instance_id")
     private QueryInstance parentQueryInstance;
 
-    @Column(unique = true)
     private String sid;
 
-    private String privilegeToken;
+    @OneToMany(mappedBy = "teaSpeakResource", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<TeaSpeakResourceToken> privilegeTokens;
 
     public void setParentQueryInstance(QueryInstance parentQueryInstance) {
         this.parentQueryInstance = parentQueryInstance;
         if (this.parentQueryInstance.getInstances() == null)
             this.parentQueryInstance.setInstances(new ArrayList<>());
         this.parentQueryInstance.getInstances().add(this);
+    }
+
+    public void addPrivilegeToken(TeaSpeakResourceToken privilegeToken) {
+        if (this.privilegeTokens == null)
+            this.privilegeTokens = new ArrayList<>();
+        privilegeToken.setTeaSpeakResource(this);
+        this.privilegeTokens.add(privilegeToken);
     }
 
 }

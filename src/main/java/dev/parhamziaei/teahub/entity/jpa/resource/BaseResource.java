@@ -4,16 +4,14 @@ import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.entity.jpa.shop.BaseProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "resource")
 @DiscriminatorColumn(name = "resource_type")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -34,15 +32,5 @@ public class BaseResource extends BaseEntity<Long> {
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime orderDate;
-
-    public BaseResource(
-            BaseProduct product,
-            String label,
-            User owner
-    ) {
-        this.product = product;
-        this.label = label;
-        this.owner = owner;
-    }
 
 }

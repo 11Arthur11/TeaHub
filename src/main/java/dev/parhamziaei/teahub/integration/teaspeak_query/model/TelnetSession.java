@@ -64,6 +64,20 @@ public class TelnetSession {
         }
     }
 
+    public void sendCommandAndVerify(String command) {
+        out.println(command);
+        out.flush();
+        try {
+            String rawResponse = ResponseDecoder.extractRawString(in);
+            if (rawResponse != null && !rawResponse.contains("msg=ok")) {
+                log.warn("send command failed to {}:{} - command: -{} response -> {}", credentials.ip(), credentials.port(), command, rawResponse);
+                throw new QueryCommandExecutionException("send command failed to " + credentials.ip() + ":" + credentials.port());
+            }
+        } catch (IOException e) {
+            throw new QueryCommandExecutionException("unexpected error while executing command: " + command);
+        }
+    }
+
     public static String buildKey(ServerQueryCredentials credentials) {
         return credentials.ip() + ":" + credentials.port();
     }

@@ -42,15 +42,16 @@ public class ResourceService {
         BillableResource resource = BillableResource.builder()
                 .label(request.getLabel())
                 .owner(user)
-                .product(product)
                 .orderDate(LocalDateTime.now())
                 .expiration(LocalDateTime.now().plus(product.getExpiration()))
                 .status(ResourceStatus.DEPLOYING)
                 .build();
 
+        product.addUserResource(resource);
+
         billableResourceRepository.save(resource);
 
-        deploymentFactory.getStrategy(request.getResourceType())
+        deploymentFactory.getStrategy(request.getType())
                 .produceDeployEvent(request, resource.getId());
     }
 

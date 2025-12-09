@@ -1,6 +1,8 @@
 package dev.parhamziaei.teahub.integration.teaspeak_query.enums;
 
 public enum TSQuery {
+    PRIVILEGE_KEY_ADD("privilegekeyadd"),
+    USE("use"),
     CREATE_SERVER("createserver"),
     SERVER_INFO("serverinfo");
 

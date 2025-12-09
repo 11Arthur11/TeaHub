@@ -102,6 +102,18 @@ public class User extends BaseEntity<Long> implements UserDetails {
         return roles.stream().map(role -> (GrantedAuthority) role::getName).toList();
     }
 
+    public boolean isAdmin() {
+        Set<String> userRoles = roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
+        for (String userRole : userRoles) {
+            if (userRole.equals("ROLE_ADMIN"))
+                return true;
+        }
+        return false;
+    }
+
     public boolean isStaff() {
         Set<String> userRoles = roles.stream()
                 .map(Role::getName)

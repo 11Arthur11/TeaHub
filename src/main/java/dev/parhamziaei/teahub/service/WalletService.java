@@ -8,10 +8,12 @@ import dev.parhamziaei.teahub.repository.jpa.specification.WalletSpecification;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WalletService {
@@ -28,6 +30,16 @@ public class WalletService {
     public void debit(Long userId, BigDecimal amount) {
         Wallet wallet = walletRepo.findOne(WalletSpecification.forUserId(userId))
                 .orElseThrow(NoSuchEntityException::new);
+
+        if (wallet.getOwner().isAdmin()) {
+            log.info(
+                    "Admin ({}) with phone number ({}) performed a ({}) amount debit operation with no charge",
+                    wallet.getOwner().getFullName(),
+                    wallet.getOwner().getPhone(),
+                    amount
+            );
+            return;
+        }
 
         if (wallet.getBalance().getAmount().compareTo(amount) < 0)
             throw new InsufficientBalanceException();

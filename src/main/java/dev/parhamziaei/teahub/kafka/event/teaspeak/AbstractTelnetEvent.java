@@ -3,8 +3,10 @@ package dev.parhamziaei.teahub.kafka.event.teaspeak;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public abstract class AbstractTelnetEvent {
+public abstract class AbstractTelnetEvent implements Serializable {
 
     private ServerQueryCredentials credentials;
     private String ip;

@@ -68,6 +68,7 @@ public class ProductServiceImpl implements ProductService {
         TeaSpeakProduct product = TeaSpeakProduct.builder()
                 .productName(initRequest.getProductName())
                 .price(price)
+                .enabled(initRequest.isEnabled())
                 .maxClients(initRequest.getMaxClients())
                 .expiration(initRequest.getExpiration())
                 .build();

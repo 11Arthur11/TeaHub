@@ -7,7 +7,9 @@ import dev.parhamziaei.teahub.kafka.handler.TelnetEventHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 
+@Component
 @RequiredArgsConstructor
 @KafkaListener(
         id = "telnetEventConsumer",

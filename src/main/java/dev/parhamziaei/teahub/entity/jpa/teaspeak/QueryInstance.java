@@ -38,6 +38,8 @@ public class QueryInstance extends BaseEntity<Long> {
 
     private boolean isFull;
 
+    private Integer defaultQueryServerGroupId;
+
     @Column(columnDefinition = "TIMESTAMP(0)", updatable = false)
     private LocalDateTime initiatedAt;
 

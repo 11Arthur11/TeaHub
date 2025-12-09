@@ -39,26 +39,19 @@ public class BaseProduct extends BaseEntity<Long> {
 
     private boolean enabled;
 
-    @Builder
-    protected BaseProduct(
-            String productName,
-            Category category,
-            Money price,
-            boolean enabled
-    ) {
-        this.productName = productName;
-        this.category = category;
-        this.price = price;
-        this.enabled = enabled;
-        this.UserResources = new ArrayList<>();
-    }
-
     public void setCategory(Category category) {
         if (this.category != null)
             this.category.getProducts().remove(this);
         this.category = category;
         Hibernate.initialize(category.getProducts());
         category.getProducts().add(this);
+    }
+
+    public void addUserResource(BaseResource resource) {
+        if (this.UserResources == null)
+            this.UserResources = new ArrayList<>();
+        resource.setProduct(this);
+        this.UserResources.add(resource);
     }
 
 }

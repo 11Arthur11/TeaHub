@@ -13,6 +13,7 @@ import java.time.Duration;
 @Getter
 @DiscriminatorValue("BILLABLE_PRODUCT")
 @NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 public class BillableProduct extends BaseProduct {
 
