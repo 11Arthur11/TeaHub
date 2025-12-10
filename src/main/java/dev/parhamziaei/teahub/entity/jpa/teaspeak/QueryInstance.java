@@ -46,7 +46,7 @@ public class QueryInstance extends BaseEntity<Long> {
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime lastUsed;
 
-    @OneToMany(mappedBy = "parentQueryInstance", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parentQueryInstance", fetch = FetchType.EAGER)
     private List<TeaSpeakResource> instances = new ArrayList<>();
 
     @PreUpdate
@@ -63,6 +63,13 @@ public class QueryInstance extends BaseEntity<Long> {
         this.initiatedAt = LocalDateTime.now().withNano(0);
         this.lastUsed = LocalDateTime.now().withNano(0);
         this.isFull = instances.size() >= maxTeaSpeakInstance;
+    }
+
+    public void addInstance(TeaSpeakResource instance) {
+        if (this.instances == null)
+            this.instances = new ArrayList<>();
+        instance.setParentQueryInstance(this);
+        instances.add(instance);
     }
 
     public String getAddress() {

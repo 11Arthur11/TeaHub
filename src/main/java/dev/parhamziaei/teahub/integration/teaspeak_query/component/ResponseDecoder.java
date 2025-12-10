@@ -70,12 +70,14 @@ public class ResponseDecoder {
 
     public static LinkedHashMap<String, String> convertToMap(String rawResponse) {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        Arrays.stream(rawResponse.split(" ")).forEach(line -> {
-            if (line.contains("=")) {
-                String[] split = line.split("=", 2);
-                map.put(split[0], split[1]);
-            }
-        });
+        Arrays.stream(rawResponse.replace("error","")
+                .split(" "))
+                .forEach(line -> {
+                    if (line.contains("=")) {
+                        String[] split = line.split("=", 2);
+                        map.put(split[0].trim(), split[1].trim());
+                    }
+                });
         return map;
     }
 

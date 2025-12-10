@@ -16,8 +16,10 @@ import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.CategoryRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakResourceRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,21 +35,20 @@ public class TeaSpeakService {
     private final QueryCLI queryCLI;
     private final TeaSpeakProductRepository teaSpeakProductRepo;
     private final QueryInstanceService queryInstanceService;
-    private final BillableResourceRepository billableResourceRepo;
     private final TeaSpeakResourceRepository teaSpeakResourceRepository;
 
     @Transactional // ? this method always will called by kafka event handler
     public void deployTeaSpeakInstance(Long resourceId, Integer maxClients) {
         final QueryInstance queryInstance = queryInstanceService.getAvailableQueryInstance();
 
-        final BillableResource resource = billableResourceRepo.findById(resourceId)
+        final TeaSpeakResource teaSpeakResource = teaSpeakResourceRepository.findById(resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
         Optional<TeaSpeakResource> lastInstance = queryInstance.getInstances()
                 .stream()
                 .max(Comparator.comparing(TeaSpeakResource::getPort));
 
-        final Integer instancePort = lastInstance.map(teaSpeakResource -> teaSpeakResource.getPort() + queryProperties.portStep())
+        final Integer instancePort = lastInstance.map(r -> r.getPort() + queryProperties.portStep())
                 .orElseGet(queryInstance::getStartPort);
 
         // ? creating TSCreate command object with teaSpeak product details
@@ -56,9 +57,8 @@ public class TeaSpeakService {
                 .port(String.valueOf(instancePort))
                 .serverName(
                         generateInstanceName(
-                                resource.getOwner().getPhone(),
-                                resource.getId(),
-                                resource.getExpiration()
+                                teaSpeakResource.getOwner().getFullName(),
+                                teaSpeakResource.getId()
                         )
                 ).build();
 
@@ -73,20 +73,19 @@ public class TeaSpeakService {
 
             // ? creating privilege token with specified server group id
             TeaSpeakResourceToken privilegeToken = new TeaSpeakResourceToken(
-                    Long.parseLong(privilegeAddResponse.getToken()),
+                    Long.parseLong(privilegeAddResponse.getToken_id()),
                     privilegeAddResponse.getToken()
             );
 
-            // ? updating billable resource to teaSpeak resource as it deployed
-            TeaSpeakResource teaSpeakResource = TeaSpeakResource.builder()
-                    .port(instancePort)
-                    .maxClients(maxClients)
-                    .sid(createServerResponse.getSid())
-                    .status(ResourceStatus.ONLINE)
-                    .build();
-            teaSpeakResource.setId(resourceId);
+            // ? updating billable resource as it deployed
+            teaSpeakResource.setPort(instancePort);
+            teaSpeakResource.setMaxClients(maxClients);
+            teaSpeakResource.setSid(createServerResponse.getSid());
+            teaSpeakResource.setStatus(ResourceStatus.ONLINE);
             teaSpeakResource.setParentQueryInstance(queryInstance);
             teaSpeakResource.addPrivilegeToken(privilegeToken);
+
+            queryInstance.addInstance(teaSpeakResource);
 
             teaSpeakResourceRepository.save(teaSpeakResource);
 
@@ -95,10 +94,10 @@ public class TeaSpeakService {
         }
     }
 
-    private String generateInstanceName(String userPhone, Long resourceId, LocalDateTime expiration) {
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yyyy/MM/dd-HH:mm");
-        return userPhone + " - RID:" + resourceId + " - Exp:" + expiration.format(formatter);
+    private String generateInstanceName(String fullName, Long resourceId) {
+//        DateTimeFormatter formatter =
+//                DateTimeFormatter.ofPattern("yyyy/MM/dd-HH:mm");
+        return fullName.replace(" ", "\\s") + "\\s-\\sRID:" + resourceId;
     }
 
 }

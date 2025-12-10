@@ -29,9 +29,9 @@ public class Category extends BaseEntity<Long> {
     private ProductType productType;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<BaseProduct> products = new ArrayList<>();
+    private List<BillableProduct> products = new ArrayList<>();
 
-    public void appendProduct(BaseProduct product) {
+    public void appendProduct(BillableProduct product) {
         product.setCategory(this);
         products.add(product);
     }

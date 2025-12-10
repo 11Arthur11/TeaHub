@@ -6,6 +6,6 @@ import dev.parhamziaei.teahub.enums.ResourceType;
 public interface DeploymentStrategyHandler {
 
     ResourceType getType();
-    <T extends AbstractNewResourceRequest> void produceDeployEvent(T request, Long baseResourceId);
+    <T extends AbstractNewResourceRequest> void produceDeployEvent(T request, Long userId);
 
 }

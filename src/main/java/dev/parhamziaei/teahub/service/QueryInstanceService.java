@@ -101,6 +101,7 @@ public class QueryInstanceService {
         QueryInstance queryInstance = QueryInstance.builder()
                 .name(initRequest.getName())
                 .credentials(credentials)
+                .defaultQueryServerGroupId(initRequest.getDefaultQueryServerGroupId())
                 .startPort(initRequest.getStartPort())
                 .stopPort(initRequest.getStopPort())
                 .maxTeaSpeakInstance(initRequest.getMaxTeaSpeakInstance())

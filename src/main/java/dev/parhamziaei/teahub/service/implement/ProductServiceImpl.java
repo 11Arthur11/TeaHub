@@ -5,7 +5,7 @@ import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductUpdateReques
 import dev.parhamziaei.teahub.dto.response.shop.TeaSpeakProductDTO;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductListAdminResponse;
-import dev.parhamziaei.teahub.entity.jpa.shop.BaseProduct;
+import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.enums.ProductType;
@@ -119,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void changeEnabled(Long productId, boolean enabled) {
-        BaseProduct product = productRepository.findById(productId)
+        BillableProduct product = productRepository.findById(productId)
                 .orElseThrow(NoSuchEntityException::new);
 
         product.setEnabled(enabled);
@@ -137,7 +137,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<? extends TeaSpeakProductDTO> mappedResponse = category.getProducts()
                 .stream()
-                .filter(BaseProduct::isEnabled)
+                .filter(BillableProduct::isEnabled)
                 .map(baseProduct -> {
                     Class<? extends TeaSpeakProductDTO> dtoClass = ProductMapperRegistry.getListDto(category.getProductType());
                     return modelMapper.map(baseProduct, dtoClass);

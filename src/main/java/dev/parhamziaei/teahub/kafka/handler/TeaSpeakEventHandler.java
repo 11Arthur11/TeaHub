@@ -17,7 +17,7 @@ public class TeaSpeakEventHandler {
         try {
             teaSpeakService.deployTeaSpeakInstance(event.getBaseResourceId(), event.getMaxClients());
         } catch (Exception e) {
-            log.warn("Exception on TeaSpeakEventHandler -> {}", e.getMessage());
+            log.warn("Exception on TeaSpeakEventHandler -> {}", e.getMessage(), e);
         }
     }
 

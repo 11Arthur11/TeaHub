@@ -1,7 +1,6 @@
 package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
-import dev.parhamziaei.teahub.entity.jpa.resource.BaseResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -31,28 +30,14 @@ public class ResourceService {
 
     @Transactional
     public void newBillableResource(Long userId, AbstractNewResourceRequest request) {
-        User user = userRepo.findById(userId)
-                .orElseThrow(NoSuchEntityException::new);
 
         BillableProduct product = billableProductRepo.findById(request.getProductId())
                 .orElseThrow(NoSuchEntityException::new);
 
         walletService.debit(userId, product.getPrice().getAmount());
 
-        BillableResource resource = BillableResource.builder()
-                .label(request.getLabel())
-                .owner(user)
-                .orderDate(LocalDateTime.now())
-                .expiration(LocalDateTime.now().plus(product.getExpiration()))
-                .status(ResourceStatus.DEPLOYING)
-                .build();
-
-        product.addUserResource(resource);
-
-        billableResourceRepository.save(resource);
-
         deploymentFactory.getStrategy(request.getType())
-                .produceDeployEvent(request, resource.getId());
+                .produceDeployEvent(request, userId);
     }
 
 }

@@ -57,6 +57,7 @@ public class TelnetSession {
         out.println(command);
         out.flush();
         try {
+            log.debug("command: {} executed to {}", command, getKey());
             return ResponseDecoder.extractRawString(in);
         } catch (IOException e) {
             log.warn("unexpected error while executing ({}) to {}:{}",  command, credentials.ip(), credentials.port(), e);

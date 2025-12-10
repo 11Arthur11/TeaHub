@@ -7,11 +7,13 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandE
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.TelnetSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QueryCommandLineInterfaceImpl implements QueryCLI{
@@ -25,6 +27,7 @@ public class QueryCommandLineInterfaceImpl implements QueryCLI{
         final String command = commandFactory.createServerCommand(createRequest);
         TelnetSession session = connectionPool.getSession(credentials);
         String rawResponse = session.sendCommand(command);
+        log.debug("raw response {}", rawResponse);
         return modelMapper.map(
                 ResponseDecoder.convertToMap(rawResponse),
                 TSCreateQueryResponse.class

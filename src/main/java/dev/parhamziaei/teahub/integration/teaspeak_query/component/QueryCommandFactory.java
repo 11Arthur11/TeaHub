@@ -12,7 +12,7 @@ import static dev.parhamziaei.teahub.integration.teaspeak_query.enums.TSQuery.*;
 public class QueryCommandFactory {
 
     public String createServerCommand(TSCreateQueryRequest req) {
-        return CREATE_SERVER.cmd()
+        return SERVER_CREATE.cmd()
                 + " virtualserver_name=" + req.getServerName()
                 + " virtualserver_port=" + req.getPort()
                 + " virtualserver_maxclients=" + req.getMaxClients();

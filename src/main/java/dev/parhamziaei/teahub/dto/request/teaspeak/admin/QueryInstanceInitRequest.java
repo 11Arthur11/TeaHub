@@ -27,6 +27,9 @@ public class QueryInstanceInitRequest {
     private String queryPassword;
 
     @NotNull
+    private Integer defaultQueryServerGroupId;
+
+    @NotNull
     private Integer maxTeaSpeakInstance;
 
     @Range(min = 1, max = 65535)

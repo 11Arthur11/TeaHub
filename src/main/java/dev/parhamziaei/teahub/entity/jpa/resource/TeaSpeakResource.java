@@ -1,16 +1,11 @@
 package dev.parhamziaei.teahub.entity.jpa.resource;
 
-import dev.parhamziaei.teahub.entity.jpa.shop.BaseProduct;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.TeaSpeakResourceToken;
-import dev.parhamziaei.teahub.entity.jpa.user.User;
-import dev.parhamziaei.teahub.enums.ResourceStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.Hibernate;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
