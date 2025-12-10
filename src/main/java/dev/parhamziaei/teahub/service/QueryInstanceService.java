@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
-import dev.parhamziaei.teahub.dto.response.teaspeak.QueryInstanceListResponse;
+import dev.parhamziaei.teahub.dto.response.teaspeak.admin.QueryInstanceListResponse;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;

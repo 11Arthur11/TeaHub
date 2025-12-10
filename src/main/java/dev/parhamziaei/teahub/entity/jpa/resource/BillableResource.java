@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.ResourceStatus;
+import dev.parhamziaei.teahub.enums.ResourceType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public class BillableResource extends BaseEntity<Long> {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private BillableProduct product;
 
@@ -30,6 +31,10 @@ public class BillableResource extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "resource_type", updatable = false, insertable = false)
+    private ResourceType resourceType;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime orderDate;

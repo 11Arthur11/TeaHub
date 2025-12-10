@@ -1,8 +1,6 @@
 package dev.parhamziaei.teahub.service.deployment.strategy;
 
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
-import dev.parhamziaei.teahub.dto.request.resource.user.NewTeaSpeakResourceRequest;
-import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -31,7 +29,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
 
     @Override
     public ResourceType getType() {
-        return ResourceType.TEASPEAK;
+        return ResourceType.TEASPEAK_RESOURCE;
     }
 
     @Override

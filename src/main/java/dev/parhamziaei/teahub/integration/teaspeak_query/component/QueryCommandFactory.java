@@ -24,13 +24,15 @@ public class QueryCommandFactory {
     }
 
     public String generatePrivilegeCommand(String serverGroupId) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String dateTime = LocalDateTime.now().format(dtf);
         return PRIVILEGE_KEY_ADD.cmd()
                 + " tokentype=0"
                 + " tokenid1=" + serverGroupId
                 + " tokenid2=0"
-                + " tokendescription=" + "Generated\\sBy\\sTeaHub\\sAt:\\s" + dateTime;
+                + " tokendescription=" + "Generated\\sBy\\sTeaHub";
+    }
+
+    public String privilegeListCommand() {
+        return PRIVILEGE_KEY_LIST.cmd();
     }
 
 }

@@ -45,6 +45,10 @@ public class MessageService {
         return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
     }
 
+    public String get(ResourceStatus status) {
+        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
+    }
+
     public String get(Text text) {
         return textSource.getMessage(text.key(), null, Locale.forLanguageTag("fa"));
     }

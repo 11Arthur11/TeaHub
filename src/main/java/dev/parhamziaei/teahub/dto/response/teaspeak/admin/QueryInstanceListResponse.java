@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.dto.response.teaspeak;
+package dev.parhamziaei.teahub.dto.response.teaspeak.admin;
 
 import lombok.Data;
 

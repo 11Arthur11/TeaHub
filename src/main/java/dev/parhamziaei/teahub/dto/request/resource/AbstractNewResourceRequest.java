@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.parhamziaei.teahub.dto.request.resource.user.NewTeaSpeakResourceRequest;
 import dev.parhamziaei.teahub.enums.ResourceType;
+import dev.parhamziaei.teahub.validation.annotation.SafeName;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @JsonTypeInfo(
@@ -17,9 +19,11 @@ import lombok.Data;
 })
 @Data
 public abstract class AbstractNewResourceRequest {
-
-//    public abstract ResourceType getResourceType();
     private ResourceType type;
+
+    @NotNull
     private Long productId;
+
+    @SafeName
     private String label;
 }

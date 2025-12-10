@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.integration.teaspeak_query.component;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.request.TSCreateQueryRequest;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSCreateQueryResponse;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSPrivilegeAddResponse;
+import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSPrivilegeListResponse;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandExecutionException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.TelnetSession;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -46,6 +49,17 @@ public class QueryCommandLineInterfaceImpl implements QueryCLI{
                 ResponseDecoder.convertToMap(rawResponse),
                 TSPrivilegeAddResponse.class
         );
+    }
+
+    @Override
+    public List<TSPrivilegeListResponse> getPrivilegeTokens(ServerQueryCredentials credentials, String sid) {
+        TelnetSession session = connectionPool.getSession(credentials);
+        session.sendCommandAndVerify(commandFactory.useCommand(sid));
+        String rawResponse = session.sendCommand(commandFactory.privilegeListCommand());
+        return ResponseDecoder.convertMultiPipeToMap(rawResponse)
+                .stream()
+                .map(map -> modelMapper.map(map, TSPrivilegeListResponse.class))
+                .toList();
     }
 
 }

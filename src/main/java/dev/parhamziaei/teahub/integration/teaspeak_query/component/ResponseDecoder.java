@@ -10,8 +10,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -79,6 +81,15 @@ public class ResponseDecoder {
                     }
                 });
         return map;
+    }
+
+    public static List<LinkedHashMap<String, String>> convertMultiPipeToMap(String rawResponse) {
+        List<LinkedHashMap<String, String>> response = new ArrayList<>();
+        String[] pipes = rawResponse.split("\\|");
+        for (String pipe : pipes){
+            response.add(convertToMap(pipe));
+        }
+        return response;
     }
 
 //    public static List<LinkedHashMap<String, String>> extractResponseRecords(InputStream in, long timeoutMillis) throws IOException {

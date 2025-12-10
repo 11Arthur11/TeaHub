@@ -9,6 +9,7 @@ import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.ResourceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,29 @@ public class ResourceController {
     private final MessageService messageService;
 
     @PostMapping("/new")
-    public ResponseEntity<SimpleResponse> newResource(@RequestBody AbstractNewResourceRequest newResourceRequest) {
+    public ResponseEntity<SimpleResponse> newResource(@Valid @RequestBody AbstractNewResourceRequest newResourceRequest) {
         resourceService.newBillableResource(currentUser.getId(), newResourceRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.PROCESSING,
                 messageService.get(ServiceMessage.RESOURCE_PROCESSING),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getResources() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                resourceService.getAllUserResources(currentUser.getId()),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/{resourceId}")
+    public ResponseEntity<?> getResourceById(@PathVariable Long resourceId) {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                resourceService.findResourceById(currentUser.getId(), resourceId),
                 HttpStatus.OK
         );
     }

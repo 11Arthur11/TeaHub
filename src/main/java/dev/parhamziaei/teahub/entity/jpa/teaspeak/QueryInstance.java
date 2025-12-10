@@ -46,7 +46,7 @@ public class QueryInstance extends BaseEntity<Long> {
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime lastUsed;
 
-    @OneToMany(mappedBy = "parentQueryInstance", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parentQueryInstance", fetch = FetchType.LAZY)
     private List<TeaSpeakResource> instances = new ArrayList<>();
 
     @PreUpdate

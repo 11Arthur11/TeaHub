@@ -1,0 +1,15 @@
+package dev.parhamziaei.teahub.service.mapper.resource;
+
+import dev.parhamziaei.teahub.dto.response.resource.BaseResourceDetailResponse;
+import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
+import dev.parhamziaei.teahub.enums.ResourceType;
+import jakarta.transaction.Transactional;
+
+public interface ResourceMapperHandler {
+
+    ResourceType getType();
+
+    @Transactional
+    BaseResourceDetailResponse map(BillableResource resource);
+
+}
