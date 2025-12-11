@@ -11,6 +11,7 @@ public class TeaSpeakResourceDetailResponse extends BaseResourceDetailResponse {
 
     private Integer maxClients;
     private Integer port;
+    private String teaSpeakStatus;
     private TeaSpeakResourceTokenResponse privilegeToken;
 
 }

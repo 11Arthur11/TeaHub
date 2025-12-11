@@ -47,7 +47,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
                 .autoProlong(true)
                 .orderDate(LocalDateTime.now())
                 .expiration(LocalDateTime.now().plus(product.getExpiration()))
-                .status(ResourceStatus.DEPLOYING)
+                .resourceStatus(ResourceStatus.DEPLOYING)
                 .build();
 
         product.addUserResource(resource);

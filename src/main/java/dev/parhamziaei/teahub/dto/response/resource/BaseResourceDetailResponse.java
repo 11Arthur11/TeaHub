@@ -13,7 +13,7 @@ public abstract class BaseResourceDetailResponse {
     private String label;
     private String productName;
     private ResourceType resourceType;
-    private String status;
+    private String resourceStatus;
     private LocalDateTime orderDate;
     private LocalDateTime expiration;
     private boolean autoProlong;

@@ -5,7 +5,9 @@ public enum TSQuery {
     USE("use"),
     SERVER_CREATE("servercreate"),
     SERVER_INFO("serverinfo"),
-    PRIVILEGE_KEY_LIST("privilegekeylist"),;
+    PRIVILEGE_KEY_LIST("privilegekeylist"),
+    SERVER_START("serverstart"),
+    SERVER_STOP("serverstop"),;
 
 
 

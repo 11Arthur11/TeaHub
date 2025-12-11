@@ -4,6 +4,8 @@ public enum ServiceMessage {
 
     // ? defaults
     DEFAULT_EDITED("success.service.default.edited"),
+    DEFAULT_ACTION_DONE("success.service.default.action-done"),
+    DEFAULT_ACTION_FAILED("success.service.default.action-failed"),
     DEFAULT_CREATED("success.service.default.created"),
     DEFAULT_CONFLICTION("error.service.default.confliction"),
     DEFAULT_IN_USE("error.service.default.in-use"),

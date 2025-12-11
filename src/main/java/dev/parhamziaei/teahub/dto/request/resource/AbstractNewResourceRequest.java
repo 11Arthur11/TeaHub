@@ -15,7 +15,7 @@ import lombok.Data;
         visible = true
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = NewTeaSpeakResourceRequest.class, name = "TEASPEAK")
+        @JsonSubTypes.Type(value = NewTeaSpeakResourceRequest.class, name = "TEASPEAK_RESOURCE")
 })
 @Data
 public abstract class AbstractNewResourceRequest {

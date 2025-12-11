@@ -47,7 +47,7 @@ public class ResourceController {
     public ResponseEntity<?> getResourceById(@PathVariable Long resourceId) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
-                resourceService.findResourceById(currentUser.getId(), resourceId),
+                resourceService.findResourceByUser(currentUser.getId(), resourceId),
                 HttpStatus.OK
         );
     }

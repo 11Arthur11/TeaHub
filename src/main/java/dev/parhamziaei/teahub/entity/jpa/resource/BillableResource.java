@@ -43,7 +43,7 @@ public class BillableResource extends BaseEntity<Long> {
     private LocalDateTime expiration;
 
     @Enumerated(EnumType.STRING)
-    private ResourceStatus status;
+    private ResourceStatus resourceStatus;
 
     private boolean autoProlong = true;
 

@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.enums;
 
 public enum ResourceStatus {
     DEPLOYING("instance-status.deploying"),
-    ONLINE("instance-status.online"),
+    ACTIVE("instance-status.active"),
     INVOICE_PENDING("instance-status.invoice-pending"),;
 
     private final String key;

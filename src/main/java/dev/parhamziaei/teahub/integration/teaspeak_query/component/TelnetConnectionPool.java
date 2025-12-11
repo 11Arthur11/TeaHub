@@ -1,9 +1,9 @@
 package dev.parhamziaei.teahub.integration.teaspeak_query.component;
 
 import dev.parhamziaei.teahub.configuration.properties.TelnetProperties;
+import dev.parhamziaei.teahub.integration.teaspeak_query.enums.TelnetSessionState;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryConnectionPoolingException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryLoginFailedException;
-import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QuerySessionDisconnectedException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.TelnetSession;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionLoginFailedEvent;
@@ -17,7 +17,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,15 +44,11 @@ public class TelnetConnectionPool {
         try {
             client.connect(credentials.ip(), credentials.port());
             log.debug("Pooling-Operation -> Connected to {}:{}", credentials.ip(), credentials.port());
-            TelnetSession session = TelnetSession.builder()
-                    .credentials(credentials)
-                    .client(client)
-                    .in(client.getInputStream())
-                    .out(new PrintStream(client.getOutputStream()))
-                    .build();
+            TelnetSession session = new TelnetSession(client, credentials);
 
             String key = session.getKey();
             session.login();
+            session.getState().set(TelnetSessionState.IDLE);
             connections.put(key, session);
             log.debug("Pooling-Operation -> Connection session added to pool -> {}", key);
         } catch (IOException e) {
@@ -90,19 +85,50 @@ public class TelnetConnectionPool {
         }
     }
 
-    public TelnetSession getSession(ServerQueryCredentials credentials) {
+    public TelnetSession borrow(ServerQueryCredentials credentials) {
+        int timeout = 20000;
+        long start = System.currentTimeMillis();
         TelnetSession session = connections.get(getKey(credentials));
-        if (!session.getClient().isConnected())
-            throw new QuerySessionDisconnectedException("Instance " + getKey(credentials) + " is not available right now!");
-        return session;
+        while (System.currentTimeMillis() - start < timeout) {
+            try {
+                if (session.getState().compareAndSet(TelnetSessionState.IDLE, TelnetSessionState.BUSY) && session.getClient().isConnected()) {
+                    session.getPoolLock().lock();
+                    return session;
+                } else if (session.getState().get() == TelnetSessionState.BUSY) {
+                    Thread.sleep(50);
+                } else
+                    throw new QueryConnectionPoolingException("error while trying to borrow connection from the pool - there is a high chance that query is unreachable");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        throw new QueryConnectionPoolingException("timeout while trying to borrow connection from the pool");
+    }
+
+    public void returnToPool(TelnetSession session) {
+        try {
+            session.cleanInputStream();
+        } catch (IOException e) {
+            log.debug("Pooling-Operation -> error while trying to clean input stream: {}", e.getMessage());
+        }
+        session.getPoolLock().unlock();
+        session.getState().set(TelnetSessionState.IDLE);
     }
 
     @Async
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */1 * * * *")
     public void heartbeat() {
         log.debug("Heartbeat-Operation -> started...");
         connections.values().forEach(session -> {
-            if (!session.getClient().isConnected()) {
+            boolean connected;
+            if (session.getClient().isConnected()) {
+                String versionResponse = session.execute("version");
+                connected = versionResponse.contains("msg=ok");
+            } else {
+                connected = false;
+            }
+            if (!connected) {
+                session.getState().set(TelnetSessionState.UNHEALTHY);
                 log.debug("Heartbeat-Operation -> new dead connection detected trying to heartbeat...");
 
                 TelnetClient refreshedClient = new TelnetClient();
@@ -116,18 +142,14 @@ public class TelnetConnectionPool {
                     );
                     log.debug("Heartbeat-Operation -> successful to {}:{} , trying to login...", credentials.ip(), credentials.port());
 
-                    TelnetSession newSession = TelnetSession.builder()
-                            .credentials(credentials)
-                            .client(refreshedClient)
-                            .in(refreshedClient.getInputStream())
-                            .out(new PrintStream(refreshedClient.getOutputStream()))
-                            .build();
+                    TelnetSession newSession = new TelnetSession(refreshedClient, credentials);
 
                     newSession.login();
                     log.debug("Heartbeat-Operation -> login successful to {}:{} , adding connection to pool...", credentials.ip(), credentials.port());
 
                     String key = newSession.getKey();
                     connections.remove(session.getKey());
+                    session.getState().set(TelnetSessionState.IDLE);
                     connections.put(key, newSession);
 
                     log.debug("Heartbeat-Operation -> connection added to pool -> {}", session.getKey());
@@ -152,11 +174,6 @@ public class TelnetConnectionPool {
     }
 
     @Async
-    public void reLogin(TelnetSession session) {
-
-    }
-
-    @Async
     public void reconnect(ServerQueryCredentials credentials) {
         int tries = 0;
         boolean connected = false;
@@ -176,16 +193,12 @@ public class TelnetConnectionPool {
                 );
                 log.debug("Reconnect-Operation -> successful to {}:{} , trying to login...", credentials.ip(), credentials.port());
 
-                TelnetSession newSession = TelnetSession.builder()
-                        .credentials(credentials)
-                        .client(newClient)
-                        .in(newClient.getInputStream())
-                        .out(new PrintStream(newClient.getOutputStream()))
-                        .build();
+                TelnetSession newSession = new TelnetSession(newClient, credentials);
 
                 newSession.login();
                 log.debug("Reconnect-Operation -> login successful to {}:{} , adding connection to pool...", credentials.ip(), credentials.port());
 
+                newSession.getState().set(TelnetSessionState.IDLE);
                 connections.remove(newSession.getKey());
                 connections.put(newSession.getKey(), newSession);
                 log.debug("Reconnect-Operation -> connection added to pool -> {} , attempts: {}", newSession.getKey(), tries);

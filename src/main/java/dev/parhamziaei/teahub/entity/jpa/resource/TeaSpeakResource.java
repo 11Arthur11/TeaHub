@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.resource;
 
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
+import dev.parhamziaei.teahub.enums.TeaSpeakStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -22,6 +23,8 @@ public class TeaSpeakResource extends BillableResource {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "query_instance_id")
     private QueryInstance parentQueryInstance;
+
+    private TeaSpeakStatus teaSpeakStatus;
 
     private String sid;
 

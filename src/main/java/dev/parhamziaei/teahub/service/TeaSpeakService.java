@@ -4,14 +4,19 @@ import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResourceToken;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.ResourceStatus;
+import dev.parhamziaei.teahub.enums.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.exception.custom.service.teaspeak.ActionNotExecutableException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.QueryCLI;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.request.TSCreateQueryRequest;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSCreateQueryResponse;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSPrivilegeAddResponse;
+import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSServerInfoResponse;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandExecutionException;
 import dev.parhamziaei.teahub.repository.jpa.*;
+import dev.parhamziaei.teahub.service.interfaces.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -30,6 +35,7 @@ public class TeaSpeakService {
     private final QueryInstanceService queryInstanceService;
     private final TeaSpeakResourceRepository teaSpeakResourceRepository;
     private final TeaSpeakResourceTokenRepository teaSpeakResourceTokenRepo;
+    private final UserRepository userRepo;
 
     @Transactional // ? this method always will called by kafka event handler
     public void deployTeaSpeakInstance(Long resourceId, Integer maxClients) {
@@ -75,8 +81,8 @@ public class TeaSpeakService {
             teaSpeakResource.setPort(instancePort);
             teaSpeakResource.setMaxClients(maxClients);
             teaSpeakResource.setSid(createServerResponse.getSid());
-            teaSpeakResource.setStatus(ResourceStatus.ONLINE);
-            teaSpeakResource.setParentQueryInstance(queryInstance);
+            teaSpeakResource.setResourceStatus(ResourceStatus.ACTIVE);
+            teaSpeakResource.setTeaSpeakStatus(TeaSpeakStatus.ONLINE);
             teaSpeakResource.setPrivilegeToken(privilegeToken);
 
             Hibernate.initialize(queryInstance.getInstances());
@@ -89,22 +95,50 @@ public class TeaSpeakService {
         }
     }
 
+    @Transactional
+    public void syncWithQuery(TeaSpeakResource teaSpeakResource) {
+        QueryInstance queryInstance = teaSpeakResource.getParentQueryInstance();
 
+        TSServerInfoResponse info = queryCLI.getServerInfo(queryInstance.getCredentials(), teaSpeakResource.getSid());
+        teaSpeakResource.setTeaSpeakStatus(TeaSpeakStatus.fromValue(info.getVirtualserver_status()));
+    }
 
-//    @Scheduled(cron = "0 */5 * * * *")
-//    public void syncDBTokensWithQuery() {
-//        List<TeaSpeakResource> teaSpeaks = teaSpeakResourceRepository.findAll();
-//        teaSpeaks.forEach(ts -> {
-//            List<TSPrivilegeListResponse> tsTokens = queryCLI.getPrivilegeTokens(ts.getParentQueryInstance().getCredentials(), ts.getSid());
-//            ts.getPrivilegeTokens().forEach(dbToken -> {
-//                Optional<TSPrivilegeListResponse> matchToken = tsTokens.stream().filter(t -> t.getToken().equals(dbToken.getToken())).findFirst();
-//                if (matchToken.isPresent() && (Integer.parseInt(matchToken.get().getToken_use_count()) > 0))
-//                    teaSpeakResourceTokenRepo.delete(dbToken);
-//                if (matchToken.isEmpty())
-//                    teaSpeakResourceTokenRepo.delete(dbToken);
-//            });
-//        });
-//    }
+    @Transactional
+    public void startTeaSpeakInstance(Long userId, Long resourceId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        TeaSpeakResource resource = teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        syncWithQuery(resource);
+
+        if (resource.getTeaSpeakStatus() == TeaSpeakStatus.OFFLINE) {
+            QueryInstance queryInstance = resource.getParentQueryInstance();
+            queryCLI.startServer(queryInstance.getCredentials(), resource.getSid());
+        } else {
+            throw new ActionNotExecutableException("already started");
+        }
+    }
+
+    @Transactional
+    public void stopTeaSpeakInstance(Long userId, Long resourceId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        TeaSpeakResource resource = teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        syncWithQuery(resource);
+
+        if (resource.getTeaSpeakStatus() == TeaSpeakStatus.ONLINE) {
+            QueryInstance queryInstance = resource.getParentQueryInstance();
+            queryCLI.stopServer(queryInstance.getCredentials(), resource.getSid());
+        } else {
+            throw new ActionNotExecutableException("already stopped");
+        }
+    }
+
 
 
 

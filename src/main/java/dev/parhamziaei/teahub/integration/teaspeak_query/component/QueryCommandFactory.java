@@ -31,6 +31,20 @@ public class QueryCommandFactory {
                 + " tokendescription=" + "Generated\\sBy\\sTeaHub";
     }
 
+    public String startCommand(String sid) {
+        return SERVER_START.cmd()
+                + " sid=" + sid;
+    }
+
+    public String stopCommand(String sid) {
+        return SERVER_STOP.cmd()
+                + " sid=" + sid;
+    }
+
+    public String serverInfoCommand() {
+        return SERVER_INFO.cmd();
+    }
+
     public String privilegeListCommand() {
         return PRIVILEGE_KEY_LIST.cmd();
     }

@@ -15,10 +15,7 @@ import dev.parhamziaei.teahub.exception.custom.service.shop.CategoryNotFoundExce
 import dev.parhamziaei.teahub.exception.custom.service.storage.FileStorageServiceException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.MediaSizeTooLargeException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.MediaTypeNotAllowedException;
-import dev.parhamziaei.teahub.exception.custom.service.teaspeak.InstancePortRangeNotValidException;
-import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
-import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceException;
-import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceNotFoundException;
+import dev.parhamziaei.teahub.exception.custom.service.teaspeak.*;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmentReachedException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
 import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
@@ -117,7 +114,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // TODO <Ticket Service Exceptions>
+    // ? <Ticket Service Exceptions>
     @ExceptionHandler(TicketServiceException.class)
     public ResponseEntity<SimpleResponse> handleTicketServiceException() {
         return ResponseBuilder.buildError(
@@ -134,7 +131,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // TODO <File storage , storing exceptions>
+    // ? <File storage , storing exceptions>
     @ExceptionHandler(FileStorageServiceException.class)
     public ResponseEntity<SimpleResponse> handleFileStorageService() {
         return ResponseBuilder.buildError(
@@ -161,7 +158,7 @@ public class GlobalExceptionHandler {
 
 
 
-    // TODO <Authorization Exceptions>
+    // ? <Authorization Exceptions>
     @ExceptionHandler(NoSuchRoleException.class)
     public ResponseEntity<SimpleResponse> handleNoSuchRoleException() {
         log.error("Error on finding role, did you removed roles from database?");
@@ -171,7 +168,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // TODO <Query & TeaSpeak Service Exceptions>
+    // ? <Query & TeaSpeak Service Exceptions>
     @ExceptionHandler(QueryInstanceAlreadyInitiatedException.class)
     public ResponseEntity<SimpleResponse> handleQueryInstanceAlreadyInitiatedException() {
         return ResponseBuilder.buildError(
@@ -201,6 +198,14 @@ public class GlobalExceptionHandler {
         return ResponseBuilder.buildError(
                 messageService.get(ServiceMessage.QUERY_INSTANCE_NOT_FOUND),
                 HttpStatus.FORBIDDEN
+        );
+    }
+
+    @ExceptionHandler(ActionNotExecutableException.class)
+    public ResponseEntity<SimpleResponse> handleActionNotExecutableException(ActionNotExecutableException e) {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.DEFAULT_ACTION_FAILED) + e.getMessage(),
+                HttpStatus.BAD_REQUEST
         );
     }
 

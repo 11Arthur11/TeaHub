@@ -53,4 +53,7 @@ public class MessageService {
         return textSource.getMessage(text.key(), null, Locale.forLanguageTag("fa"));
     }
 
+    public String get(TeaSpeakStatus teaSpeakStatus) {
+        return textSource.getMessage(teaSpeakStatus.key(), null, Locale.forLanguageTag("fa"));
+    }
 }

@@ -1,6 +1,5 @@
-package dev.parhamziaei.teahub.dto.response.resource;
+package dev.parhamziaei.teahub.dto.response.resource.teaspeak.user;
 
-import dev.parhamziaei.teahub.enums.ResourceStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -11,7 +10,7 @@ public class ResourceListResponse {
     private Long id;
     private String label;
     private String productName;
-    private String status;
+    private String resourceStatus;
     private LocalDateTime expiration;
 
 }
