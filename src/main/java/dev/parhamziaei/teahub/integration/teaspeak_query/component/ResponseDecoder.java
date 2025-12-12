@@ -19,13 +19,6 @@ import java.util.List;
 @Service
 public class ResponseDecoder {
 
-    private final TelnetProperties telnetProperties;
-    private final ModelMapper modelMapper;
-
-    public ResponseDecoder(TelnetProperties telnetProperties, ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-        this.telnetProperties = telnetProperties;
-    }
     private final static int READ_TIMEOUT = 5000;
 
     public static String extractRawString(InputStream in) throws IOException {
@@ -40,7 +33,7 @@ public class ResponseDecoder {
             if (len > 0) {
                 outByte.write(buffer, 0, len);
                 String soFar = outByte.toString(StandardCharsets.UTF_8);
-                if (soFar.contains("msg=")) break;
+                if (soFar.length() - 4 > soFar.lastIndexOf("msg=")) break;
             }
             if (len == 0) {
                 try { Thread.sleep(10); } catch (InterruptedException ignored) {}
