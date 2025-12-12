@@ -29,7 +29,6 @@ public class QueryCommandLineInterfaceImpl implements QueryCLI{
         TelnetSession session = connectionPool.borrow(credentials);
         String rawResponse = session.execute(command);
         connectionPool.returnToPool(session);
-        log.debug("raw response {}", rawResponse);
         return modelMapper.map(
                 ResponseDecoder.convertToMap(rawResponse),
                 TSCreateQueryResponse.class

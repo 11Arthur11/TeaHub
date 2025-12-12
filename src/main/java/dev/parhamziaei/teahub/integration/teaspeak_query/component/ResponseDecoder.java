@@ -33,7 +33,7 @@ public class ResponseDecoder {
             if (len > 0) {
                 outByte.write(buffer, 0, len);
                 String soFar = outByte.toString(StandardCharsets.UTF_8);
-                if (soFar.length() - 4 > soFar.lastIndexOf("msg=")) break;
+                if (soFar.contains("msg=") && soFar.length() - 6 >= soFar.lastIndexOf("msg=")) break;
             }
             if (len == 0) {
                 try { Thread.sleep(10); } catch (InterruptedException ignored) {}

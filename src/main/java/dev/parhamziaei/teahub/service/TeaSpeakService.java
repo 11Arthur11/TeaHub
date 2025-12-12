@@ -31,7 +31,6 @@ public class TeaSpeakService {
 
     private final QueryInstanceProperties queryProperties;
     private final QueryCLI queryCLI;
-    private final TeaSpeakProductRepository teaSpeakProductRepo;
     private final QueryInstanceService queryInstanceService;
     private final TeaSpeakResourceRepository teaSpeakResourceRepository;
     private final TeaSpeakResourceTokenRepository teaSpeakResourceTokenRepo;
@@ -41,8 +40,8 @@ public class TeaSpeakService {
     public void deployTeaSpeakInstance(Long resourceId, Integer maxClients) {
         final QueryInstance queryInstance = queryInstanceService.getAvailableQueryInstance();
 
-        final TeaSpeakResource teaSpeakResource = teaSpeakResourceRepository.findById(resourceId)
-                .orElseThrow(NoSuchEntityException::new);
+        TeaSpeakResource teaSpeakResource = teaSpeakResourceRepository.findById(resourceId)
+                .orElseThrow(() -> new NoSuchEntityException("NO TEASPEAK RESOURCE FOUND WITH ID: " + resourceId));
 
         Optional<TeaSpeakResource> lastInstance = queryInstance.getInstances()
                 .stream()
@@ -71,11 +70,11 @@ public class TeaSpeakService {
                     String.valueOf(queryInstance.getDefaultQueryServerGroupId())
             );
 
-            // ? creating privilege token with specified server group id
-            TeaSpeakResourceToken privilegeToken = new TeaSpeakResourceToken(
-                    Long.parseLong(privilegeAddResponse.getToken_id()),
-                    privilegeAddResponse.getToken()
-            );
+            // ? adding new generate privilege token for resource
+            TeaSpeakResourceToken token = teaSpeakResource.getPrivilegeToken();
+            token.setQueryId(Long.parseLong(privilegeAddResponse.getToken_id()));
+            token.setToken(privilegeAddResponse.getToken());
+
 
             // ? updating billable resource as it deployed
             teaSpeakResource.setPort(instancePort);
@@ -83,7 +82,6 @@ public class TeaSpeakService {
             teaSpeakResource.setSid(createServerResponse.getSid());
             teaSpeakResource.setResourceStatus(ResourceStatus.ACTIVE);
             teaSpeakResource.setTeaSpeakStatus(TeaSpeakStatus.ONLINE);
-            teaSpeakResource.setPrivilegeToken(privilegeToken);
 
             Hibernate.initialize(queryInstance.getInstances());
             queryInstance.addInstance(teaSpeakResource);

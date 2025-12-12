@@ -24,13 +24,13 @@ public class TeaSpeakResource extends BillableResource {
     @JoinColumn(name = "query_instance_id")
     private QueryInstance parentQueryInstance;
 
+    @Enumerated(EnumType.STRING)
     private TeaSpeakStatus teaSpeakStatus;
 
     private String sid;
 
     @OneToOne(mappedBy = "teaSpeakResource", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "privilege_token_id")
-    private TeaSpeakResourceToken privilegeTokens;
+    private TeaSpeakResourceToken privilegeToken;
 
     public void setParentQueryInstance(QueryInstance parentQueryInstance) {
         this.parentQueryInstance = parentQueryInstance;
@@ -40,8 +40,8 @@ public class TeaSpeakResource extends BillableResource {
     }
 
     public void setPrivilegeToken(TeaSpeakResourceToken privilegeToken) {
-        this.privilegeTokens = privilegeToken;
         privilegeToken.setTeaSpeakResource(this);
+        this.privilegeToken = privilegeToken;
     }
 
 }
