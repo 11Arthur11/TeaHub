@@ -7,7 +7,8 @@ public enum TSQuery {
     SERVER_INFO("serverinfo"),
     PRIVILEGE_KEY_LIST("privilegekeylist"),
     SERVER_START("serverstart"),
-    SERVER_STOP("serverstop"),;
+    SERVER_STOP("serverstop"),
+    PRIVILEGE_KEY_DELETE("privilegekeydelete"),;
 
 
 

@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.utils;
 
-import dev.parhamziaei.teahub.dto.response.shop.TeaSpeakProductDTO;
+import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
 import dev.parhamziaei.teahub.dto.response.shop.user.TeaSpeakProductListResponse;
 import dev.parhamziaei.teahub.enums.ProductType;
 
@@ -8,11 +8,11 @@ import java.util.Map;
 
 public class ProductMapperRegistry {
 
-    private final static Map<ProductType, Class<? extends TeaSpeakProductDTO>> listDtoClass = Map.of(
-            ProductType.TEA_SPEAK, TeaSpeakProductListResponse.class
+    private final static Map<ProductType, Class<? extends AbstractProductListResponse>> listDtoClass = Map.of(
+            ProductType.TEASPEAK_PRODUCT, TeaSpeakProductListResponse.class
     );
 
-    public static Class<? extends TeaSpeakProductDTO> getListDto(ProductType categoryProductType) {
+    public static Class<? extends AbstractProductListResponse> getListDto(ProductType categoryProductType) {
         return listDtoClass.get(categoryProductType);
     }
 

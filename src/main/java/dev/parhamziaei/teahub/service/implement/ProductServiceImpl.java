@@ -1,26 +1,24 @@
 package dev.parhamziaei.teahub.service.implement;
 
-import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductInitRequest;
-import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductUpdateRequest;
-import dev.parhamziaei.teahub.dto.response.shop.TeaSpeakProductDTO;
+import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductRequest;
+import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductListAdminResponse;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
-import dev.parhamziaei.teahub.enums.ProductType;
 import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.repository.jpa.CategoryRepository;
 import dev.parhamziaei.teahub.repository.jpa.ProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
+import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;
 import dev.parhamziaei.teahub.utils.ProductMapperRegistry;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -34,12 +32,15 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepo;
     private final ModelMapper modelMapper;
     private final ProductRepository productRepository;
+    private final MessageService messageService;
+
+
 
     @Override
     public List<TeaSpeakProductListAdminResponse> getAllTeaSpeakProducts() {
         List<TeaSpeakProductListAdminResponse> responses = teaSpeakProductRepo.findAll()
                 .stream()
-                .map(teaSpeakProduct -> modelMapper.map(teaSpeakProduct, TeaSpeakProductListAdminResponse.class))
+                .map(teaSpeakProduct -> enrichProduct(teaSpeakProduct, TeaSpeakProductListAdminResponse.class))
                 .toList();
 
         if (responses.isEmpty())
@@ -60,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void initTeaSpeakProduct(TeaSpeakProductInitRequest initRequest) {
+    public void initTeaSpeakProduct(TeaSpeakProductRequest initRequest) {
         Category category = categoryRepo.findById(initRequest.getCategoryId())
                 .orElseThrow(NoSuchEntityException::new);
 
@@ -70,41 +71,39 @@ public class ProductServiceImpl implements ProductService {
                 .price(price)
                 .enabled(initRequest.isEnabled())
                 .maxClients(initRequest.getMaxClients())
-                .expiration(initRequest.getExpiration())
+                .expiration(initRequest.getProductPeriod().duration())
+                .period(initRequest.getProductPeriod())
                 .build();
 
-        if (category.getProductType() == ProductType.EMPTY)
-            category.setProductType(ProductType.TEA_SPEAK);
-
-        category.appendProduct(product);
+        category.addProduct(product);
         teaSpeakProductRepo.save(product);
     }
 
-    @Override
-    @Transactional
-    public void updateTeaSpeakProduct(TeaSpeakProductUpdateRequest updateRequest) {
-        TeaSpeakProduct product = teaSpeakProductRepo.findById(updateRequest.getId())
-                        .orElseThrow(NoSuchEntityException::new);
-        modelMapper.map(updateRequest, product);
-        if (updateRequest.getCategoryId() != null) {
-            Long oldCategoryId = product.getCategory().getId();
-            Category newCategory = categoryRepo.findById(updateRequest.getCategoryId())
-                    .orElseThrow(NoSuchEntityException::new);
-            product.setCategory(newCategory);
-            updateCategoryProductsType(oldCategoryId);
-        }
-        teaSpeakProductRepo.save(product);
-    }
+//!    @Override
+//    @Transactional
+//    public void updateTeaSpeakProduct(TeaSpeakProductUpdateRequest updateRequest) {
+//        TeaSpeakProduct product = teaSpeakProductRepo.findById(updateRequest.getId())
+//                        .orElseThrow(NoSuchEntityException::new);
+//        modelMapper.map(updateRequest, product);
+//        if (updateRequest.getCategoryId() != null) {
+//            Long oldCategoryId = product.getCategory().getId();
+//            Category newCategory = categoryRepo.findById(updateRequest.getCategoryId())
+//                    .orElseThrow(NoSuchEntityException::new);
+//            product.setCategory(newCategory);
+//            updateCategoryProductsType(oldCategoryId);
+//        }
+//        teaSpeakProductRepo.save(product);
+//    }
 
-    @Override
-    @Transactional
-    public void updateCategoryProductsType(Long oldCategoryId) {
-        Category category = categoryRepo.findById(oldCategoryId)
-                .orElseThrow(NoSuchEntityException::new);
-        Hibernate.initialize(category.getProducts());
-        if (category.getProducts().isEmpty())
-            category.setProductType(ProductType.EMPTY);
-    }
+// ?    @Override
+//    @Transactional
+//    public void updateCategoryProductsType(Long oldCategoryId) {
+//        Category category = categoryRepo.findById(oldCategoryId)
+//                .orElseThrow(NoSuchEntityException::new);
+//        Hibernate.initialize(category.getProducts());
+//        if (category.getProducts().isEmpty())
+//            category.setProductType(ProductType.EMPTY);
+//    }
 
     @Override
     @Transactional
@@ -128,19 +127,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public List<? extends TeaSpeakProductDTO> getAvailableProductsByCategorySlug(String categorySlug) {
+    public List<? extends AbstractProductListResponse> getAvailableProductsByCategorySlug(String categorySlug) {
         Category category = categoryRepo.findBySlug(categorySlug)
                 .orElseThrow(NoSuchEntityException::new);
 
         if (!category.isActive())
             throw new NoSuchDataException();
 
-        List<? extends TeaSpeakProductDTO> mappedResponse = category.getProducts()
+        List<? extends AbstractProductListResponse> mappedResponse = category.getProducts()
                 .stream()
                 .filter(BillableProduct::isEnabled)
-                .map(baseProduct -> {
-                    Class<? extends TeaSpeakProductDTO> dtoClass = ProductMapperRegistry.getListDto(category.getProductType());
-                    return modelMapper.map(baseProduct, dtoClass);
+                .map(billableProduct -> {
+                    Class<? extends AbstractProductListResponse> dtoClass = ProductMapperRegistry.getListDto(category.getProductType());
+                    return enrichProduct(billableProduct, dtoClass);
                 })
                 .toList();
 

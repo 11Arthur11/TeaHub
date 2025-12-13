@@ -1,7 +1,6 @@
 package dev.parhamziaei.teahub.controller.admin;
 
-import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductInitRequest;
-import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductUpdateRequest;
+import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
@@ -32,7 +31,7 @@ public class TeaSpeakProductAdminController {
     }
 
     @PostMapping
-    public ResponseEntity<SimpleResponse> initTeaSpeakProduct(@Valid @RequestBody TeaSpeakProductInitRequest initRequest) {
+    public ResponseEntity<SimpleResponse> initTeaSpeakProduct(@Valid @RequestBody TeaSpeakProductRequest initRequest) {
         productService.initTeaSpeakProduct(initRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,

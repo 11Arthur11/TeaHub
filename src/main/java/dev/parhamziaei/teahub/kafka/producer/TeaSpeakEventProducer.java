@@ -19,7 +19,7 @@ public class TeaSpeakEventProducer {
     private final KafkaTemplate<UUID, Object> kafkaTemplate;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void sendDeployEvent(TeaSpeakDeployEvent event) {
+    protected void sendDeployEvent(TeaSpeakDeployEvent event) {
         kafkaTemplate.send(KafkaTopic.TEASPEAK_OPERATION_TOPIC.value(), UUID.randomUUID(), event);
     }
 }

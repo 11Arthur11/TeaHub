@@ -16,7 +16,6 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSPrivileg
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSServerInfoResponse;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandExecutionException;
 import dev.parhamziaei.teahub.repository.jpa.*;
-import dev.parhamziaei.teahub.service.interfaces.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -36,8 +35,17 @@ public class TeaSpeakService {
     private final TeaSpeakResourceTokenRepository teaSpeakResourceTokenRepo;
     private final UserRepository userRepo;
 
+    @Transactional
+    public TeaSpeakResource loadResourceByPermission(Long userId, Long resourceId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        return teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+    }
+
     @Transactional // ? this method always will called by kafka event handler
-    public void deployTeaSpeakInstance(Long resourceId, Integer maxClients) {
+    public void deployInstance(Long resourceId, Integer maxClients) {
         final QueryInstance queryInstance = queryInstanceService.getAvailableQueryInstance();
 
         TeaSpeakResource teaSpeakResource = teaSpeakResourceRepository.findById(resourceId)
@@ -64,7 +72,7 @@ public class TeaSpeakService {
         try {
             // ? executing commands to query
             TSCreateQueryResponse createServerResponse = queryCLI.createServer(queryInstance.getCredentials(), createRequest);
-            TSPrivilegeAddResponse privilegeAddResponse = queryCLI.generateNewQueryPrivilegeToken(
+            TSPrivilegeAddResponse privilegeAddResponse = queryCLI.generatePrivilegeToken(
                     queryInstance.getCredentials(),
                     createServerResponse.getSid(),
                     String.valueOf(queryInstance.getDefaultQueryServerGroupId())
@@ -102,12 +110,8 @@ public class TeaSpeakService {
     }
 
     @Transactional
-    public void startTeaSpeakInstance(Long userId, Long resourceId) {
-        User user = userRepo.findById(userId)
-                .orElseThrow(NoSuchEntityException::new);
-
-        TeaSpeakResource resource = teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
-                .orElseThrow(NoSuchEntityException::new);
+    public void startInstance(Long userId, Long resourceId) {
+        TeaSpeakResource resource = loadResourceByPermission(userId, resourceId);
 
         syncWithQuery(resource);
 
@@ -120,12 +124,8 @@ public class TeaSpeakService {
     }
 
     @Transactional
-    public void stopTeaSpeakInstance(Long userId, Long resourceId) {
-        User user = userRepo.findById(userId)
-                .orElseThrow(NoSuchEntityException::new);
-
-        TeaSpeakResource resource = teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
-                .orElseThrow(NoSuchEntityException::new);
+    public void stopInstance(Long userId, Long resourceId) {
+        TeaSpeakResource resource = loadResourceByPermission(userId, resourceId);
 
         syncWithQuery(resource);
 
@@ -135,6 +135,34 @@ public class TeaSpeakService {
         } else {
             throw new ActionNotExecutableException("already stopped");
         }
+    }
+
+    @Transactional
+    public void refreshPrivilegeToken(Long userId, Long resourceId) {
+        TeaSpeakResource resource = loadResourceByPermission(userId, resourceId);
+        QueryInstance queryInstance = resource.getParentQueryInstance();
+        TeaSpeakResourceToken currentToken = resource.getPrivilegeToken();
+
+        queryCLI.getPrivilegeTokens(queryInstance.getCredentials(), resource.getSid())
+                .stream()
+                .filter(t -> t.getToken().equals(currentToken.getToken()) && t.getToken().equals(String.valueOf(currentToken.getQueryId())))
+                .findFirst()
+                .ifPresent(t -> {
+                    queryCLI.deletePrivilegeToken(
+                            queryInstance.getCredentials(),
+                            resource.getSid(),
+                            currentToken.getToken()
+                    );
+                });
+
+        TSPrivilegeAddResponse newToken = queryCLI.generatePrivilegeToken(
+                queryInstance.getCredentials(),
+                resource.getSid(),
+                queryInstance.getDefaultQueryServerGroupId().toString()
+        );
+
+        currentToken.setToken(newToken.getToken());
+        currentToken.setQueryId(Long.parseLong(newToken.getToken_id()));
     }
 
 

@@ -49,6 +49,10 @@ public class MessageService {
         return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
     }
 
+    public String get(ProductPeriod period) {
+        return textSource.getMessage(period.key(), null, Locale.forLanguageTag("fa"));
+    }
+
     public String get(Text text) {
         return textSource.getMessage(text.key(), null, Locale.forLanguageTag("fa"));
     }

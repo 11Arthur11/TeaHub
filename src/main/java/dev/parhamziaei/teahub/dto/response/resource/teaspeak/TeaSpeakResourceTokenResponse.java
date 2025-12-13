@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TeaSpeakResourceTokenResponse {
 
-    private Long id;
     private String token;
 
 }

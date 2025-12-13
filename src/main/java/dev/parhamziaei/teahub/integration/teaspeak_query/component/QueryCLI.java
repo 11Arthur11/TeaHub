@@ -12,10 +12,11 @@ import java.util.List;
 public interface QueryCLI {
 
     TSCreateQueryResponse createServer(ServerQueryCredentials credentials, TSCreateQueryRequest createRequest);
-    TSPrivilegeAddResponse generateNewQueryPrivilegeToken(ServerQueryCredentials credentials, String sid, String serverGroupId);
+    TSPrivilegeAddResponse generatePrivilegeToken(ServerQueryCredentials credentials, String sid, String serverGroupId);
     List<TSPrivilegeListResponse> getPrivilegeTokens(ServerQueryCredentials credentials, String sid);
     void startServer(ServerQueryCredentials credentials, String sid);
     void stopServer(ServerQueryCredentials credentials, String sid);
     TSServerInfoResponse getServerInfo(ServerQueryCredentials credentials, String sid);
+    void deletePrivilegeToken(ServerQueryCredentials credentials, String sid, String token);
 
 }

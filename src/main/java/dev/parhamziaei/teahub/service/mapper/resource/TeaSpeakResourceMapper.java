@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TeaSpeakMapperHandler implements ResourceMapperHandler {
+public class TeaSpeakResourceMapper implements ResourceMapperHandler {
 
     private final ModelMapper modelMapper;
     private final MessageService messageService;

@@ -49,7 +49,8 @@ public class InvoiceService {
                         .and(InvoiceSpecification.hasUserId(userId))
         );
 
-        List<InvoiceUserResponse> response = invoiceRepository.findAll(spec, pageable).stream()
+        List<InvoiceUserResponse> response = invoiceRepository.findAll(spec, pageable)
+                .stream()
                 .map(i -> {
                     InvoiceUserResponse r = modelMapper.map(i, InvoiceUserResponse.class);
                     r.setStatus(messageService.get(i.getStatus()));

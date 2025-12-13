@@ -26,7 +26,7 @@ public class TeaSpeakServiceController {
 
     @PostMapping("/{resourceId}/start")
     public ResponseEntity<SimpleResponse> startTeaSpeak(@PathVariable Long resourceId) {
-        teaSpeakService.startTeaSpeakInstance(currentUser.getId(), resourceId);
+        teaSpeakService.startInstance(currentUser.getId(), resourceId);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
@@ -36,7 +36,17 @@ public class TeaSpeakServiceController {
 
     @PostMapping("/{resourceId}/stop")
     public ResponseEntity<SimpleResponse> stopTeaSpeak(@PathVariable Long resourceId) {
-        teaSpeakService.stopTeaSpeakInstance(currentUser.getId(), resourceId);
+        teaSpeakService.stopInstance(currentUser.getId(), resourceId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/{resourceId}/new-privilege")
+    public ResponseEntity<SimpleResponse> newPrivilege(@PathVariable Long resourceId) {
+        teaSpeakService.refreshPrivilegeToken(currentUser.getId(), resourceId);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),

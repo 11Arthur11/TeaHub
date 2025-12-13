@@ -41,12 +41,15 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
     @Override
     @Transactional
     public <T extends AbstractNewResourceRequest> void produceDeployEvent(T request, Long userId) {
+        // ? loading product for resource details
         TeaSpeakProduct product = teaSpeakProductRepo.findById(request.getProductId())
                 .orElseThrow(NoSuchEntityException::new);
 
+        // ? loading user for giving resource ownership
         User user = userRepository.findById(userId)
                 .orElseThrow(NoSuchEntityException::new);
 
+        // ? creating the base resource for deploying
         TeaSpeakResource resource = TeaSpeakResource.builder()
                 .label(request.getLabel())
                 .owner(user)
@@ -57,14 +60,15 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
                 .teaSpeakStatus(TeaSpeakStatus.OFFLINE)
                 .maxClients(product.getMaxClients())
                 .build();
-
         TeaSpeakResourceToken token = new TeaSpeakResourceToken();
         resource.setPrivilegeToken(token);
 
+        // ? adding resource to product resource-list
         product.addUserResource(resource);
 
         teaSpeakResourceRepository.save(resource);
 
+        // ? publishing the actual event
         TeaSpeakDeployEvent deployEvent = TeaSpeakDeployEvent.builder()
                 .baseResourceId(resource.getId())
                 .maxClients(product.getMaxClients())

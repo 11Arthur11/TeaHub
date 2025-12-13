@@ -2,22 +2,20 @@ package dev.parhamziaei.teahub.component;
 
 import dev.parhamziaei.teahub.configuration.properties.InitializeProperties;
 import dev.parhamziaei.teahub.dto.request.shop.admin.CategoryAdminRequest;
-import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductInitRequest;
+import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductRequest;
 import dev.parhamziaei.teahub.entity.jpa.ApplicationSetting;
-import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
+import dev.parhamziaei.teahub.enums.ProductPeriod;
 import dev.parhamziaei.teahub.enums.Roles;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
-import dev.parhamziaei.teahub.integration.teaspeak_query.component.TelnetConnectionPool;
 import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.service.CategoryService;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;
-import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,8 +72,9 @@ public class Initialization implements CommandLineRunner {
     }
 
     public void initTestProduct() {
-        TeaSpeakProductInitRequest initRequest = new TeaSpeakProductInitRequest();
+        TeaSpeakProductRequest initRequest = new TeaSpeakProductRequest();
         initRequest.setPrice(BigDecimal.valueOf(50000));
+        initRequest.setProductPeriod(ProductPeriod.DAILY);
         initRequest.setExpiration(Duration.ofDays(1));
         initRequest.setMaxClients(32);
         initRequest.setEnabled(true);

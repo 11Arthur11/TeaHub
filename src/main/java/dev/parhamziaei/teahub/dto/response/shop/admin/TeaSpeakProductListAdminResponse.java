@@ -1,18 +1,21 @@
 package dev.parhamziaei.teahub.dto.response.shop.admin;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import dev.parhamziaei.teahub.dto.response.shop.TeaSpeakProductDTO;
+import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
 import dev.parhamziaei.teahub.dto.serializer.ExpirationDurationSerializer;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.Duration;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class TeaSpeakProductListAdminResponse implements TeaSpeakProductDTO {
+public class TeaSpeakProductListAdminResponse extends AbstractProductListResponse {
 
     private Integer maxClients;
     @JsonSerialize(using = ExpirationDurationSerializer.class)
     private Duration expiration;
+    private String period;
     private boolean enabled;
 
 }

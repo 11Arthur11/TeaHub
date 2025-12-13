@@ -49,4 +49,9 @@ public class QueryCommandFactory {
         return PRIVILEGE_KEY_LIST.cmd();
     }
 
+    public String deletePrivilegeCommand(String token) {
+        return PRIVILEGE_KEY_DELETE.cmd()
+                + " token=" + token;
+    }
+
 }

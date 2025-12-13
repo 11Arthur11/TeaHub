@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 @Embeddable
 public class InvoiceProperties {
 
-    private Duration invoiceCreationBeforeServiceExpire = Duration.ofDays(7);
+    private Duration monthlyResourceInvoiceOffset = Duration.ofDays(7);
+    private Duration dailyResourceInvoiceOffset = Duration.ofHours(4);
     private Duration dueDate = Duration.ofDays(7);
 
 }
