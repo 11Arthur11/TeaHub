@@ -17,7 +17,7 @@ public class ProductMapperFactory {
                 .collect(Collectors.toMap(ProductMapperHandler::getType , h -> h));
     }
 
-    public ProductMapperHandler getHandler(ProductType type) {
+    public ProductMapperHandler getMapper(ProductType type) {
         return handlers.get(type);
     }
 

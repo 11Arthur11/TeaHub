@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.service.implement;
 
 import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductRequest;
 import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductDetailResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductListAdminResponse;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
@@ -10,11 +11,12 @@ import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.repository.jpa.BillableProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.CategoryRepository;
 import dev.parhamziaei.teahub.repository.jpa.ProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
-import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;
+import dev.parhamziaei.teahub.service.mapper.product.ProductMapperFactory;
 import dev.parhamziaei.teahub.utils.ProductMapperRegistry;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
@@ -29,18 +31,19 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     private final TeaSpeakProductRepository teaSpeakProductRepo;
+    private final BillableProductRepository billableProductRepo;
     private final CategoryRepository categoryRepo;
     private final ModelMapper modelMapper;
     private final ProductRepository productRepository;
-    private final MessageService messageService;
+    private final ProductMapperFactory productMapperFactory;
 
 
 
     @Override
-    public List<TeaSpeakProductListAdminResponse> getAllTeaSpeakProducts() {
-        List<TeaSpeakProductListAdminResponse> responses = teaSpeakProductRepo.findAll()
+    public List<AbstractProductListResponse> getAllProducts() {
+        List<AbstractProductListResponse> responses = billableProductRepo.findAll()
                 .stream()
-                .map(teaSpeakProduct -> enrichProduct(teaSpeakProduct, TeaSpeakProductListAdminResponse.class))
+                .map(p -> productMapperFactory.getMapper(p.getProductType()).mapToList(p, TeaSpeakProductListAdminResponse.class))
                 .toList();
 
         if (responses.isEmpty())
@@ -49,14 +52,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public TeaSpeakProductDetailAdminResponse getTeaSpeakProductById(Long productId) {
-        TeaSpeakProduct product = teaSpeakProductRepo.findById(productId)
-                .orElseThrow(() -> new NoSuchEntityException("Product not found"));
-        TeaSpeakProductDetailAdminResponse response = modelMapper.map(product, TeaSpeakProductDetailAdminResponse.class);
-        response.setCategoryName(product.getCategory().getName());
-        response.setCategorySlug(product.getCategory().getSlug());
-        response.setOrderedResources(product.getUserResources().size());
-        return response;
+    public AbstractProductDetailResponse getProduct(Long productId) {
+        BillableProduct product = billableProductRepo.findById(productId)
+                .orElseThrow(NoSuchEntityException::new);
+        return productMapperFactory.getMapper(product.getProductType()).mapToDetail(product, TeaSpeakProductDetailAdminResponse.class);
     }
 
     @Override

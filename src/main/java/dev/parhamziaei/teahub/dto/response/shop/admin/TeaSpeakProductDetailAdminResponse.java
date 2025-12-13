@@ -4,29 +4,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dev.parhamziaei.teahub.dto.serializer.ExpirationDurationSerializer;
 import dev.parhamziaei.teahub.valueobject.Money;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.Duration;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class TeaSpeakProductDetailAdminResponse {
-
-    private Long id;
-
-    private String categoryName;
-
-    private String categorySlug;
-
-    private String productName;
+public class TeaSpeakProductDetailAdminResponse extends AbstractProductDetailResponse {
 
     private Integer maxClients;
-
-    @JsonSerialize(using = ExpirationDurationSerializer.class)
-    private Duration expiration;
-
-    private Integer orderedResources;
-
-    private Money price;
-
-    private boolean enabled;
 
 }

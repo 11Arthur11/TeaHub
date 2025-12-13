@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.entity.jpa.shop;
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.enums.ProductPeriod;
+import dev.parhamziaei.teahub.enums.ProductType;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.persistence.*;
 import lombok.*;
@@ -43,6 +44,9 @@ public class BillableProduct extends BaseEntity<Long> {
 
     @Enumerated(EnumType.STRING)
     private ProductPeriod period;
+
+    @Enumerated(EnumType.STRING)
+    private ProductType productType;
 
     private Duration expiration;
 

@@ -1,9 +1,12 @@
 package dev.parhamziaei.teahub.service.mapper.product;
 
 import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductDetailResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.user.TeaSpeakProductListResponse;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
+import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.enums.ProductType;
 import dev.parhamziaei.teahub.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -22,19 +25,28 @@ public class TeaSpeakProductMapper implements ProductMapperHandler {
         return ProductType.TEASPEAK_PRODUCT;
     }
 
-    public <T extends AbstractProductListResponse, U extends BillableProduct> T enrichProduct(U product, Class<T> clazz) {
+    public <T extends AbstractProductListResponse, U extends BillableProduct> T enrichListProduct(U product, Class<T> clazz) {
+        T response = modelMapper.map(product, clazz);
+        response.setPeriod(messageService.get(product.getPeriod()));
+        return response;
+    }
+
+    public <T extends AbstractProductDetailResponse, U extends BillableProduct> T enrichDetailProduct(U product, Class<T> clazz) {
         T response = modelMapper.map(product, clazz);
         response.setPeriod(messageService.get(product.getPeriod()));
         return response;
     }
 
     @Override
-    public TeaSpeakProductListResponse mapToListForUser(BillableProduct product) {
-        return enrichProduct(product, TeaSpeakProductListResponse.class);
+    public <T extends AbstractProductListResponse> AbstractProductListResponse mapToList(BillableProduct product, Class<T> clazz) {
+        TeaSpeakProduct teaSpeakProduct = (TeaSpeakProduct) product;
+        return enrichListProduct(teaSpeakProduct, clazz);
     }
 
     @Override
-    public TeaSpeakProductListAdminResponse mapToListForAdmin(BillableProduct product) {
-        return null;
+    public <T extends AbstractProductDetailResponse> AbstractProductDetailResponse mapToDetail(BillableProduct product, Class<T> clazz) {
+        TeaSpeakProduct teaSpeakProduct = (TeaSpeakProduct) product;
+        return enrichDetailProduct(teaSpeakProduct, clazz);
     }
+
 }
