@@ -13,9 +13,6 @@ import java.time.Duration;
 public class TeaSpeakProductListAdminResponse extends AbstractProductListResponse {
 
     private Integer maxClients;
-    @JsonSerialize(using = ExpirationDurationSerializer.class)
-    private Duration expiration;
-    private String period;
     private boolean enabled;
 
 }

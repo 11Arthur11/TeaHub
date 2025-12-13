@@ -14,9 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/admin/products/teaspeak")
+@RequestMapping("/v1/admin/products")
 @RequiredArgsConstructor
-public class TeaSpeakProductAdminController {
+public class ProductAdminController {
 
     private final ProductService productService;
     private final MessageService messageService;
@@ -25,12 +25,12 @@ public class TeaSpeakProductAdminController {
     public ResponseEntity<?> getAllProducts() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
-                productService.getAllTeaSpeakProducts(),
+                productService.getAllProducts(),
                 HttpStatus.OK
         );
     }
 
-    @PostMapping
+    @PostMapping("/add/teaspeak")
     public ResponseEntity<SimpleResponse> initTeaSpeakProduct(@Valid @RequestBody TeaSpeakProductRequest initRequest) {
         productService.initTeaSpeakProduct(initRequest);
         return ResponseBuilder.buildSuccess(
@@ -44,20 +44,20 @@ public class TeaSpeakProductAdminController {
     public ResponseEntity<?> getProduct(@PathVariable Long productId) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
-                productService.getTeaSpeakProductById(productId),
+                productService.getProduct(productId),
                 HttpStatus.OK
         );
     }
 
-    @PostMapping("/edit")
-    public ResponseEntity<SimpleResponse> updateProduct(@Valid @RequestBody TeaSpeakProductUpdateRequest updateRequest) {
-        productService.updateTeaSpeakProduct(updateRequest);
-        return ResponseBuilder.buildSuccess(
-                ResponseType.SUCCESS,
-                messageService.get(ServiceMessage.DEFAULT_EDITED),
-                HttpStatus.OK
-        );
-    }
+//    @PostMapping("/edit")
+//    public ResponseEntity<SimpleResponse> updateProduct(@Valid @RequestBody TeaSpeakProductUpdateRequest updateRequest) {
+//        productService.updateTeaSpeakProduct(updateRequest);
+//        return ResponseBuilder.buildSuccess(
+//                ResponseType.SUCCESS,
+//                messageService.get(ServiceMessage.DEFAULT_EDITED),
+//                HttpStatus.OK
+//        );
+//    }
 
     @GetMapping("/{productId}/{enabled}")
     public ResponseEntity<?> changeEnabled(
@@ -74,7 +74,7 @@ public class TeaSpeakProductAdminController {
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<SimpleResponse> deleteProduct(@PathVariable Long productId) {
-        productService.removeTeaSpeakProduct(productId);
+        productService.removeProduct(productId);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.DEFAULT_DELETED),

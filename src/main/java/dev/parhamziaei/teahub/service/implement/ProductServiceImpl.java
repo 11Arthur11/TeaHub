@@ -37,17 +37,15 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapperFactory productMapperFactory;
 
-
-
     @Override
     public List<AbstractProductListResponse> getAllProducts() {
         List<AbstractProductListResponse> responses = billableProductRepo.findAll()
                 .stream()
-                .map(p -> productMapperFactory.getMapper(p.getProductType()).mapToList(p, TeaSpeakProductListAdminResponse.class))
+                .map(p -> productMapperFactory.getMapper(p.getProductType()).mapToListForAdmin(p))
                 .toList();
 
         if (responses.isEmpty())
-            throw new NoSuchEntityException();
+            throw new NoSuchDataException();
         return responses;
     }
 
@@ -55,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
     public AbstractProductDetailResponse getProduct(Long productId) {
         BillableProduct product = billableProductRepo.findById(productId)
                 .orElseThrow(NoSuchEntityException::new);
-        return productMapperFactory.getMapper(product.getProductType()).mapToDetail(product, TeaSpeakProductDetailAdminResponse.class);
+        return productMapperFactory.getMapper(product.getProductType()).mapToDetail(product);
     }
 
     @Override
@@ -106,11 +104,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void removeTeaSpeakProduct(Long productId) {
-        TeaSpeakProduct product = teaSpeakProductRepo.findById(productId)
+    public void removeProduct(Long productId) {
+        BillableProduct product = billableProductRepo.findById(productId)
                 .orElseThrow(NoSuchEntityException::new);
         if (product.getUserResources().isEmpty())
-            teaSpeakProductRepo.delete(product);
+            billableProductRepo.delete(product);
         else
             throw new EntityInUseException("Product has user resources children");
     }
@@ -126,20 +124,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public List<? extends AbstractProductListResponse> getAvailableProductsByCategorySlug(String categorySlug) {
+    public List<AbstractProductListResponse> getAvailableProductsByCategorySlug(String categorySlug) {
         Category category = categoryRepo.findBySlug(categorySlug)
                 .orElseThrow(NoSuchEntityException::new);
 
         if (!category.isActive())
             throw new NoSuchDataException();
 
-        List<? extends AbstractProductListResponse> mappedResponse = category.getProducts()
+        List<AbstractProductListResponse> mappedResponse = category.getProducts()
                 .stream()
                 .filter(BillableProduct::isEnabled)
-                .map(billableProduct -> {
-                    Class<? extends AbstractProductListResponse> dtoClass = ProductMapperRegistry.getListDto(category.getProductType());
-                    return enrichProduct(billableProduct, dtoClass);
-                })
+                .map(p -> productMapperFactory.getMapper(p.getProductType()).mapToList(p))
                 .toList();
 
         if (mappedResponse.isEmpty())

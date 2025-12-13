@@ -49,8 +49,8 @@ public class Initialization implements CommandLineRunner {
             initTestCategory();
         }
         try {
-            productService.getAllTeaSpeakProducts();
-        } catch (NoSuchEntityException ignore) {
+            productService.getAllProducts();
+        } catch (NoSuchDataException ignored) {
             initTestProduct();
         }
 //        ipPanelService.sendTwoFactorSMS("0000", PhoneNumbers.formatedOf(initProperties.adminPhoneNumber()));
@@ -75,7 +75,6 @@ public class Initialization implements CommandLineRunner {
         TeaSpeakProductRequest initRequest = new TeaSpeakProductRequest();
         initRequest.setPrice(BigDecimal.valueOf(50000));
         initRequest.setProductPeriod(ProductPeriod.DAILY);
-        initRequest.setExpiration(Duration.ofDays(1));
         initRequest.setMaxClients(32);
         initRequest.setEnabled(true);
         initRequest.setProductName("Test TeaSpeak Product");

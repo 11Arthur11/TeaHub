@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.service.mapper.product;
 
+import dev.parhamziaei.teahub.dto.response.resource.teaspeak.admin.TeaSpeakResourceDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductDetailResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
@@ -31,22 +32,28 @@ public class TeaSpeakProductMapper implements ProductMapperHandler {
         return response;
     }
 
-    public <T extends AbstractProductDetailResponse, U extends BillableProduct> T enrichDetailProduct(U product, Class<T> clazz) {
-        T response = modelMapper.map(product, clazz);
+    public <U extends BillableProduct> TeaSpeakProductDetailAdminResponse enrichDetailProduct(U product) {
+        TeaSpeakProductDetailAdminResponse response = modelMapper.map(product, TeaSpeakProductDetailAdminResponse.class);
         response.setPeriod(messageService.get(product.getPeriod()));
         return response;
     }
 
     @Override
-    public <T extends AbstractProductListResponse> AbstractProductListResponse mapToList(BillableProduct product, Class<T> clazz) {
+    public AbstractProductListResponse mapToList(BillableProduct product) {
         TeaSpeakProduct teaSpeakProduct = (TeaSpeakProduct) product;
-        return enrichListProduct(teaSpeakProduct, clazz);
+        return enrichListProduct(teaSpeakProduct, TeaSpeakProductListResponse.class);
     }
 
     @Override
-    public <T extends AbstractProductDetailResponse> AbstractProductDetailResponse mapToDetail(BillableProduct product, Class<T> clazz) {
+    public AbstractProductListResponse mapToListForAdmin(BillableProduct product) {
         TeaSpeakProduct teaSpeakProduct = (TeaSpeakProduct) product;
-        return enrichDetailProduct(teaSpeakProduct, clazz);
+        return enrichListProduct(teaSpeakProduct, TeaSpeakProductListAdminResponse.class);
+    }
+
+    @Override
+    public TeaSpeakProductDetailAdminResponse mapToDetail(BillableProduct product) {
+        TeaSpeakProduct teaSpeakProduct = (TeaSpeakProduct) product;
+        return enrichDetailProduct(teaSpeakProduct);
     }
 
 }
