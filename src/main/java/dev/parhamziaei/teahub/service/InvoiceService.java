@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.response.payment.user.InvoiceUserResponse;
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
-import dev.parhamziaei.teahub.enums.InvoiceStatus;
+import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.repository.jpa.InvoiceRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;

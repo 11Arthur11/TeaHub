@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.enums;
+package dev.parhamziaei.teahub.enums.user;
 
 public enum NotificationMethod {
     SMS,

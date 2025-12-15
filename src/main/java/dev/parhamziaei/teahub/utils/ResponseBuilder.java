@@ -4,7 +4,7 @@ import dev.parhamziaei.teahub.dto.internal.ImageInternal;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.DetailedDataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
-import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

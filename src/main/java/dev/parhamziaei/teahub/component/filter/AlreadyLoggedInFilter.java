@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.component.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.parhamziaei.teahub.enums.JwtType;
+import dev.parhamziaei.teahub.enums.user.JwtType;
 import dev.parhamziaei.teahub.enums.messages.AuthMessage;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;

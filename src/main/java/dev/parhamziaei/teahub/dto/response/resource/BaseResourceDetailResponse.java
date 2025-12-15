@@ -1,7 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.resource;
 
-import dev.parhamziaei.teahub.enums.ResourceStatus;
-import dev.parhamziaei.teahub.enums.ResourceType;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import lombok.Data;
 
 import java.time.LocalDateTime;

@@ -1,4 +1,6 @@
-package dev.parhamziaei.teahub.enums;
+package dev.parhamziaei.teahub.enums.teaspeak;
+
+import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
 
 import java.util.Arrays;
 

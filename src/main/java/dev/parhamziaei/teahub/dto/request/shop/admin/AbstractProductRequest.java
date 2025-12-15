@@ -2,8 +2,8 @@ package dev.parhamziaei.teahub.dto.request.shop.admin;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import dev.parhamziaei.teahub.enums.ProductPeriod;
-import dev.parhamziaei.teahub.enums.ProductType;
+import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
+import dev.parhamziaei.teahub.enums.shop.ProductType;
 import lombok.Data;
 
 import java.math.BigDecimal;

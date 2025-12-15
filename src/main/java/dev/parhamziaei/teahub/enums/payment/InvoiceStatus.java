@@ -1,6 +1,4 @@
-package dev.parhamziaei.teahub.enums;
-
-import java.util.Arrays;
+package dev.parhamziaei.teahub.enums.payment;
 
 public enum InvoiceStatus {
 

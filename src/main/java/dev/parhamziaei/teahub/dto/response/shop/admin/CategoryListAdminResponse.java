@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.shop.admin;
 
-import dev.parhamziaei.teahub.enums.ProductType;
+import dev.parhamziaei.teahub.enums.shop.ProductType;
 import lombok.Data;
 
 @Data

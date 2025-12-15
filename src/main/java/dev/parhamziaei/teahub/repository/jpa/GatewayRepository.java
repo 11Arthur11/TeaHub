@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
 import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
-import dev.parhamziaei.teahub.enums.PaymentGatewayType;
+import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

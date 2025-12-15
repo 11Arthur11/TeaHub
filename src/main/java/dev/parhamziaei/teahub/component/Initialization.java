@@ -8,11 +8,10 @@ import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
-import dev.parhamziaei.teahub.enums.ProductPeriod;
-import dev.parhamziaei.teahub.enums.Roles;
+import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
+import dev.parhamziaei.teahub.enums.user.Roles;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
-import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.service.CategoryService;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;
@@ -23,7 +22,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 

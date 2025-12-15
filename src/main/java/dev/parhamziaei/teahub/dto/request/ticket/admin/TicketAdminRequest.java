@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.dto.request.ticket.admin;
 
 import dev.parhamziaei.teahub.dto.request.ticket.TicketBaseRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketMessageRequest;
-import dev.parhamziaei.teahub.enums.TicketDepartment;
+import dev.parhamziaei.teahub.enums.ticket.TicketDepartment;
 import dev.parhamziaei.teahub.validation.annotation.EnumValue;
 import dev.parhamziaei.teahub.validation.annotation.PhoneNumber;
 import jakarta.validation.constraints.NotBlank;

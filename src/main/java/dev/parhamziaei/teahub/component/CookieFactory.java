@@ -2,14 +2,13 @@ package dev.parhamziaei.teahub.component;
 
 import dev.parhamziaei.teahub.configuration.properties.CookieFactoryProperties;
 import dev.parhamziaei.teahub.configuration.properties.JwtProperties;
-import dev.parhamziaei.teahub.enums.JwtType;
+import dev.parhamziaei.teahub.enums.user.JwtType;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 
 @Component
 @RequiredArgsConstructor

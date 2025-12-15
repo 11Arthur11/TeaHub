@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.dto.request;
 
-import dev.parhamziaei.teahub.enums.ResourceType;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

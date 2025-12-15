@@ -3,7 +3,7 @@ package dev.parhamziaei.teahub.dto.request.resource;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.parhamziaei.teahub.dto.request.resource.user.NewTeaSpeakResourceRequest;
-import dev.parhamziaei.teahub.enums.ResourceType;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.validation.annotation.SafeName;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

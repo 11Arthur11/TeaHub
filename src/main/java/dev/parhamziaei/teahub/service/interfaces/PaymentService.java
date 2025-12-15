@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.service.interfaces;
 
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
-import dev.parhamziaei.teahub.enums.PaymentGatewayType;
+import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APCallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.dto.CallbackRequest;
 

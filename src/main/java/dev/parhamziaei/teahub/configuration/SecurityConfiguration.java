@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.configuration;
 
 import dev.parhamziaei.teahub.component.filter.AlreadyLoggedInFilter;
 import dev.parhamziaei.teahub.component.filter.JwtAuthFilter;
-import dev.parhamziaei.teahub.enums.Roles;
+import dev.parhamziaei.teahub.enums.user.Roles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +17,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 

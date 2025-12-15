@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.dto.request.query;
 
-import dev.parhamziaei.teahub.enums.ResourceStatus;
-import dev.parhamziaei.teahub.enums.ResourceType;
+import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

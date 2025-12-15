@@ -6,7 +6,7 @@ import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketAdminRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketEditAdminRequest;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketListAdminResponse;
-import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.service.MessageService;

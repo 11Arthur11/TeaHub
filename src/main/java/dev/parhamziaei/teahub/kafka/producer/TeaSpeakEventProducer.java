@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.kafka.producer;
 
-import dev.parhamziaei.teahub.enums.KafkaTopic;
+import dev.parhamziaei.teahub.enums.internal.KafkaTopic;
 import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

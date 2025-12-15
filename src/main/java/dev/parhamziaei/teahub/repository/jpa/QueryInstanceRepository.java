@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
-import dev.parhamziaei.teahub.enums.QueryInstanceStatus;
+import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
 
 import java.util.List;
 import java.util.Optional;

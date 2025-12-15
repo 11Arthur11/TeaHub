@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.resource;
 
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
-import dev.parhamziaei.teahub.enums.TeaSpeakStatus;
+import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

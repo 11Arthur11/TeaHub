@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.service.mapper.product;
 
-import dev.parhamziaei.teahub.enums.ProductType;
+import dev.parhamziaei.teahub.enums.shop.ProductType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

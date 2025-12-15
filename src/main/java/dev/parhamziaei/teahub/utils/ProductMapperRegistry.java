@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.utils;
 
 import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
 import dev.parhamziaei.teahub.dto.response.shop.user.TeaSpeakProductListResponse;
-import dev.parhamziaei.teahub.enums.ProductType;
+import dev.parhamziaei.teahub.enums.shop.ProductType;
 
 import java.util.Map;
 

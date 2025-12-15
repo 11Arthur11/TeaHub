@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.kafka.configuration;
 
-import dev.parhamziaei.teahub.enums.KafkaTopic;
+import dev.parhamziaei.teahub.enums.internal.KafkaTopic;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.controller.user;
 
-import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.service.CategoryService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;

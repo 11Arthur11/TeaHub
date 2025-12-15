@@ -1,11 +1,9 @@
 package dev.parhamziaei.teahub.valueobject;
 
-import dev.parhamziaei.teahub.enums.Currency;
-import jakarta.persistence.Column;
+import dev.parhamziaei.teahub.enums.payment.Currency;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

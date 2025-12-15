@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
-import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;

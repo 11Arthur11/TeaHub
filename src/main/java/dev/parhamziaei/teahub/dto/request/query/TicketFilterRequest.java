@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.dto.request.query;
 
-import dev.parhamziaei.teahub.enums.TicketDepartment;
-import dev.parhamziaei.teahub.enums.TicketStatus;
+import dev.parhamziaei.teahub.enums.ticket.TicketDepartment;
+import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
 import dev.parhamziaei.teahub.validation.annotation.EnumValue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

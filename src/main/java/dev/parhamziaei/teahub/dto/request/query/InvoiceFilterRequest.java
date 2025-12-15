@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.dto.request.query;
 
-import dev.parhamziaei.teahub.enums.InvoiceStatus;
+import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.validation.annotation.EnumValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;

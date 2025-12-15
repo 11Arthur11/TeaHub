@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.dto.internal;
 
-import dev.parhamziaei.teahub.enums.NotificationMethod;
+import dev.parhamziaei.teahub.enums.user.NotificationMethod;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.kafka.handler;
 
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.TelnetConnectionPool;
-import dev.parhamziaei.teahub.enums.QueryInstanceStatus;
+import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionLoginFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionReviveFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionUnreachableEvent;

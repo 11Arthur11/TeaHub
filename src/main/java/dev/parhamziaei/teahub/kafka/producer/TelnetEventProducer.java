@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.kafka.producer;
 
-import dev.parhamziaei.teahub.enums.KafkaTopic;
+import dev.parhamziaei.teahub.enums.internal.KafkaTopic;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionLoginFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionReviveFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionUnreachableEvent;

@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
-import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.service.ResourceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;

@@ -5,8 +5,10 @@ import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
 import dev.parhamziaei.teahub.entity.jpa.payment.Payment;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
-import dev.parhamziaei.teahub.enums.InvoiceStatus;
-import dev.parhamziaei.teahub.enums.PaymentGatewayType;
+import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
+import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
+import dev.parhamziaei.teahub.enums.messages.Text;
+import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.InvoiceException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayNotFoundException;
@@ -20,6 +22,7 @@ import dev.parhamziaei.teahub.repository.jpa.InvoiceRepository;
 import dev.parhamziaei.teahub.repository.jpa.PaymentRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
+import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.WalletService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
 import dev.parhamziaei.teahub.valueobject.Money;
@@ -44,6 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final GatewayRepository gatewayRepository;
     private final PaymentRepository paymentRepository;
     private final WalletService walletService;
+    private final MessageService messageService;
 
     @Override
     public String createChargeWalletInvoice(Long userId, BigDecimal amount) {
@@ -54,6 +58,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Invoice invoice = new Invoice(user, new Money(amount));
+        invoice.setDescription(messageService.get(Text.INVOICE_REASON_CREDIT) + amount);
         invoiceRepo.save(invoice);
         return invoice.getInvoiceToken();
     }
@@ -85,7 +90,7 @@ public class PaymentServiceImpl implements PaymentService {
                     Specification.allOf(InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceId())
                     )
             ).orElseThrow(NoSuchEntityException::new);
-            walletService.credit(invoice.getOwner().getId(), invoice.getMoney().getAmount());
+            walletService.credit(invoice.getOwner().getId(), invoice.getMoney().getAmount(), TransactionReason.WALLET_CHARGE);
 
             if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
                 invoice.setStatus(InvoiceStatus.PAID);

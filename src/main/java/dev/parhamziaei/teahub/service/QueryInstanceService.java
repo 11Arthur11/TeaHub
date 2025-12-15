@@ -10,7 +10,7 @@ import dev.parhamziaei.teahub.exception.custom.service.teaspeak.InstancePortRang
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceNotFoundException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.TelnetConnectionPool;
-import dev.parhamziaei.teahub.enums.QueryInstanceStatus;
+import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
 import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.ProvisionStrategyFactory;
 import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.TeaSpeakProvisionStrategyHandler;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;

@@ -3,7 +3,7 @@ package dev.parhamziaei.teahub.service.implement;
 import dev.parhamziaei.teahub.configuration.properties.JwtProperties;
 import dev.parhamziaei.teahub.entity.jpa.user.RefreshToken;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
-import dev.parhamziaei.teahub.enums.JwtType;
+import dev.parhamziaei.teahub.enums.user.JwtType;
 import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
 import dev.parhamziaei.teahub.exception.custom.authentication.JwtValidationException;
 import dev.parhamziaei.teahub.repository.jpa.RefreshTokenRepository;

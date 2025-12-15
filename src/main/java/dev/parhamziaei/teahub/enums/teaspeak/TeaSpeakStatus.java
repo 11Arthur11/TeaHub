@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.enums;
+package dev.parhamziaei.teahub.enums.teaspeak;
 
 import java.util.Arrays;
 

@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.repository.jpa.specification;
 
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
-import dev.parhamziaei.teahub.enums.InvoiceStatus;
+import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 public class InvoiceSpecification {

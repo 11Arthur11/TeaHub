@@ -1,6 +1,6 @@
 package dev.parhamziaei.teahub.dto.request.payment.admin;
 
-import dev.parhamziaei.teahub.enums.PaymentGatewayType;
+import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
 import lombok.Data;
 
 @Data

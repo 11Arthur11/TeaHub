@@ -1,9 +1,8 @@
 package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.shop.admin.CategoryAdminRequest;
-import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
-import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.CategoryService;
 import dev.parhamziaei.teahub.service.MessageService;

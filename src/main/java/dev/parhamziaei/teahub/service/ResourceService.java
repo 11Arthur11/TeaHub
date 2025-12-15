@@ -6,12 +6,11 @@ import dev.parhamziaei.teahub.dto.response.resource.BaseResourceDetailResponse;
 import dev.parhamziaei.teahub.dto.response.resource.teaspeak.admin.ResourceListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.resource.teaspeak.user.ResourceListResponse;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
-import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
+import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpecification;
-import dev.parhamziaei.teahub.repository.jpa.specification.TeaSpeakResourceSpecification;
 import dev.parhamziaei.teahub.service.deployment.DeploymentStrategyFactory;
 import dev.parhamziaei.teahub.service.mapper.resource.ResourceMapperFactory;
 import jakarta.transaction.Transactional;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 
 @Service
 @RequiredArgsConstructor
@@ -43,14 +41,13 @@ public class ResourceService {
 
     @Transactional
     public void newBillableResource(Long userId, AbstractNewResourceRequest request) {
-
-        BillableProduct product = billableProductRepo.findById(request.getProductId())
+        BillableProduct product = billableProductRepo.findById(request.getProductId()) // ! what happen if product was not active?
                 .orElseThrow(NoSuchEntityException::new);
 
-        walletService.debit(userId, product.getPrice().getAmount());
+        walletService.assertSufficientBalance(userId, product.getPrice().getAmount());
 
         deploymentFactory.getStrategy(request.getType())
-                .produceDeployEvent(request, userId);
+                .deploy(request, userId);
     }
 
     public List<ResourceListResponse> getAllUserResources(Long userId) {

@@ -5,11 +5,15 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Duration;
 
 @Entity
 @Table
+@Getter
+@Setter
 public class ApplicationSetting {
 
     @Id

@@ -1,9 +1,7 @@
 package dev.parhamziaei.teahub.dto.internal;
 
-import dev.parhamziaei.teahub.enums.NotificationMethod;
-import lombok.Builder;
+import dev.parhamziaei.teahub.enums.user.NotificationMethod;
 import lombok.Data;
-import lombok.experimental.SuperBuilder;
 
 @Data
 public abstract class BaseNotification {

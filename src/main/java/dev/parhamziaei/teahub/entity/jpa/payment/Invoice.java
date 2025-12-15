@@ -2,7 +2,7 @@ package dev.parhamziaei.teahub.entity.jpa.payment;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
-import dev.parhamziaei.teahub.enums.InvoiceStatus;
+import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +18,8 @@ public class Invoice extends BaseEntity<Long> {
 
     private String invoiceToken;
 
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private User owner;
 
@@ -30,9 +32,6 @@ public class Invoice extends BaseEntity<Long> {
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdAt;
-
-    @Column(columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime dueDate;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime paidAt;

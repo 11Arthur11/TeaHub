@@ -3,7 +3,7 @@ package dev.parhamziaei.teahub.service;
 import dev.parhamziaei.teahub.dto.request.payment.admin.GatewayConfigRequest;
 import dev.parhamziaei.teahub.dto.request.payment.user.GatewayListResponse;
 import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
-import dev.parhamziaei.teahub.enums.PaymentGatewayType;
+import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayConfigException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayNotFoundException;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayFactory;

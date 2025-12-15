@@ -2,11 +2,9 @@ package dev.parhamziaei.teahub.controller.user;
 
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.query.InvoiceFilterRequest;
-import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.service.InvoiceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;

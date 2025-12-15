@@ -1,9 +1,8 @@
 package dev.parhamziaei.teahub.repository.jpa.specification;
 
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
-import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
-import dev.parhamziaei.teahub.enums.ResourceStatus;
-import dev.parhamziaei.teahub.enums.ResourceType;
+import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import org.springframework.data.jpa.domain.Specification;
 
 public class BillableResourceSpecification {

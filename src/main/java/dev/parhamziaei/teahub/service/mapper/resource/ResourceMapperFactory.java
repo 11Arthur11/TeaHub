@@ -1,11 +1,8 @@
 package dev.parhamziaei.teahub.service.mapper.resource;
 
-import dev.parhamziaei.teahub.dto.response.resource.BaseResourceDetailResponse;
-import dev.parhamziaei.teahub.enums.ResourceType;
-import org.springframework.core.io.Resource;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

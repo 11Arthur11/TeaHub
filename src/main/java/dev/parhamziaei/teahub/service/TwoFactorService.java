@@ -3,19 +3,21 @@ package dev.parhamziaei.teahub.service;
 import dev.parhamziaei.teahub.configuration.properties.SessionProperties;
 import dev.parhamziaei.teahub.entity.redis.PhoneVerifySession;
 import dev.parhamziaei.teahub.entity.redis.TwoFactorSession;
-import dev.parhamziaei.teahub.enums.JwtType;
+import dev.parhamziaei.teahub.enums.user.JwtType;
 import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
 import dev.parhamziaei.teahub.integration.ippanel.IPPanelService;
 import dev.parhamziaei.teahub.repository.redis.PhoneVerifyRepo;
 import dev.parhamziaei.teahub.repository.redis.TwoFactorRepo;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TwoFactorService {
@@ -86,6 +88,8 @@ public class TwoFactorService {
                 .verified(false)
                 .build();
 
+        // ! for fast testing
+        log.debug("two factor: {}", session.getCode());
         String sessionId = UUID.randomUUID().toString();
         smsService.sendTwoFactorSMS(session.getCode(), session.getPhoneNumber());
         session.setCode(encoder.encode(session.getCode()));

@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.payment;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
-import dev.parhamziaei.teahub.enums.PaymentGatewayType;
+import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

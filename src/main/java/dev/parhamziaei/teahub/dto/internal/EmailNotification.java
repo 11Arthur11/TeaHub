@@ -1,11 +1,9 @@
 package dev.parhamziaei.teahub.dto.internal;
 
-import dev.parhamziaei.teahub.enums.NotificationMethod;
+import dev.parhamziaei.teahub.enums.user.NotificationMethod;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 import org.thymeleaf.context.Context;
 
 @EqualsAndHashCode(callSuper = true)

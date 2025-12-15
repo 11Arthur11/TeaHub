@@ -5,21 +5,21 @@ import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResourceToken;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
-import dev.parhamziaei.teahub.enums.ResourceStatus;
-import dev.parhamziaei.teahub.enums.ResourceType;
-import dev.parhamziaei.teahub.enums.TeaSpeakStatus;
+import dev.parhamziaei.teahub.enums.payment.TransactionReason;
+import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
+import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
-import dev.parhamziaei.teahub.kafka.producer.TeaSpeakEventProducer;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
+import dev.parhamziaei.teahub.service.WalletService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +32,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
     private final TeaSpeakResourceRepository teaSpeakResourceRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final WalletService walletService;
 
     @Override
     public ResourceType getType() {
@@ -40,7 +41,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
 
     @Override
     @Transactional
-    public <T extends AbstractNewResourceRequest> void produceDeployEvent(T request, Long userId) {
+    public <T extends AbstractNewResourceRequest> void deploy(T request, Long userId) {
         // ? loading product for resource details
         TeaSpeakProduct product = teaSpeakProductRepo.findById(request.getProductId())
                 .orElseThrow(NoSuchEntityException::new);
@@ -62,6 +63,13 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
                 .build();
         TeaSpeakResourceToken token = new TeaSpeakResourceToken();
         resource.setPrivilegeToken(token);
+
+        walletService.debit(
+                user.getWallet().getId(),
+                product.getPrice().getAmount(),
+                TransactionReason.PURCHASE,
+                resource.getId()
+        );
 
         // ? adding resource to product resource-list
         product.addUserResource(resource);

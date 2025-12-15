@@ -8,7 +8,7 @@ import dev.parhamziaei.teahub.dto.request.ticket.user.TicketMessageRequest;
 import dev.parhamziaei.teahub.dto.response.ticket.AbstractTicketResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketDetailBaseResponse;
-import dev.parhamziaei.teahub.enums.TicketStatus;
+import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.web.multipart.MultipartFile;

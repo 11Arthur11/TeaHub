@@ -1,8 +1,6 @@
 package dev.parhamziaei.teahub.service.deployment;
 
-import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
-import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
-import dev.parhamziaei.teahub.enums.ResourceType;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.service.deployment.strategy.DeploymentStrategyHandler;
 import org.springframework.stereotype.Service;
 

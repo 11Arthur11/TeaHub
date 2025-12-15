@@ -2,9 +2,8 @@ package dev.parhamziaei.teahub.exception.handler;
 
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.messages.Message;
-import dev.parhamziaei.teahub.enums.ResponseType;
+import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
-import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.global.ConflictEntityException;
 import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;

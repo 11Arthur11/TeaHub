@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.enums;
+package dev.parhamziaei.teahub.enums.internal;
 
 public enum ResponseType {
     REGISTER_INITIATED,

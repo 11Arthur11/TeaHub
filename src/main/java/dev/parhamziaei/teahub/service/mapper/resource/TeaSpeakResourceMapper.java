@@ -5,7 +5,7 @@ import dev.parhamziaei.teahub.dto.response.resource.teaspeak.admin.TeaSpeakResou
 import dev.parhamziaei.teahub.dto.response.resource.teaspeak.user.TeaSpeakResourceDetailResponse;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
-import dev.parhamziaei.teahub.enums.ResourceType;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.TeaSpeakService;
 import lombok.RequiredArgsConstructor;

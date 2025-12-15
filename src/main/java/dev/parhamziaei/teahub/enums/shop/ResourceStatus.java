@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.enums;
+package dev.parhamziaei.teahub.enums.shop;
 
 public enum ResourceStatus {
     DEPLOYING("instance-status.deploying"),
