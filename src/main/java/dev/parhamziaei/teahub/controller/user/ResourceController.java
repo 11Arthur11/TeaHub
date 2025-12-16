@@ -51,4 +51,14 @@ public class ResourceController {
         );
     }
 
+    @PostMapping("/{resourceId}")
+    public ResponseEntity<SimpleResponse> prolongResource(@PathVariable Long resourceId) {
+        resourceService.prolongResource(currentUser.getId(), resourceId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.RESOURCE_PROLONGED),
+                HttpStatus.OK
+        );
+    }
+
 }

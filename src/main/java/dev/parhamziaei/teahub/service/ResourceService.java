@@ -147,10 +147,11 @@ public class ResourceService {
                 resourceId
         );
 
-        deploymentFactory.getStrategy(resource.getResourceType())
-                .resume(resource);
-
-        resource.setResourceStatus(ResourceStatus.ACTIVE);
+        if (resource.getResourceStatus() == ResourceStatus.PENDING_PROLONG) {
+            resource.setResourceStatus(ResourceStatus.ACTIVE);
+            deploymentFactory.getStrategy(resource.getResourceType())
+                    .resume(resource);
+        }
     }
 
     @Transactional
