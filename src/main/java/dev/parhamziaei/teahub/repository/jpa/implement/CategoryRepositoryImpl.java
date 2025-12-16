@@ -1,7 +1,8 @@
-package dev.parhamziaei.teahub.repository.jpa;
+package dev.parhamziaei.teahub.repository.jpa.implement;
 
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.repository.jpa.CategoryRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

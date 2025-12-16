@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.repository.jpa.specification;
 
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
+import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import org.springframework.data.jpa.domain.Specification;

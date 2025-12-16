@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.repository.jpa;
+package dev.parhamziaei.teahub.repository.jpa.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

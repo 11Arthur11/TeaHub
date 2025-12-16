@@ -41,6 +41,11 @@ public class QueryCommandFactory {
                 + " sid=" + sid;
     }
 
+    public String deleteServerCommand(String sid) {
+        return SERVER_DELETE.cmd()
+                + " sid=" + sid;
+    }
+
     public String serverInfoCommand() {
         return SERVER_INFO.cmd();
     }

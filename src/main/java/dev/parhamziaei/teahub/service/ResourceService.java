@@ -7,8 +7,11 @@ import dev.parhamziaei.teahub.dto.response.resource.teaspeak.admin.ResourceListA
 import dev.parhamziaei.teahub.dto.response.resource.teaspeak.user.ResourceListResponse;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
+import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
 import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpecification;
 import dev.parhamziaei.teahub.service.deployment.DeploymentStrategyFactory;
@@ -24,6 +27,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.PanelUI;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,6 +103,67 @@ public class ResourceService {
         return mapperFactory.getHandler(resource.getResourceType()).mapResourceDetailAdminResponse(resource);
     }
 
+    @Transactional
+    public void resourceExpiredHandler (Long resourceId) {
+        BillableResource resource = billableResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
 
+        BillableProduct product = resource.getProduct();
+
+        User owner = resource.getOwner();
+
+        try {
+            walletService.debit(
+                    owner.getWallet().getId(),
+                    product.getPrice().getAmount(),
+                    TransactionReason.PROLONG,
+                    resourceId
+            );
+
+            resource.setExpiration(LocalDateTime.now().plus(product.getExpiration()));
+        } catch (InsufficientBalanceException ignored) {
+            deploymentFactory.getStrategy(resource.getResourceType())
+                    .suspend(resource);
+
+            resource.setResourceStatus(ResourceStatus.PENDING_PROLONG);
+
+            // ! notify user via sms or email or something
+        }
+    }
+
+    @Transactional
+    public void prolongResource (Long userid, Long resourceId) {
+        BillableResource resource = billableResourceRepository.findOneByOwnerId(userid, resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        User owner = resource.getOwner();
+
+        BillableProduct product = resource.getProduct();
+
+        walletService.debit(
+                owner.getWallet().getId(),
+                product.getPrice().getAmount(),
+                TransactionReason.PROLONG,
+                resourceId
+        );
+
+        deploymentFactory.getStrategy(resource.getResourceType())
+                .resume(resource);
+
+        resource.setResourceStatus(ResourceStatus.ACTIVE);
+    }
+
+    @Transactional
+    public void deleteResource(Long resourceId) {
+        BillableResource resource = billableResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        deploymentFactory.getStrategy(resource.getResourceType())
+                .delete(resource);
+
+        billableResourceRepository.delete(resource);
+
+        // ! notify user via sms or email or something
+    }
 
 }

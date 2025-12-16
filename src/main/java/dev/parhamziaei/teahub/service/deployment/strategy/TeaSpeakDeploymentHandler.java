@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.service.deployment.strategy;
 
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
+import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResourceToken;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
@@ -14,6 +15,7 @@ import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
+import dev.parhamziaei.teahub.service.TeaSpeakService;
 import dev.parhamziaei.teahub.service.WalletService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
     private final UserRepository userRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final WalletService walletService;
+    private final TeaSpeakService teaSpeakService;
 
     @Override
     public ResourceType getType() {
@@ -83,6 +86,27 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
                 .build();
 
         applicationEventPublisher.publishEvent(deployEvent);
+    }
+
+    @Override
+    @Transactional
+    public void suspend(BillableResource resource) {
+        TeaSpeakResource teaSpeakResource = (TeaSpeakResource) resource;
+        teaSpeakService.suspendInternal(teaSpeakResource);
+    }
+
+    @Override
+    @Transactional
+    public void resume(BillableResource resource) {
+        TeaSpeakResource teaSpeakResource = (TeaSpeakResource) resource;
+        teaSpeakService.resumeInternal(teaSpeakResource);
+    }
+
+    @Override
+    @Transactional
+    public void delete(BillableResource resource) {
+        TeaSpeakResource teaSpeakResource = (TeaSpeakResource) resource;
+        teaSpeakService.deleteInternal(teaSpeakResource);
     }
 
 }

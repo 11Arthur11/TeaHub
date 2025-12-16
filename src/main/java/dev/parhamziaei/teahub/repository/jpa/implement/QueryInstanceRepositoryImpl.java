@@ -1,7 +1,8 @@
-package dev.parhamziaei.teahub.repository.jpa;
+package dev.parhamziaei.teahub.repository.jpa.implement;
 
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
+import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

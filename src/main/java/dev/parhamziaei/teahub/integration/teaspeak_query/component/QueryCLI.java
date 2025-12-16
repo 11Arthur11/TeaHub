@@ -18,5 +18,6 @@ public interface QueryCLI {
     void stopServer(ServerQueryCredentials credentials, String sid);
     TSServerInfoResponse getServerInfo(ServerQueryCredentials credentials, String sid);
     void deletePrivilegeToken(ServerQueryCredentials credentials, String sid, String token);
+    void deleteServer(ServerQueryCredentials credentials, String sid);
 
 }

@@ -36,6 +36,13 @@ public class QueryCommandLineInterfaceImpl implements QueryCLI{
     }
 
     @Override
+    public void deleteServer(ServerQueryCredentials credentials, String sid) {
+        TelnetSession session = connectionPool.borrow(credentials);
+        session.execute(commandFactory.deleteServerCommand(sid));
+        connectionPool.returnToPool(session);
+    }
+
+    @Override
     public TSPrivilegeAddResponse generatePrivilegeToken(ServerQueryCredentials credentials, String sid, String serverGroupId) {
         final String selectCommand = commandFactory.useCommand(sid);
         final String generatePrivilegeCommand = commandFactory.generatePrivilegeCommand(serverGroupId);
@@ -91,5 +98,7 @@ public class QueryCommandLineInterfaceImpl implements QueryCLI{
         session.execute(commandFactory.deletePrivilegeCommand(token));
         connectionPool.returnToPool(session);
     }
+
+
 
 }

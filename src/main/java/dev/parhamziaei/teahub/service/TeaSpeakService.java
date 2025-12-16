@@ -8,6 +8,7 @@ import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceSuspendedException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.ActionNotExecutableException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.QueryCLI;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.request.TSCreateQueryRequest;
@@ -18,12 +19,14 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandE
 import dev.parhamziaei.teahub.repository.jpa.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TeaSpeakService {
@@ -40,8 +43,13 @@ public class TeaSpeakService {
         User user = userRepo.findById(userId)
                 .orElseThrow(NoSuchEntityException::new);
 
-        return teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
+        TeaSpeakResource resource =teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
                 .orElseThrow(NoSuchEntityException::new);
+
+        if (resource.getResourceStatus() !=  ResourceStatus.ACTIVE)
+            throw new ResourceSuspendedException(resource.getId().toString());
+
+        return resource;
     }
 
     @Transactional // ? this method always will called by kafka event handler
@@ -138,6 +146,30 @@ public class TeaSpeakService {
     }
 
     @Transactional
+    public void suspendInternal(TeaSpeakResource resource) {
+        QueryInstance queryInstance = resource.getParentQueryInstance();
+        queryCLI.stopServer(queryInstance.getCredentials(), resource.getSid());
+        resource.setTeaSpeakStatus(TeaSpeakStatus.OFFLINE);
+        log.info("Suspended TeaSpeak Instance ({}:{})", queryInstance.getCredentials().ip(), resource.getPort());
+    }
+
+    @Transactional
+    public void resumeInternal(TeaSpeakResource resource) {
+        QueryInstance queryInstance = resource.getParentQueryInstance();
+        queryCLI.startServer(queryInstance.getCredentials(), resource.getSid());
+        resource.setTeaSpeakStatus(TeaSpeakStatus.ONLINE);
+        log.info("Resumed TeaSpeak Instance ({}:{})", queryInstance.getCredentials().ip(), resource.getPort());
+    }
+
+    @Transactional
+    public void deleteInternal(TeaSpeakResource resource) {
+        QueryInstance queryInstance = resource.getParentQueryInstance();
+        queryCLI.stopServer(queryInstance.getCredentials(), resource.getSid());
+        queryCLI.deleteServer(queryInstance.getCredentials(), resource.getSid());
+        log.info("Deleted TeaSpeak Instance ({}:{})", queryInstance.getCredentials().ip(), resource.getPort());
+    }
+
+    @Transactional
     public void refreshPrivilegeToken(Long userId, Long resourceId) {
         TeaSpeakResource resource = loadResourceByPermission(userId, resourceId);
         QueryInstance queryInstance = resource.getParentQueryInstance();
@@ -164,9 +196,6 @@ public class TeaSpeakService {
         currentToken.setToken(newToken.getToken());
         currentToken.setQueryId(Long.parseLong(newToken.getToken_id()));
     }
-
-
-
 
     private String generateInstanceName(String label, Long resourceId) {
         return label.replace(" ", "\\s") + "\\s-\\sResourceID:\\s" + String.format("%06d", resourceId);

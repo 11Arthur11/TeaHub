@@ -1,10 +1,11 @@
-package dev.parhamziaei.teahub.repository.jpa;
+package dev.parhamziaei.teahub.repository.jpa.implement;
 
 import dev.parhamziaei.teahub.entity.jpa.ticket.Ticket;
 import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessage;
 import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessageAttachment;
 import dev.parhamziaei.teahub.enums.ticket.TicketDepartment;
 import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
+import dev.parhamziaei.teahub.repository.jpa.TicketRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
