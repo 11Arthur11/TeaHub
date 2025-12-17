@@ -1,24 +1,31 @@
 package dev.parhamziaei.teahub.service;
 
+import dev.parhamziaei.teahub.dto.request.query.WalletTransactionFilterRequest;
+import dev.parhamziaei.teahub.dto.response.wallet.WalletTransactionResponse;
 import dev.parhamziaei.teahub.entity.jpa.payment.WalletTransaction;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
-import dev.parhamziaei.teahub.enums.payment.TransactionType;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
+import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletTransactionRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletSpecification;
+import dev.parhamziaei.teahub.repository.jpa.specification.WalletTransactionSpecification;
 import dev.parhamziaei.teahub.valueobject.Money;
-import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.repository.Lock;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static dev.parhamziaei.teahub.enums.payment.TransactionType.CREDIT;
 import static dev.parhamziaei.teahub.enums.payment.TransactionType.DEBIT;
@@ -29,6 +36,10 @@ import static dev.parhamziaei.teahub.enums.payment.TransactionType.DEBIT;
 public class WalletService {
 
     private final WalletRepository walletRepo;
+    private final UserRepository userRepo;
+    private final WalletTransactionRepository walletTransactionRepo;
+    private final ModelMapper modelMapper;
+    private final MessageService messageService;
 
     public void assertSufficientBalance(Long userId, BigDecimal amount) {
         Wallet wallet = walletRepo.findOne(WalletSpecification.forUserId(userId))
@@ -41,6 +52,37 @@ public class WalletService {
         return walletRepo.findOne(WalletSpecification.forUserId(userId))
                 .orElseThrow(NoSuchEntityException::new)
                 .getBalance().getAmount();
+    }
+
+    public PagedModel<WalletTransactionResponse> getWalletTransactions(Long walletId, WalletTransactionFilterRequest filter) {
+        Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Specification<WalletTransaction> spec = WalletTransactionSpecification.forWallet(walletId)
+                .and(WalletTransactionSpecification.byTransactionType(filter.getTransactionType()))
+                .and(WalletTransactionSpecification.byTransactionReason(filter.getTransactionReason()))
+                .and(WalletTransactionSpecification.betweenTime(filter.getFromCreatedAt(), filter.getToCreatedAt()))
+                .and(WalletTransactionSpecification.byRelatedResourceId(filter.getRelatedResourceId()));
+
+        Page<WalletTransaction> page = walletTransactionRepo.findAll(spec, pageable);
+
+        if (page.getContent().isEmpty())
+            throw new NoSuchDataException();
+
+        List<WalletTransactionResponse> mapped = page.getContent()
+                .stream()
+                .map(wt -> {
+                    WalletTransactionResponse res = modelMapper.map(wt, WalletTransactionResponse.class);
+                    res.setReason(messageService.get(wt.getReason()));
+                    return res;
+                })
+                .toList();
+
+        return new PagedModel<>(
+                new PageImpl<>(
+                        mapped,
+                        page.getPageable(),
+                        page.getTotalElements()
+                )
+        );
     }
 
     @Transactional

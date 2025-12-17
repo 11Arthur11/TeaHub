@@ -5,6 +5,7 @@ import dev.parhamziaei.teahub.enums.messages.Message;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.enums.messages.Text;
 import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
+import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
@@ -62,6 +63,10 @@ public class MessageService {
 
     public String get(Text text) {
         return textSource.getMessage(text.key(), null, Locale.forLanguageTag("fa"));
+    }
+
+    public String get(TransactionReason reason) {
+        return textSource.getMessage(reason.key(), null, Locale.forLanguageTag("fa"));
     }
 
     public String get(TeaSpeakStatus teaSpeakStatus) {

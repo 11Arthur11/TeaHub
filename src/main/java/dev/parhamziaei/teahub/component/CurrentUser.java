@@ -16,5 +16,6 @@ public class CurrentUser {
     private String firstName;
     private String lastName;
     private String ip;
+    private Long walletId;
 
 }

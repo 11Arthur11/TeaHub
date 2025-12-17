@@ -123,6 +123,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         currentUser.setFirstName(user.getFirstName());
         currentUser.setLastName(user.getLastName());
         currentUser.setPhone(user.getPhone());
+        currentUser.setWalletId(user.getWallet().getId());
     }
 
     private boolean requestMatcher(String requestUri) {

@@ -12,28 +12,4 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    private final NotificationProperties notificationProperties;
-
-    @Async
-    @Override
-    public <U extends User> void sendLoginNotificationLogin(U user) {
-//        boolean smsEnabled = user.getSetting().isSmsEnabled();
-//        boolean emailEnabled = user.getSetting().isEmailEnabled();
-//
-//        if (smsEnabled) {
-//            Map<String, String> smsPlaceholders = new HashMap<>();
-//            smsPlaceholders.put("time" , )
-//            SMSNotification smsNotification = SMSNotification.builder()
-//                    .notificationMethod(NotificationMethod.SMS)
-//                    .recipient(user.getPhone())
-//                    .smsIPPanelPattern(notificationProperties.smsLoginNotifIPPanelPattern())
-//                    .smsPlaceholders()
-//                    .build();
-//        }
-    }
-
-    private <U extends User> void handleSMS(SMSNotification smsNotification, U user) {
-
-    }
-
 }
