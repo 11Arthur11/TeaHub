@@ -6,13 +6,11 @@ import dev.parhamziaei.teahub.enums.user.Roles;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -41,13 +39,9 @@ public class User extends BaseEntity<Long> implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserSetting setting;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private List<Role> roles;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @Column(columnDefinition = "TIMESTAMP(0)", name = "last_login")
     private LocalDateTime lastLogin;
@@ -92,6 +86,11 @@ public class User extends BaseEntity<Long> implements UserDetails {
         this.wallet = wallet;
     }
 
+    public void setRole(Role role) {
+        this.role = role;
+        role.addUser(this);
+    }
+
     public void setSetting(UserSetting setting) {
         this.setting = setting;
         setting.setUser(this);
@@ -99,40 +98,23 @@ public class User extends BaseEntity<Long> implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(role -> (GrantedAuthority) role::getName).toList();
+        return List.of(new SimpleGrantedAuthority(role.getName()));
     }
 
     public boolean isAdmin() {
-        Set<String> userRoles = roles.stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet());
-
-        for (String userRole : userRoles) {
-            if (userRole.equals("ROLE_ADMIN"))
-                return true;
-        }
-        return false;
+        return this.role.getName().equals(Roles.ADMIN.name());
     }
 
     public boolean isStaff() {
-        Set<String> userRoles = roles.stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet());
-
         List<String> staffRoles = Roles.staffRoles().stream()
                 .map(Roles::value)
                 .toList();
 
-        for (String userRole : userRoles) {
-            if (staffRoles.contains(userRole)) {
-                return true;
-            }
-        }
-        return false;
+        return staffRoles.contains(this.role.getName());
     }
 
     public Role getHigherAuthority() {
-        return roles.stream().max(Comparator.comparing(Role::getHierarchy)).get();
+        return this.role;
     }
 
     public String getFullName() {

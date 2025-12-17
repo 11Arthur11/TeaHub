@@ -1,19 +1,8 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
 import dev.parhamziaei.teahub.entity.jpa.user.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.List;
-import java.util.Optional;
-
-public interface UserRepository {
-
-    List<User> findAll();
-    void save(User user);
-    void update(User user);
-    void delete(User user);
-    Optional<User> findById(Long id);
-    Optional<User> findByPhoneNumber(String phoneNumber);
-    boolean existsByPhoneNumber(String phoneNumber);
-
-
+public interface UserRepository extends JpaSpecificationExecutor<User>, JpaRepository<User, Long>, UserCustomRepository {
 }

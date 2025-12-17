@@ -1,17 +1,16 @@
 package dev.parhamziaei.teahub.repository.jpa.specification;
 
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
-import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import org.springframework.data.jpa.domain.Specification;
 
 public class BillableResourceSpecification {
 
-    public static Specification<BillableResource> byOwnerPhone(String ownerPhone) {
+    public static Specification<BillableResource> byUserId(Long userId) {
         return (root, query, cb) -> {
-            if (ownerPhone == null) return null;
-            return cb.equal(root.get("owner").get("phone"), ownerPhone);
+            if (userId == null) return null;
+            return cb.equal(root.get("owner").get("id"), userId);
         };
     }
 
@@ -29,7 +28,7 @@ public class BillableResourceSpecification {
         };
     }
 
-    public static Specification<BillableResource> forUserId(Long userId) {
+    public static Specification<BillableResource> forOwnerId(Long userId) {
         return (root, query, cb) -> cb.equal(root.get("owner").get("id"), userId);
     }
 

@@ -1,10 +1,7 @@
-package dev.parhamziaei.teahub.dto.response.wallet;
+package dev.parhamziaei.teahub.dto.response.user;
 
-import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
-import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.enums.payment.TransactionType;
 import dev.parhamziaei.teahub.valueobject.Money;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

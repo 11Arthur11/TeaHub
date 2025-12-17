@@ -1,8 +1,12 @@
 package dev.parhamziaei.teahub.service.interfaces;
 
 import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
+import dev.parhamziaei.teahub.dto.request.query.UsersFilterRequest;
+import dev.parhamziaei.teahub.dto.response.user.AbstractUserDetailResponse;
+import dev.parhamziaei.teahub.dto.response.user.admin.UserListResponse;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.user.Roles;
+import org.springframework.data.web.PagedModel;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
@@ -14,5 +18,7 @@ public interface UserService extends UserDetailsService {
     void enableUser(String phoneNumber);
     void setRole(String phoneNumber, Roles role);
     void updateLastLogin(String phoneNumber);
+    PagedModel<UserListResponse> getAllUsers(UsersFilterRequest filter);
+    <T extends AbstractUserDetailResponse> T getProfile(Long userId, Class<T> clazz);
 
 }

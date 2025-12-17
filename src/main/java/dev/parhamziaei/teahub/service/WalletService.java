@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.request.query.WalletTransactionFilterRequest;
-import dev.parhamziaei.teahub.dto.response.wallet.WalletTransactionResponse;
+import dev.parhamziaei.teahub.dto.response.user.WalletTransactionResponse;
 import dev.parhamziaei.teahub.entity.jpa.payment.WalletTransaction;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;

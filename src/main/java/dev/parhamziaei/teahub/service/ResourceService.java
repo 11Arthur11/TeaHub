@@ -27,7 +27,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
-import javax.swing.plaf.PanelUI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +56,7 @@ public class ResourceService {
 
     public List<ResourceListResponse> getAllUserResources(Long userId) {
         List<ResourceListResponse> resourcesResponse = new ArrayList<>();
-        Specification<BillableResource> tsSpec = BillableResourceSpecification.forUserId(userId);
+        Specification<BillableResource> tsSpec = BillableResourceSpecification.forOwnerId(userId);
         billableResourceRepository.findAll(tsSpec).forEach(resource -> {
             ResourceListResponse dto = modelMapper.map(resource, ResourceListResponse.class);
             dto.setProductName(resource.getProduct().getProductName());
@@ -70,7 +69,7 @@ public class ResourceService {
     @Transactional
     public PagedModel<ResourceListAdminResponse> getAllResources(ResourceFilterRequest filter) {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
-        Specification<BillableResource> spec = BillableResourceSpecification.byOwnerPhone(filter.getByOwnerPhone())
+        Specification<BillableResource> spec = BillableResourceSpecification.byUserId(filter.getByOwnerId())
                 .and(BillableResourceSpecification.byType(filter.getByType()))
                 .and(BillableResourceSpecification.byStatus(filter.getByResourceStatus()));
 

@@ -119,58 +119,61 @@ public class TelnetConnectionPool {
     @Scheduled(cron = "0 */1 * * * *")
     public void heartbeat() {
         log.debug("Heartbeat-Operation -> started...");
-        connections.values().forEach(session -> {
-            boolean connected;
-            if (session.getClient().isConnected()) {
-                String versionResponse = session.execute("version");
-                connected = versionResponse.contains("msg=ok");
-            } else {
-                connected = false;
-            }
-            if (!connected) {
-                session.getState().set(TelnetSessionState.UNHEALTHY);
-                log.debug("Heartbeat-Operation -> new dead connection detected trying to heartbeat...");
+        connections.values()
+                .stream()
+                .filter(s -> s.getState().get() != TelnetSessionState.BUSY)
+                .forEach(session -> {
+                    boolean connected;
+                    if (session.getClient().isConnected()) {
+                        String versionResponse = session.execute("version");
+                        connected = versionResponse.contains("msg=ok");
+                    } else {
+                        connected = false;
+                    }
+                    if (!connected) {
+                        session.getState().set(TelnetSessionState.UNHEALTHY);
+                        log.debug("Heartbeat-Operation -> new dead connection detected trying to heartbeat...");
 
-                TelnetClient refreshedClient = new TelnetClient();
-                refreshedClient.setConnectTimeout(timeout);
-                ServerQueryCredentials credentials = session.getCredentials();
-                try {
-                    session.getClient().disconnect();
-                    refreshedClient.connect(
-                            credentials.ip(),
-                            credentials.port()
-                    );
-                    log.debug("Heartbeat-Operation -> successful to {}:{} , trying to login...", credentials.ip(), credentials.port());
+                        TelnetClient refreshedClient = new TelnetClient();
+                        refreshedClient.setConnectTimeout(timeout);
+                        ServerQueryCredentials credentials = session.getCredentials();
+                        try {
+                            session.getClient().disconnect();
+                            refreshedClient.connect(
+                                    credentials.ip(),
+                                    credentials.port()
+                            );
+                            log.debug("Heartbeat-Operation -> successful to {}:{} , trying to login...", credentials.ip(), credentials.port());
 
-                    TelnetSession newSession = new TelnetSession(refreshedClient, credentials);
+                            TelnetSession newSession = new TelnetSession(refreshedClient, credentials);
 
-                    newSession.login();
-                    log.debug("Heartbeat-Operation -> login successful to {}:{} , adding connection to pool...", credentials.ip(), credentials.port());
+                            newSession.login();
+                            log.debug("Heartbeat-Operation -> login successful to {}:{} , adding connection to pool...", credentials.ip(), credentials.port());
 
-                    String key = newSession.getKey();
-                    connections.remove(session.getKey());
-                    session.getState().set(TelnetSessionState.IDLE);
-                    connections.put(key, newSession);
+                            String key = newSession.getKey();
+                            connections.remove(session.getKey());
+                            session.getState().set(TelnetSessionState.IDLE);
+                            connections.put(key, newSession);
 
-                    log.debug("Heartbeat-Operation -> connection added to pool -> {}", session.getKey());
-                } catch (QueryLoginFailedException e) {
-                    log.error("Heartbeat-Operation -> failed to login to {}:{} with this credentials {}:{} because: {}",
-                            credentials.ip(), credentials.port(),
-                            credentials.username(), credentials.password(), e.getMessage());
+                            log.debug("Heartbeat-Operation -> connection added to pool -> {}", session.getKey());
+                        } catch (QueryLoginFailedException e) {
+                            log.error("Heartbeat-Operation -> failed to login to {}:{} with this credentials {}:{} because: {}",
+                                    credentials.ip(), credentials.port(),
+                                    credentials.username(), credentials.password(), e.getMessage());
 
-                    TelnetSessionLoginFailedEvent event = new TelnetSessionLoginFailedEvent(session.getCredentials());
-                    telnetEventProducer.sendLoginFailedEvent(event);
-                } catch (IOException e) {
-                    log.error("Heartbeat-Operation -> failed to send heartbeat and adding new connection: {}:{} (IOException)",
-                            credentials.ip(), credentials.port(), e);
+                            TelnetSessionLoginFailedEvent event = new TelnetSessionLoginFailedEvent(session.getCredentials());
+                            telnetEventProducer.sendLoginFailedEvent(event);
+                        } catch (IOException e) {
+                            log.error("Heartbeat-Operation -> failed to send heartbeat and adding new connection: {}:{} (IOException)",
+                                    credentials.ip(), credentials.port(), e);
 
-                    TelnetSessionUnreachableEvent unreachableEvent = new TelnetSessionUnreachableEvent(credentials);
-                    telnetEventProducer.sendUnreachableEvent(unreachableEvent);
-                    log.debug("Heartbeat-Operation -> Telnet Login-Failed event produced for: {}:{}",
-                            credentials.ip(), credentials.port());
-                }
-            }
-        });
+                            TelnetSessionUnreachableEvent unreachableEvent = new TelnetSessionUnreachableEvent(credentials);
+                            telnetEventProducer.sendUnreachableEvent(unreachableEvent);
+                            log.debug("Heartbeat-Operation -> Telnet Login-Failed event produced for: {}:{}",
+                                    credentials.ip(), credentials.port());
+                        }
+                    }
+                });
     }
 
     @Async

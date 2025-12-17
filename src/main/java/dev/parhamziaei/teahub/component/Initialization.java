@@ -107,9 +107,10 @@ public class Initialization implements CommandLineRunner {
                 .phone(initProperties.adminPhoneNumber())
                 .firstName(initProperties.adminFirstName())
                 .lastName(initProperties.adminLastName())
-                .roles(List.of(adminRole))
                 .emailVerified(true)
                 .build();
+
+        adminUser.setRole(adminRole);
         adminUser.setWallet(wallet);
         adminUser.setSetting(userSetting);
         userRepository.save(adminUser);

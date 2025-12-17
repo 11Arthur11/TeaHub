@@ -11,6 +11,6 @@ public class ResourceFilterRequest extends AbstractPaginationRequest{
 
     private ResourceStatus byResourceStatus;
     private ResourceType byType;
-    private String byOwnerPhone;
+    private Long byOwnerId;
 
 }

@@ -4,16 +4,18 @@ import java.util.Set;
 
 public enum Roles {
 
-    USER(0, "ROLE_USER"),
-    SUPPORT(1, "ROLE_SUPPORT"),
-    ADMIN(2, "ROLE_ADMIN");
+    USER(0, "ROLE_USER", "authority.user"),
+    SUPPORT(1, "ROLE_SUPPORT", "authority.support"),
+    ADMIN(2, "ROLE_ADMIN",  "authority.admin"),;
 
     private final int hierarchy;
     private final String value;
+    private final String key;
 
-    Roles(int order, String name) {
+    Roles(int order, String name, String key) {
         this.hierarchy = order;
         this.value = name;
+        this.key = key;
     }
 
     public String nameWithoutPrefix() {
@@ -22,6 +24,14 @@ public enum Roles {
 
     public String value(){
         return this.value;
+    }
+
+    public String key() {
+        return this.key;
+    }
+
+    public static Roles fromName(String name) {
+        return Roles.valueOf(name.replaceFirst("ROLE_", ""));
     }
     
     public int hierarchy() {
