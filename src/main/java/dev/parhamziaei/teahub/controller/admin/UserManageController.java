@@ -1,8 +1,11 @@
 package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.query.UsersFilterRequest;
+import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.UserDetailAdminResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
+import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
+import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserManageController {
 
     private final UserService userService;
+    private final MessageService messageService;
 
     @GetMapping
     public ResponseEntity<?> getAllUsers(@ModelAttribute UsersFilterRequest filter) {
@@ -34,6 +38,45 @@ public class UserManageController {
                         userId,
                         UserDetailAdminResponse.class
                 ),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/{userId}/lock")
+    public ResponseEntity<SimpleResponse> lockUser(@PathVariable Long userId) {
+        userService.userLocked(userId, true);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/{userId}/unlock")
+    public ResponseEntity<SimpleResponse> unlockUser(@PathVariable Long userId) {
+        userService.userLocked(userId, false);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/roles")
+    public ResponseEntity<?> getRoles() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                userService.getRoles(),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/{userId}/roles/{roleId}")
+    public ResponseEntity<SimpleResponse> setUserRole(@PathVariable Long userId, @PathVariable Long roleId) {
+        userService.setRole(userId, roleId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
                 HttpStatus.OK
         );
     }

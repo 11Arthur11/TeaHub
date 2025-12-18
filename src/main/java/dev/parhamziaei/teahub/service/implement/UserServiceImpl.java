@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.service.implement;
 import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
 import dev.parhamziaei.teahub.dto.request.query.UsersFilterRequest;
 import dev.parhamziaei.teahub.dto.response.user.AbstractUserDetailResponse;
+import dev.parhamziaei.teahub.dto.response.user.admin.RoleListResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.UserListResponse;
 import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -92,6 +93,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void userLocked(Long userId, boolean locked) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(NoSuchEntityException::new);
+        user.setLocked(locked);
+    }
+
+    @Override
+    @Transactional
+    public void setRole(Long userId, Long roleId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new NoSuchEntityException("Role not found with id: " + roleId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchEntityException("User not found with id: " + userId));
+
+        user.setRole(role);
+    }
+
+    @Override
+    public List<RoleListResponse> getRoles() {
+        return roleRepository.findAll()
+                .stream()
+                .map(r -> modelMapper.map(r, RoleListResponse.class))
+                .toList();
+    }
+
+    @Override
     public PagedModel<UserListResponse> getAllUsers(UsersFilterRequest filter) {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
         Specification<User> spec = UserSpecification.byEnabled(filter.getByEnabled())
@@ -129,16 +158,6 @@ public class UserServiceImpl implements UserService {
         T response = modelMapper.map(user, clazz);
         response.setRole(messageService.get(Roles.fromName(user.getRole().getName())));
         return response;
-    }
-
-    @Override
-    public void enableUser(String phoneNumber) {
-
-    }
-
-    @Override
-    public void setRole(String phoneNumber, Roles role) {
-
     }
 
     @Override
