@@ -93,6 +93,7 @@ public class TwoFactorService {
         String sessionId = UUID.randomUUID().toString();
         smsService.sendTwoFactorSMS(session.getCode(), session.getPhoneNumber());
         session.setCode(encoder.encode(session.getCode()));
+        log.info(session.getCode());
         twoFactorRepo.save(sessionId, session, sessionProperties.twoFactorSessionTtl());
         return sessionId;
     }

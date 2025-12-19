@@ -45,8 +45,11 @@ public class ResourceService {
 
     @Transactional
     public void newBillableResource(Long userId, AbstractNewResourceRequest request) {
-        BillableProduct product = billableProductRepo.findById(request.getProductId()) // ! what happen if product was not active?
-                .orElseThrow(NoSuchEntityException::new);
+        BillableProduct product = billableProductRepo.findById(request.getProductId())
+                .orElseThrow(() -> new NoSuchEntityException("product not found"));
+
+        if (!product.isEnabled())
+            throw new NoSuchEntityException("product not enabled");
 
         walletService.assertSufficientBalance(userId, product.getPrice().getAmount());
 

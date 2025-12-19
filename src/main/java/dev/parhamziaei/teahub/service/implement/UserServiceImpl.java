@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
 import dev.parhamziaei.teahub.dto.request.query.UsersFilterRequest;
 import dev.parhamziaei.teahub.dto.response.user.AbstractUserDetailResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.RoleListResponse;
+import dev.parhamziaei.teahub.dto.response.user.admin.UserEditAdminRequest;
 import dev.parhamziaei.teahub.dto.response.user.admin.UserListResponse;
 import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -19,6 +20,7 @@ import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.UserSpecification;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
+import dev.parhamziaei.teahub.service.mapper.UserMapper;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final MessageService messageService;
+//    private final UserMapper userMapper;
 
     @Override
     public boolean isPhoneNumberValid(String phoneNumber) {
@@ -118,6 +121,15 @@ public class UserServiceImpl implements UserService {
                 .stream()
                 .map(r -> modelMapper.map(r, RoleListResponse.class))
                 .toList();
+    }
+
+    @Override
+    public void editUser(Long userId, UserEditAdminRequest editRequest) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new NoSuchEntityException("User not found with id: " + userId));
+//
+//        userMapper.updateEntity(editRequest, user);
+//        userRepository.save(user);
     }
 
     @Override

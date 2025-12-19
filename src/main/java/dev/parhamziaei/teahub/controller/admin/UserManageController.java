@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.controller.admin;
 import dev.parhamziaei.teahub.dto.request.query.UsersFilterRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.UserDetailAdminResponse;
+import dev.parhamziaei.teahub.dto.response.user.admin.UserEditAdminRequest;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -74,6 +75,16 @@ public class UserManageController {
     @PostMapping("/{userId}/roles/{roleId}")
     public ResponseEntity<SimpleResponse> setUserRole(@PathVariable Long userId, @PathVariable Long roleId) {
         userService.setRole(userId, roleId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/{userId}/edit")
+    public ResponseEntity<SimpleResponse> editUser(@PathVariable Long userId, @RequestBody UserEditAdminRequest editRequest) {
+        userService.editUser(userId, editRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
