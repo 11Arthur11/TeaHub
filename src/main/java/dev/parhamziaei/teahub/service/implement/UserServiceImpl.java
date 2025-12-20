@@ -20,12 +20,10 @@ import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.UserSpecification;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
-import dev.parhamziaei.teahub.service.mapper.UserMapper;
+import dev.parhamziaei.teahub.service.mapper.UserMapStruct;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -47,7 +45,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final MessageService messageService;
-    private final UserMapper userMapper;
+    private final UserMapStruct userMapper;
 
     @Override
     public boolean isPhoneNumberValid(String phoneNumber) {

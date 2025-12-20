@@ -2,13 +2,14 @@ package dev.parhamziaei.teahub.component;
 
 import dev.parhamziaei.teahub.configuration.properties.InitializeProperties;
 import dev.parhamziaei.teahub.dto.request.shop.admin.CategoryAdminRequest;
-import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductRequest;
+import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductInitRequest;
 import dev.parhamziaei.teahub.entity.jpa.ApplicationSetting;
 import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
+import dev.parhamziaei.teahub.enums.shop.ProductType;
 import dev.parhamziaei.teahub.enums.user.Roles;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
@@ -70,14 +71,15 @@ public class Initialization implements CommandLineRunner {
     }
 
     public void initTestProduct() {
-        TeaSpeakProductRequest initRequest = new TeaSpeakProductRequest();
+        TeaSpeakProductInitRequest initRequest = new TeaSpeakProductInitRequest();
         initRequest.setPrice(BigDecimal.valueOf(50000));
         initRequest.setProductPeriod(ProductPeriod.DAILY);
         initRequest.setMaxClients(32);
         initRequest.setEnabled(true);
         initRequest.setProductName("Test TeaSpeak Product");
         initRequest.setCategoryId(1L);
-        productService.initTeaSpeakProduct(initRequest);
+        initRequest.setType(ProductType.TEASPEAK_PRODUCT);
+        productService.addProduct(initRequest);
         log.info("Initialization-Operation -> Test Product initialized");
     }
 

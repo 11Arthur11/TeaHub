@@ -52,10 +52,10 @@ public class BillableProduct extends BaseEntity<Long> {
     private Duration expiration;
 
     public void setCategory(Category category) {
+        Hibernate.initialize(category.getProducts());
         if (this.category != null)
             this.category.getProducts().remove(this);
         this.category = category;
-        Hibernate.initialize(category.getProducts());
         category.getProducts().add(this);
     }
 

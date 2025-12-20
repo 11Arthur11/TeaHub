@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PaymentAdminController {
 
-    private final PaymentService paymentService;
     private final GatewayService gatewayService;
     private final MessageService messageService;
 

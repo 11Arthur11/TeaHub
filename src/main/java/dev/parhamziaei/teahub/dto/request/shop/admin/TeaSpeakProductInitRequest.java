@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @RequestSubType(ResourceType.TEASPEAK_RESOURCE)
-public class TeaSpeakProductRequest extends AbstractProductRequest {
+public class TeaSpeakProductInitRequest extends AbstractProductInitRequest {
 
     private Integer maxClients;
 

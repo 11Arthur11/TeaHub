@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.controller.admin;
 
-import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductRequest;
+import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductEditRequest;
+import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductInitRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
@@ -30,12 +31,22 @@ public class ProductAdminController {
         );
     }
 
-    @PostMapping("/add/teaspeak")
-    public ResponseEntity<SimpleResponse> initTeaSpeakProduct(@Valid @RequestBody TeaSpeakProductRequest initRequest) {
-        productService.initTeaSpeakProduct(initRequest);
+    @PostMapping("/add")
+    public ResponseEntity<SimpleResponse> addProduct(@Valid @RequestBody AbstractProductInitRequest initRequest) {
+        productService.addProduct(initRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.DEFAULT_CREATED),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/{productId}/edit")
+    public ResponseEntity<SimpleResponse> editProduct(@PathVariable Long productId, @Valid @RequestBody AbstractProductEditRequest editRequest) {
+        productService.updateProduct(productId, editRequest);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_EDITED),
                 HttpStatus.OK
         );
     }
@@ -48,16 +59,6 @@ public class ProductAdminController {
                 HttpStatus.OK
         );
     }
-
-//    @PostMapping("/edit")
-//    public ResponseEntity<SimpleResponse> updateProduct(@Valid @RequestBody TeaSpeakProductUpdateRequest updateRequest) {
-//        productService.updateTeaSpeakProduct(updateRequest);
-//        return ResponseBuilder.buildSuccess(
-//                ResponseType.SUCCESS,
-//                messageService.get(ServiceMessage.DEFAULT_EDITED),
-//                HttpStatus.OK
-//        );
-//    }
 
     @GetMapping("/{productId}/{enabled}")
     public ResponseEntity<?> changeEnabled(

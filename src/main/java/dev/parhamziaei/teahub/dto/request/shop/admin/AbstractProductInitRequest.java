@@ -15,11 +15,11 @@ import java.math.BigDecimal;
         visible = true
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = TeaSpeakProductRequest.class, name = "TEASPEAK_PRODUCT")
+        @JsonSubTypes.Type(value = TeaSpeakProductInitRequest.class, name = "TEASPEAK_PRODUCT")
 })
 
 @Data
-public abstract class AbstractProductRequest {
+public abstract class AbstractProductInitRequest {
 
     private ProductType type;
 
