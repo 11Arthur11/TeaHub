@@ -25,6 +25,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final MessageService messageService;
-//    private final UserMapper userMapper;
+    private final UserMapper userMapper;
 
     @Override
     public boolean isPhoneNumberValid(String phoneNumber) {
@@ -125,11 +126,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void editUser(Long userId, UserEditAdminRequest editRequest) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new NoSuchEntityException("User not found with id: " + userId));
-//
-//        userMapper.updateEntity(editRequest, user);
-//        userRepository.save(user);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchEntityException("User not found with id: " + userId));
+
+        userMapper.updateEntity(editRequest, user);
+        userRepository.save(user);
     }
 
     @Override
