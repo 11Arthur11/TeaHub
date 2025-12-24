@@ -18,6 +18,11 @@ import dev.parhamziaei.teahub.service.TwoFactorService;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,6 +51,28 @@ public class AuthenticationController {
     private final MessageService messageService;
     private final AuthenticationFactory authFactory;
 
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "type -> LOGIN_INITIATED: user has a valid account and must log in, " +
+                            "type -> REGISTER_INITIATED: user must register"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "type -> ERROR: something went wrong while initiating; message is translated to Farsi and should be shown directly to the user"
+            ),
+            @ApiResponse(
+                    responseCode = "429",
+                    description = "Too many requests: OTP session is still active"
+            )
+    })
+    @Operation(
+            summary = "Authentication Entry",
+            description = "User sends their phone number to start the authentication process. " +
+                    "The endpoint decides whether the user should log in or register. " +
+                    "UI can then show the appropriate form based on the response.",
+            tags = {"Auth"}
+    )
     @PostMapping("/initiate")
     public ResponseEntity<SimpleResponse> authEntry(
             @Valid @RequestBody AuthEntryRequest entryRequest,
@@ -88,6 +115,24 @@ public class AuthenticationController {
         }
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "type -> LOGIN_SUCCESS: user entered the correct OTP and login was successful"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "type -> ERROR: something went wrong during login; the message is translated to Farsi and should be shown directly to the user"
+            )
+    })
+    @Operation(
+            summary = "Login Operation",
+            description = "After initiating, the next step is receiving the OTP from the user. " +
+                    "A session with a specified TTL is created on the backend, and the user receives a session-id cookie in their browser. " +
+                    "If the login is successful, the JWT cookie will be applied. " +
+                    "Remember-me functionality must be specified in this endpoint.",
+            tags = {"Auth"}
+    )
     @PostMapping("/login")
     public ResponseEntity<SimpleResponse> login(
             @Valid @RequestBody LoginRequest loginRequest,
@@ -136,6 +181,23 @@ public class AuthenticationController {
         );
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "type -> REGISTER_SUCCESS: user submitted the correct OTP and a valid registration body; registration was successful"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "type -> ERROR: something went wrong during registration; the message is translated to Farsi and should be shown directly to the user"
+            )
+    })
+    @Operation(
+            summary = "Register Operation",
+            description = "After initiating, if the user is not registered yet, the next step is to register the user by submitting the form along with the OTP that was already sent to their phone number. " +
+                    "A session with a specified TTL is created on the backend, and the user receives a session-id cookie in their browser. " +
+                    "If registration is successful, a JWT cookie will be applied, and the user will be automatically logged in without remember-me functionality.",
+            tags = {"Auth"}
+    )
     @PostMapping("/register")
     public ResponseEntity<SimpleResponse> register(
             @Valid @RequestBody RegisterRequest registerRequest,
@@ -172,6 +234,17 @@ public class AuthenticationController {
         );
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "type -> SUCCESS: user has successfully logged out"
+            )
+    })
+    @Operation(
+            summary = "Logout Operation",
+            description = "Clears the SecurityContext on the backend and removes the JWT and refresh token cookies from the user's browser.",
+            tags = {"Auth"}
+    )
     @PostMapping("/logout")
     public ResponseEntity<SimpleResponse> logout(
             HttpServletRequest request,
