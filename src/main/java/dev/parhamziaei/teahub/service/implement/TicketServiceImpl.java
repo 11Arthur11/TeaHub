@@ -11,26 +11,33 @@ import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketAttachmentResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketDetailBaseResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketMessageResponse;
+import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.ticket.Ticket;
 import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessage;
 import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessageAttachment;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
-import dev.parhamziaei.teahub.enums.ticket.TicketDepartment;
 import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
+import dev.parhamziaei.teahub.enums.user.Roles;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmentReachedException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
+import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.TicketRepository;
+import dev.parhamziaei.teahub.repository.jpa.UserRepository;
+import dev.parhamziaei.teahub.repository.jpa.specification.TicketSpecification;
 import dev.parhamziaei.teahub.service.FileStorageService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.TicketService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
+import dev.parhamziaei.teahub.service.mapper.TicketMapStruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,24 +61,24 @@ public class TicketServiceImpl implements TicketService {
     private final FileStorageService fileStorageService;
     private final MessageService messageService;
     private final TicketServiceProperties properties;
-
-    protected BiPredicate<User, Ticket> hasAccessToTicket = (user, ticket) -> {
-        if (user.isStaff())
-            return true;
-        else
-            return ticket.getOwnerPhone().equals(user.getPhone());
-    };
+    private final UserRepository userRepository;
+    private final BillableResourceRepository billableResourceRepository;
+    private final TicketMapStruct ticketMapStruct;
 
     protected BiPredicate<User, TicketMessageAttachment> hasAccessToAttachment = (user, attachment) -> {
         if (user.isStaff())
             return true;
         else
-            return attachment.getOwnerPhone().equals(user.getPhone());
+            return attachment.getTicketMessage()
+                    .getTicket()
+                    .getOwner()
+                    .getPhone()
+                    .equals(user.getPhone());
     };
 
     private <T extends AbstractTicketResponse> T enrichTicket(Ticket ticket, T dto) {
-        dto.setDepartment(messageService.get(TicketDepartment.fromValue(ticket.getDepartment())));
-        dto.setStatus(messageService.get(TicketStatus.fromValue(ticket.getStatus())));
+        dto.setDepartment(messageService.get(ticket.getDepartment()));
+        dto.setStatus(messageService.get(ticket.getDepartment()));
         return dto;
     }
 
@@ -123,33 +130,24 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public PagedModel<TicketListAdminResponse> getAllTickets(TicketFilterRequest filterRequest) {
         Pageable pageable = PageRequest.of(filterRequest.getPage(), filterRequest.getSize(), Sort.by(filterRequest.getSortedBy()).ascending());
-        Page<Ticket> ticketPage;
 
-        boolean isAllStatus = filterRequest.getStatus() == null;
-        boolean isAllDepartment = filterRequest.getDepartment() == null;
+        Specification<Ticket> spec = TicketSpecification.hasDepartment(filterRequest.getDepartment())
+                .and(TicketSpecification.hasStatus(filterRequest.getStatus()));
 
-        if (isAllStatus && isAllDepartment) {
-            ticketPage = ticketRepo.findAll(pageable);
-        } else if (isAllStatus) {
-            TicketDepartment department = TicketDepartment.fromValue(filterRequest.getDepartment());
-            ticketPage = ticketRepo.findAllByDepartment(department, pageable);
-        } else if (isAllDepartment) {
-            TicketStatus status = TicketStatus.fromValue(filterRequest.getStatus());
-            ticketPage = ticketRepo.findAllByStatus(status, pageable);
-        } else {
-            TicketDepartment department = TicketDepartment.fromValue(filterRequest.getDepartment());
-            TicketStatus status = TicketStatus.fromValue(filterRequest.getStatus());
-            ticketPage = ticketRepo.findAllByStatusAndDepartment(status, department, pageable);
-        }
+        Page<Ticket> page = ticketRepo.findAll(spec, pageable);
 
-        Page<TicketListAdminResponse> dtoPage = mapPage(ticketPage, TicketListAdminResponse.class);
+        if (page.getContent().isEmpty())
+            throw new NoSuchDataException();
+
+        Page<TicketListAdminResponse> dtoPage = mapPage(page, TicketListAdminResponse.class);
         return new PagedModel<>(dtoPage);
     }
 
     @Override
     @Transactional
-    public void addNewMessage(TicketMessageRequest ticketMessageRequest, String senderUserPhone, Long ticketId, List<MultipartFile> files) {
-        User user = (User) userService.loadUserByUsername(senderUserPhone);
+    public void addNewMessage(TicketMessageRequest ticketMessageRequest, Long senderId, Long ticketId, List<MultipartFile> files) {
+        User user = userRepository.findById(senderId)
+                .orElseThrow(NoSuchEntityException::new);
         addNewMessage(ticketMessageRequest, user, ticketId, files);
     }
 
@@ -175,29 +173,18 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public void changeTicketStatus(Long ticketId, TicketStatus newStatus) {
-        Optional<Ticket> dbTicket = ticketRepo.findById(ticketId);
-        if (dbTicket.isPresent()) {
-            Ticket ticket = dbTicket.get();
-            ticket.setStatus(newStatus.value());
-            ticketRepo.update(ticket);
-        }
+        Ticket ticket = ticketRepo.findById(ticketId)
+                .orElseThrow(NoSuchEntityException::new);
+        ticket.setStatus(newStatus);
+        ticketRepo.saveAndFlush(ticket);
     }
 
     @Override
     public void editTicket(TicketEditAdminRequest request, Long ticketId) {
-        Optional<Ticket> dbTicket = ticketRepo.findById(ticketId);
-        if (dbTicket.isPresent()) {
-            Ticket ticket = dbTicket.get();
-
-            if (request.getNewSubject() != null)
-                ticket.setSubject(request.getNewSubject());
-            if (request.getNewStatus() != null)
-                ticket.setStatus(request.getNewStatus());
-            if (ticket.getStatus() != null)
-                ticket.setStatus(ticket.getStatus());
-
-            ticketRepo.update(ticket);
-        }
+        Ticket ticket = ticketRepo.findById(ticketId)
+                .orElseThrow(NoSuchEntityException::new);
+        ticketMapStruct.toEntity(request, ticket);
+        ticketRepo.saveAndFlush(ticket);
     }
 
     @Transactional
@@ -205,34 +192,30 @@ public class TicketServiceImpl implements TicketService {
         if (files != null && files.size() > properties.maxAttachmentPerMessage())  {
             throw new TicketMaxAttachmentReachedException("Maximum number of ticket attachments reached. limit is: " + properties.maxAttachmentPerMessage());
         }
-        Optional<Ticket> loadedTicket = ticketRepo.findById(ticketId);
-        if (loadedTicket.isPresent() && hasAccessToTicket.test(senderUser, loadedTicket.get())) {
-            Ticket ticket = loadedTicket.get();
 
-            String senderRole = senderUser.getHigherAuthority().getName();
-            TicketStatus newStatus = calculateNewStatus.apply(
-                    TicketStatus.fromValue(ticket.getStatus()),
-                    senderUser
-            );
+        Ticket ticket = ticketRepo.findByOneByPermission(senderUser, ticketId)
+                .orElseThrow(() -> new TicketServiceException("Ticket not found with id " + ticketId));
 
-            if (!newStatus.equals(TicketStatus.fromValue(ticket.getStatus()))) {
-                changeTicketStatus(ticket.getId(), newStatus);
-            }
+        String senderRole = messageService.get(Roles.fromName(senderUser.getHigherAuthority().getName()));
+        TicketStatus newStatus = calculateNewStatus.apply(
+                ticket.getStatus(),
+                senderUser
+        );
 
-            TicketMessage newTicketMessage = TicketMessage.builder()
-                    .message(ticketMessageRequest.getContent())
-                    .senderFullName(senderUser.getFullName())
-                    .senderRole(senderRole)
-                    .build();
-
-            addAttachmentsToTicketMessage(
-                    ticketRepo.addMessage(ticketId, newTicketMessage),
-                    files
-            );
-
-        } else {
-            throw new TicketServiceException("Ticket not found with id " + ticketId);
+        if (!newStatus.equals(ticket.getStatus())) {
+            changeTicketStatus(ticket.getId(), newStatus);
         }
+
+        TicketMessage newTicketMessage = TicketMessage.builder()
+                .message(ticketMessageRequest.getContent())
+                .senderFullName(senderUser.getFullName())
+                .senderRole(senderRole)
+                .build();
+
+        addAttachmentsToTicketMessage(
+                ticketRepo.addMessage(ticketId, newTicketMessage),
+                files
+        );
     }
 
     @Transactional
@@ -249,7 +232,6 @@ public class TicketServiceImpl implements TicketService {
                     .storedName(Paths.get(storedPath).getFileName().toString())
                     .size(file.getSize())
                     .mimeType(file.getContentType())
-                    .ownerPhone(loadedTicketMessage.getTicket().getOwnerPhone())
                     .ticketMessage(loadedTicketMessage)
                     .build();
 
@@ -258,41 +240,46 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public <T extends TicketDetailBaseResponse> T getTicketDetails(Long ticketId, String requesterPhone, Class<T> responseType) {
-        User requesterUser = (User) userService.loadUserByUsername(requesterPhone);
-        Optional<Ticket> loadedTicket = ticketRepo.findById(ticketId);
-        if (loadedTicket.isPresent() && hasAccessToTicket.test(requesterUser, loadedTicket.get())) {
-            Ticket ticket = loadedTicket.get();
-            return mapTicketDetail(ticket, responseType);
-        } else {
-            throw new NoSuchDataException("Ticket not found with id " + ticketId);
-        }
+    public <T extends TicketDetailBaseResponse> T getTicketDetails(Long ticketId, Long requesterId, Class<T> responseType) {
+        User requesterUser = userRepository.findById(requesterId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        Ticket ticket = ticketRepo.findByOneByPermission(requesterUser, ticketId)
+                .orElseThrow(() -> new NoSuchDataException("Ticket not found with id " + ticketId));
+
+        return mapTicketDetail(ticket, responseType);
     }
 
     @Override
     @Transactional
-    public <T extends TicketBaseRequest> void submit(String submitterPhoneNumber, T ticketRequest, List<MultipartFile> files) {
-        String relatedServiceName = null;
-        User submitterUser = (User) userService.loadUserByUsername(submitterPhoneNumber);
-        if (ticketRequest.getServiceName() != null) {
-            //todo make a check if entered service belong to user or not, if not throw TicketServiceException()
+    public <T extends TicketBaseRequest> void submit(Long submitterId, T ticketRequest, List<MultipartFile> files) {
+        Long relatedResourceId = null;
+
+        User submitterUser = userRepository.findById(submitterId)
+                .orElseThrow(NoSuchDataException::new);
+
+        if (ticketRequest.getRelatedResourceId() != null) {
+            BillableResource resource = billableResourceRepository.findByOneByPermission(submitterUser, ticketRequest.getRelatedResourceId())
+                    .orElseThrow(NoSuchDataException::new);
+            relatedResourceId = resource.getId();
         }
-        String ticketDepartment = ticketRequest.getDepartment();
 
         Ticket ticket = Ticket.builder()
                 .subject(ticketRequest.getSubject())
-                .department(ticketDepartment)
-                .serviceName(relatedServiceName)
+                .department(ticketRequest.getDepartment())
+                .relatedResourceId(relatedResourceId)
                 .submitterPhone(submitterUser.getPhone())
-                .ownerFullName(submitterUser.getFullName())
                 .build();
 
+        ticket.setOwner(submitterUser);
+
         if (submitterUser.isStaff()) {
-            ticket.setStatus(TicketStatus.WAITING.value());
-            ticket.setOwnerPhone(ticketRequest.getOwnerPhone());
+            ticket.setStatus(TicketStatus.WAITING);
+            User ownerUser = userService.loadUserByPhoneNumber(ticketRequest.getOwnerPhone());
+            ticket.setOwner(ownerUser);
         } else {
-            ticket.setStatus(TicketStatus.PENDING.value());
-            ticket.setOwnerPhone(submitterPhoneNumber);
+            ticket.setStatus(TicketStatus.PENDING);
+            ticket.setOwner(submitterUser);
         }
 
         ticketRepo.save(ticket);
@@ -306,16 +293,34 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public <T extends AbstractTicketResponse> PagedModel<T> getUserTickets(Pageable pageable, String phoneNumber, Class<T> responseType) {
-        Page<Ticket> tickets = ticketRepo.findByOwner(pageable, phoneNumber);
+    public <T extends AbstractTicketResponse> PagedModel<T> getUserTickets(TicketFilterRequest filterRequest, Long userId, Class<T> responseType) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        Pageable pageable = PageRequest.of(
+                filterRequest.getPage(),
+                filterRequest.getSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Specification<Ticket> spec = TicketSpecification.hasDepartment(filterRequest.getDepartment())
+                .and(TicketSpecification.hasStatus(filterRequest.getStatus()))
+                .and(TicketSpecification.mustHaveAccess(user));
+
+        Page<Ticket> tickets = ticketRepo.findAll(spec, pageable);
+
+        if (tickets.getContent().isEmpty())
+            throw new NoSuchDataException();
+
         Page<T> sortedPageDTO = mapPage(tickets, responseType);
         return new PagedModel<>(sortedPageDTO);
     }
 
     @Override
-    public ImageInternal getTicketAttachment(String attachmentIdentifier, String senderPhone) {
+    public ImageInternal getTicketAttachment(String attachmentIdentifier, Long requesterId) {
         Optional<TicketMessageAttachment> dbAttachment = ticketRepo.findTicketAttachmentByStoredName(attachmentIdentifier);
-        User user = (User) userService.loadUserByUsername(senderPhone);
+        User user = userRepository.findById(requesterId)
+                .orElseThrow(NoSuchDataException::new);
         if (dbAttachment.isPresent()) {
             TicketMessageAttachment attachment = dbAttachment.get();
             Optional<Resource> imageResource = fileStorageService.loadTicketAttachment(attachment);
@@ -329,7 +334,7 @@ public class TicketServiceImpl implements TicketService {
                         .build();
             }
         }
-        log.warn("Ticket attachment not found or permission missing, user: {}, fileName: {}", senderPhone, attachmentIdentifier);
+        log.warn("Ticket attachment not found or permission missing, user: {}, fileName: {}", user.getPhone(), attachmentIdentifier);
         throw new TicketServiceException("Attachment not found or permission denied.");
     }
 }

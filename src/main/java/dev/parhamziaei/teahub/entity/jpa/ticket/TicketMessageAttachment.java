@@ -23,8 +23,6 @@ public class TicketMessageAttachment extends BaseEntity<Long> {
 
     private String mimeType;
 
-    private String ownerPhone;
-
     private Long size;
 
     @Column(columnDefinition = "TIMESTAMP(0)", name = "created_at")

@@ -18,12 +18,12 @@ import java.util.List;
 public interface TicketService {
 
     PagedModel<TicketListAdminResponse> getAllTickets(TicketFilterRequest filterRequest);
-    void addNewMessage(TicketMessageRequest ticketMessageRequest, String senderUserPhone, Long ticketId, List<MultipartFile> files);
+    void addNewMessage(TicketMessageRequest ticketMessageRequest, Long senderId, Long ticketId, List<MultipartFile> files);
     void changeTicketStatus(Long ticketId, TicketStatus newStatus);
     void editTicket(TicketEditAdminRequest request, Long ticketId);
-    <T extends TicketDetailBaseResponse> T getTicketDetails(Long ticketId, String requesterPhone, Class<T> responseType);
-    <T extends TicketBaseRequest> void submit(String submitterPhoneNumber, T ticketRequest, List<MultipartFile> files);
-    <T extends AbstractTicketResponse> PagedModel<T> getUserTickets(Pageable pageable, String phoneNumber, Class<T> responseType);
-    ImageInternal getTicketAttachment(String attachmentIdentifier, String senderPhone);
+    <T extends TicketDetailBaseResponse> T getTicketDetails(Long ticketId, Long requesterId, Class<T> responseType);
+    <T extends TicketBaseRequest> void submit(Long submitterId, T ticketRequest, List<MultipartFile> files);
+    <T extends AbstractTicketResponse> PagedModel<T> getUserTickets(TicketFilterRequest filterRequest, Long userId, Class<T> responseType);
+    ImageInternal getTicketAttachment(String attachmentIdentifier, Long senderId);
 
 }

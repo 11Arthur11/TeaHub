@@ -5,6 +5,7 @@ import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessage;
 import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessageAttachment;
 import dev.parhamziaei.teahub.enums.ticket.TicketDepartment;
 import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
+import dev.parhamziaei.teahub.repository.jpa.TicketCustomRepository;
 import dev.parhamziaei.teahub.repository.jpa.TicketRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -20,27 +21,9 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class TicketRepositoryImpl implements TicketRepository {
+public class TicketRepositoryImpl implements TicketCustomRepository {
 
     private final EntityManager em;
-
-    @Transactional
-    @Override
-    public void save(Ticket ticket) {
-        em.persist(ticket);
-    }
-
-    @Transactional
-    @Override
-    public void update(Ticket ticket) {
-        em.merge(ticket);
-    }
-
-    @Transactional
-    @Override
-    public void delete(Ticket ticket) {
-        em.remove(ticket);
-    }
 
     @Transactional
     @Override
@@ -65,73 +48,14 @@ public class TicketRepositoryImpl implements TicketRepository {
     }
 
     @Override
-    public Optional<Ticket> findById(Long id) {
-        return em.createQuery("SELECT t FROM Ticket t WHERE t.id = :id", Ticket.class).setParameter("id", id)
-                .getResultList()
-                .stream()
-                .findFirst();
-    }
-
-    @Override
-    public Page<Ticket> findAll(Pageable pageable) {
-        Query query = em.createQuery("FROM Ticket", Ticket.class);
+    public Page<Ticket> findByOwner(Pageable pageable, Long ownerId) {
+        Query query = em.createQuery("SELECT t FROM Ticket t WHERE t.owner.id = :id", Ticket.class)
+                .setParameter("id", ownerId);
         query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
         query.setMaxResults(pageable.getPageSize());
         List<Ticket> tickets = query.getResultList();
-        long totalSize = em.createQuery("SELECT COUNT(t) FROM Ticket t", Long.class).getSingleResult();
-        return new PageImpl<>(tickets, pageable, totalSize);
-    }
-
-    @Override
-    public Page<Ticket> findAllByStatus(TicketStatus status, Pageable pageable) {
-        Query query = em.createQuery("SELECT t FROM Ticket t WHERE t.status =:status", Ticket.class);
-        query.setParameter("status", status.value());
-        query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
-        query.setMaxResults(pageable.getPageSize());
-        List<Ticket> tickets = query.getResultList();
-        long totalSize = em.createQuery("SELECT COUNT(t) FROM Ticket t WHERE t.status =:status", Long.class)
-                .setParameter("status", status.value())
-                .getSingleResult();
-        return new PageImpl<>(tickets, pageable, totalSize);
-    }
-
-    @Override
-    public Page<Ticket> findAllByDepartment(TicketDepartment department, Pageable pageable) {
-        Query query = em.createQuery("SELECT t FROM Ticket t WHERE t.department =:department", Ticket.class);
-        query.setParameter("department", department.value());
-        query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
-        query.setMaxResults(pageable.getPageSize());
-        List<Ticket> tickets = query.getResultList();
-        long totalSize = em.createQuery("SELECT COUNT(t) FROM Ticket t WHERE t.department =:department", Long.class)
-                .setParameter("department", department.value())
-                .getSingleResult();
-        return new PageImpl<>(tickets, pageable, totalSize);
-    }
-
-    @Override
-    public Page<Ticket> findAllByStatusAndDepartment(TicketStatus status, TicketDepartment department, Pageable pageable) {
-        Query query = em.createQuery("SELECT t FROM Ticket t WHERE t.department =:department AND t.status =:status", Ticket.class);
-        query.setParameter("department", department.value());
-        query.setParameter("status", status.value());
-        query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
-        query.setMaxResults(pageable.getPageSize());
-        List<Ticket> tickets = query.getResultList();
-        long totalSize = em.createQuery("SELECT COUNT(t) FROM Ticket t WHERE t.department =:department AND t.status =:status", Long.class)
-                .setParameter("department", department.value())
-                .setParameter("status", status.value())
-                .getSingleResult();
-        return new PageImpl<>(tickets, pageable, totalSize);
-    }
-
-    @Override
-    public Page<Ticket> findByOwner(Pageable pageable, String ownerPhoneNumber) {
-        Query query = em.createQuery("SELECT t FROM Ticket t WHERE t.ownerPhone = :ownerPhone", Ticket.class)
-                .setParameter("ownerPhone", ownerPhoneNumber);
-        query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
-        query.setMaxResults(pageable.getPageSize());
-        List<Ticket> tickets = query.getResultList();
-        long totalSize = em.createQuery("SELECT COUNT(t) FROM Ticket t WHERE t.ownerPhone = :ownerPhone", Long.class)
-                .setParameter("ownerPhone", ownerPhoneNumber)
+        long totalSize = em.createQuery("SELECT COUNT(t) FROM Ticket t WHERE t.owner.id = :id", Long.class)
+                .setParameter("id", ownerId)
                 .getSingleResult();
         return new PageImpl<>(tickets, pageable, totalSize);
     }

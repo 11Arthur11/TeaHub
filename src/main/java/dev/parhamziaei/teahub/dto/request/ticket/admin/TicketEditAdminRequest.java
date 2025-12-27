@@ -12,12 +12,10 @@ import org.hibernate.validator.constraints.Length;
 public class TicketEditAdminRequest {
 
     @Length(min = 5)
-    private String newSubject;
+    private String subject;
 
-    @EnumValue(enumClass = TicketStatus.class, allowNull = true)
-    private String newStatus;
+    private TicketStatus status;
 
-    @EnumValue(enumClass = TicketDepartment.class, allowNull = true)
-    private String newDepartment;
+    private TicketDepartment department;
 
 }

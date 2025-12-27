@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.service.ResourceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,12 @@ public class ResourceAdminController {
 
     private final ResourceService resourceService;
 
+    @Operation(
+            summary = "Get all resources for admin",
+            description = "Returns a list of all resources. Note: the list is paginated. " +
+                    "You can apply filters via query parameters in ResourceFilterRequest.",
+            tags = {"Resource (Admin)"}
+    )
     @GetMapping
     public ResponseEntity<?> getAllResources(@RequestParam ResourceFilterRequest filter) {
         return ResponseBuilder.buildSuccess(
@@ -25,6 +32,11 @@ public class ResourceAdminController {
         );
     }
 
+    @Operation(
+            summary = "Get resource details for admin",
+            description = "Returns detailed information for a single resource identified by its ID.",
+            tags = {"Resource (Admin)"}
+    )
     @GetMapping("/{resourceId}")
     public ResponseEntity<?> getResource(@PathVariable Long resourceId) {
         return ResponseBuilder.buildSuccess(

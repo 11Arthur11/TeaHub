@@ -25,13 +25,13 @@ public class TicketMessage extends BaseEntity<Long> {
     @Column(name = "message")
     private String message;
 
-    @OneToMany(mappedBy ="ticketMessage", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy ="ticketMessage", fetch = FetchType.EAGER)
     private Set<TicketMessageAttachment> attachments = new HashSet<>();
 
     @Column(columnDefinition = "TIMESTAMP(0)", name = "sent_at")
     private LocalDateTime sentAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 

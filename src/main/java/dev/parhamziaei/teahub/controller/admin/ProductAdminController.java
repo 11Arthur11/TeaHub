@@ -8,6 +8,7 @@ import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,11 @@ public class ProductAdminController {
     private final ProductService productService;
     private final MessageService messageService;
 
+    @Operation(
+            summary = "Get all products",
+            description = "Returns a list of all products. This endpoint does not support pagination.",
+            tags = {"Products (Admin)"}
+    )
     @GetMapping
     public ResponseEntity<?> getAllProducts() {
         return ResponseBuilder.buildSuccess(
@@ -31,6 +37,11 @@ public class ProductAdminController {
         );
     }
 
+    @Operation(
+            summary = "Add new product",
+            description = "Creates a new product with initial configuration and makes it available in the system.",
+            tags = {"Products (Admin)"}
+    )
     @PostMapping("/add")
     public ResponseEntity<SimpleResponse> addProduct(@Valid @RequestBody AbstractProductInitRequest initRequest) {
         productService.addProduct(initRequest);
@@ -41,6 +52,11 @@ public class ProductAdminController {
         );
     }
 
+    @Operation(
+            summary = "Edit product",
+            description = "Updates the configuration and details of an existing product identified by productId.",
+            tags = {"Products (Admin)"}
+    )
     @PostMapping("/{productId}/edit")
     public ResponseEntity<SimpleResponse> editProduct(@PathVariable Long productId, @Valid @RequestBody AbstractProductEditRequest editRequest) {
         productService.updateProduct(productId, editRequest);
@@ -51,6 +67,11 @@ public class ProductAdminController {
         );
     }
 
+    @Operation(
+            summary = "Get product details",
+            description = "Returns detailed information of a specific product identified by productId.",
+            tags = {"Products (Admin)"}
+    )
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProduct(@PathVariable Long productId) {
         return ResponseBuilder.buildSuccess(
@@ -60,7 +81,12 @@ public class ProductAdminController {
         );
     }
 
-    @GetMapping("/{productId}/{enabled}")
+    @Operation(
+            summary = "Enable or disable product",
+            description = "Changes the enabled status of a product. If enabled is true, the product becomes active; otherwise, it will be disabled.",
+            tags = {"Products (Admin)"}
+    )
+    @PatchMapping("/{productId}/{enabled}")
     public ResponseEntity<?> changeEnabled(
             @PathVariable Long productId,
             @PathVariable boolean enabled
@@ -73,6 +99,11 @@ public class ProductAdminController {
         );
     }
 
+    @Operation(
+            summary = "Delete product",
+            description = "Removes a product permanently from the system.",
+            tags = {"Products (Admin)"}
+    )
     @DeleteMapping("/{productId}")
     public ResponseEntity<SimpleResponse> deleteProduct(@PathVariable Long productId) {
         productService.removeProduct(productId);

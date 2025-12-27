@@ -8,6 +8,7 @@ import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.QueryInstanceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,11 @@ public class QueryInstanceController {
     private final QueryInstanceService queryInstanceService;
     private final MessageService messageService;
 
+    @Operation(
+            summary = "Get all query instances",
+            description = "Returns a list of all query instances. This list is not paginated.",
+            tags = {"Query Instance"}
+    )
     @GetMapping
     public ResponseEntity<?> getAllQueryInstance() {
         return ResponseBuilder.buildSuccess(
@@ -32,6 +38,11 @@ public class QueryInstanceController {
         );
     }
 
+    @Operation(
+            summary = "Initiate a query instance",
+            description = "Creates and initiates a new query instance based on the provided configuration.",
+            tags = {"Query Instance"}
+    )
     @PostMapping("/initiate")
     public ResponseEntity<SimpleResponse> initQueryInstance(@Valid @RequestBody QueryInstanceInitRequest queryInitRequest) {
         queryInstanceService.initiateQueryInstance(queryInitRequest);
@@ -42,6 +53,11 @@ public class QueryInstanceController {
         );
     }
 
+    @Operation(
+            summary = "Enable query instance",
+            description = "Enables and dispatches the specified query instance. The operation is processed asynchronously.",
+            tags = {"Query Instance"}
+    )
     @PatchMapping("/{id}/enable")
     public ResponseEntity<SimpleResponse> enableQueryInstance(@PathVariable Long id) {
         queryInstanceService.dispatchQueryInstance(id);
@@ -52,6 +68,11 @@ public class QueryInstanceController {
         );
     }
 
+    @Operation(
+            summary = "Disable query instance",
+            description = "Disables the specified query instance. The operation is processed asynchronously.",
+            tags = {"Query Instance"}
+    )
     @PatchMapping("/{id}/disable")
     public ResponseEntity<SimpleResponse> disableQueryInstance(@PathVariable Long id) {
         queryInstanceService.disableQueryInstance(id);
@@ -62,6 +83,11 @@ public class QueryInstanceController {
         );
     }
 
+    @Operation(
+            summary = "Remove query instance",
+            description = "Permanently removes the specified query instance and remove it from wep application lifecycle",
+            tags = {"Query Instance"}
+    )
     @DeleteMapping("/{id}/remove")
     public ResponseEntity<SimpleResponse> removeQueryInstance(@PathVariable Long id) {
         queryInstanceService.removeQueryInstance(id);

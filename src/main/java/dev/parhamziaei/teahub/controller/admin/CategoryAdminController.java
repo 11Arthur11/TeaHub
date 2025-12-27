@@ -7,6 +7,7 @@ import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.CategoryService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,11 @@ public class CategoryAdminController {
     private final CategoryService categoryService;
     private final MessageService messageService;
 
+    @Operation(
+            summary = "Get all categories for admin",
+            description = "Returns a list of all categories without pagination",
+            tags = {"Categories (Admin)"}
+    )
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
         return ResponseBuilder.buildSuccess(
@@ -30,10 +36,16 @@ public class CategoryAdminController {
         );
     }
 
-    @PostMapping("/edit")
+    @Operation(
+            summary = "Edit category",
+            description = "Updates an existing category using the provided request body. " +
+                    "The category is identified by its ID, and all editable fields will be updated accordingly.",
+            tags = {"Categories (Admin)"}
+    )
+    @PostMapping("/edit/{categoryId}")
     public ResponseEntity<?> editCategory(
             @Valid @RequestBody CategoryAdminRequest categoryAdminRequest,
-            @RequestParam Long categoryId
+            @PathVariable Long categoryId
     ) {
         categoryService.updateCategory(categoryId, categoryAdminRequest);
         return ResponseBuilder.buildSuccess(
@@ -43,7 +55,12 @@ public class CategoryAdminController {
         );
     }
 
-
+    @Operation(
+            summary = "Create new category",
+            description = "Creates a new category using the provided request body. " +
+                    "All required category fields must be provided in the request.",
+            tags = {"Categories (Admin)"}
+    )
     @PostMapping()
     public ResponseEntity<SimpleResponse> addCategory(@Valid @RequestBody CategoryAdminRequest categoryRequest) {
         categoryService.addCategory(categoryRequest);
@@ -54,8 +71,14 @@ public class CategoryAdminController {
         );
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deleteCategory(@RequestParam Long categoryId) {
+    @Operation(
+            summary = "Delete category",
+            description = "Deletes an existing category identified by its ID. " +
+                    "This operation permanently removes the category from the system.",
+            tags = {"Categories (Admin)"}
+    )
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long categoryId) {
         categoryService.deleteCategory(categoryId);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,

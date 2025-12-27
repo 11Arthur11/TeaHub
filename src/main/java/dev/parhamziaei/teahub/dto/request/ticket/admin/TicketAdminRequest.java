@@ -16,10 +16,9 @@ public class TicketAdminRequest implements TicketBaseRequest {
     @Length(min = 5)
     private String subject;
 
-    @EnumValue(enumClass = TicketDepartment.class)
-    private String department;
+    private TicketDepartment department;
 
-    private String serviceName;
+    private Long relatedResourceId;
 
     @PhoneNumber
     private String ownerPhone;

@@ -1,6 +1,9 @@
 package dev.parhamziaei.teahub.entity.jpa.ticket;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
+import dev.parhamziaei.teahub.enums.ticket.TicketDepartment;
+import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,22 +23,21 @@ public class Ticket extends BaseEntity<Long> {
     private String subject;
 
     @Column(name = "department", nullable = false)
-    private String department;
+    @Enumerated(EnumType.STRING)
+    private TicketDepartment department;
 
-    @Column(name = "service_name")
-    private String serviceName;
+    private Long relatedResourceId;
 
-    @Column(name = "owner_phone", nullable = false)
-    private String ownerPhone;
-
-    @Column(name = "owner_full_name")
-    private String ownerFullName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     @Column(name = "submitter_phone", nullable = false)
     private String submitterPhone;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TicketStatus status;
 
     @OneToMany(mappedBy ="ticket", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TicketMessage> messages = new HashSet<>();

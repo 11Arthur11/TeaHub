@@ -8,6 +8,7 @@ import dev.parhamziaei.teahub.service.GatewayService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,12 @@ public class PaymentAdminController {
     private final GatewayService gatewayService;
     private final MessageService messageService;
 
+    @Operation(
+            summary = "Get available payment modules",
+            description = "Returns a list of available payment modules. " +
+                    "Each module in the list is supported by the web application and is ready to be configured.",
+            tags = {"Payment (Admin)"}
+    )
     @GetMapping("/gateways/modules")
     public ResponseEntity<?> getModules() {
         return ResponseBuilder.buildSuccess(
@@ -30,6 +37,11 @@ public class PaymentAdminController {
         );
     }
 
+    @Operation(
+            summary = "Get payment gateway details",
+            description = "Returns detailed information about the specified payment gateway, including merchant ID and configuration settings.",
+            tags = {"Payment (Admin)"}
+    )
     @GetMapping("/gateways/{id}")
     public ResponseEntity<?> getGatewayDetails(@PathVariable Long id) {
         return ResponseBuilder.buildSuccess(
@@ -39,6 +51,11 @@ public class PaymentAdminController {
         );
     }
 
+    @Operation(
+            summary = "Initialize payment gateway configuration",
+            description = "Creates and initializes a payment gateway configuration so it can be used for processing payments.",
+            tags = {"Payment (Admin)"}
+    )
     @PostMapping("/gateways/init")
     public ResponseEntity<SimpleResponse> addGatewayConfig(@RequestBody GatewayConfigRequest configRequest) {
         gatewayService.saveGatewayConfig(configRequest);

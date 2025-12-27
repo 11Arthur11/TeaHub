@@ -36,43 +36,51 @@ public class TicketAdminController {
     private final CurrentUser currentUser;
     private final MessageService messageService;
 
+    @Operation(
+            summary = "Get all tickets",
+            description = "Returns a paginated list of all tickets in the system. " +
+                    "You can use TicketFilterRequest to filter, sort, and paginate results.",
+            tags = {"Ticket (Admin)"}
+    )
     @GetMapping
     public ResponseEntity<?> getAllTickets(
             @ModelAttribute @Valid TicketFilterRequest filterRequest
     ) {
-        PagedModel<TicketListAdminResponse> tickets = ticketService.getAllTickets(filterRequest);
-        if (tickets.getContent().isEmpty()) {
-            throw new NoSuchDataException();
-        }
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
-                tickets,
+                ticketService.getAllTickets(filterRequest),
                 HttpStatus.OK
         );
     }
 
-    @GetMapping("/{phoneNumber}")
+    @Operation(
+            summary = "Get all tickets for a user",
+            description = "Returns a paginated list of tickets for a specific user identified by phone number. " +
+                    "Filters and pagination can be applied via TicketFilterRequest.",
+            tags = {"Ticket (Admin)"}
+    )
+    @GetMapping("/{userId}")
     public ResponseEntity<?> getAllUserTickets(
             @ModelAttribute TicketFilterRequest filterRequest,
-            @PathVariable String phoneNumber
+            @PathVariable Long userId
     ) {
-        phoneNumber = PhoneNumbers.formatedOf(phoneNumber);
-        Pageable pageable = PageRequest.of(filterRequest.getPage(), filterRequest.getSize());
-        PagedModel<TicketListAdminResponse> tickets = ticketService.getUserTickets(
-                pageable,
-                phoneNumber,
-                TicketListAdminResponse.class
-        );
-        if (tickets.getContent().isEmpty()) {
-            throw new NoSuchDataException();
-        }
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
-                tickets,
+                ticketService.getUserTickets(
+                        filterRequest,
+                        userId,
+                        TicketListAdminResponse.class
+                ),
                 HttpStatus.OK
         );
     }
 
+    @Operation(
+            summary = "Edit a ticket",
+            description = "Allows admin to edit an existing ticket identified by ticketId. " +
+                    "Send updated data in TicketEditAdminRequest.",
+            tags = {"Ticket (Admin)"}
+    )
     @PutMapping("/edit/{ticketId}")
     public ResponseEntity<?> editTicket(
             @Valid @RequestBody TicketEditAdminRequest editRequest,
@@ -86,12 +94,17 @@ public class TicketAdminController {
         );
     }
 
+    @Operation(
+            summary = "Get ticket details",
+            description = "Returns detailed information for a single ticket, including all messages. " +
+                    "Ticket is identified by ticketId.",
+            tags = {"Ticket (Admin)"}
+    )
     @GetMapping("/detail/{ticketId}")
     public ResponseEntity<?> getTicketDetails(@PathVariable Long ticketId){
-        String phoneNumber = currentUser.getPhone();
         TicketDetailAdminResponse ticket = ticketService.getTicketDetails(
                 ticketId,
-                phoneNumber,
+                currentUser.getId(),
                 TicketDetailAdminResponse.class
         );
 
@@ -102,7 +115,12 @@ public class TicketAdminController {
         );
     }
 
-    @Operation(summary = "Submits ticket")
+    @Operation(
+            summary = "Submit a new ticket",
+            description = "Allows admin to submit a new ticket with optional file attachments. " +
+                    "Ticket data is sent as multipart/form-data with 'ticket' and 'files' fields.",
+            tags = {"Ticket (Admin)"}
+    )
     @PostMapping(
             value = "/submit",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
@@ -111,8 +129,7 @@ public class TicketAdminController {
             @RequestPart("ticket") TicketAdminRequest ticketRequest,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        final String submitterPhone = currentUser.getPhone();
-        ticketService.submit(submitterPhone, ticketRequest, files);
+        ticketService.submit(currentUser.getId(), ticketRequest, files);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.TICKET_SUBMITTED),

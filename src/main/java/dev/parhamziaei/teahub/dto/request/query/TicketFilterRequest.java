@@ -14,11 +14,9 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class TicketFilterRequest extends AbstractPaginationRequest {
 
-    @EnumValue(enumClass = TicketStatus.class, allowNull = true)
-    protected String status;
+    protected TicketStatus status;
 
-    @EnumValue(enumClass = TicketDepartment.class, allowNull = true)
-    protected String department;
+    protected TicketDepartment department;
 
     protected String sortedBy = "createdAt";
 }
