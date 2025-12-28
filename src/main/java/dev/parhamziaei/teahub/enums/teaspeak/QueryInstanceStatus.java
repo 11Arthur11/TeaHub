@@ -23,10 +23,4 @@ public enum QueryInstanceStatus {
         return key;
     }
 
-    public static TicketStatus fromValue(String value) {
-        return Arrays.stream(TicketStatus.values())
-                .filter(v -> v.value().equals(value))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Yatqa status value"));
-    }
 }

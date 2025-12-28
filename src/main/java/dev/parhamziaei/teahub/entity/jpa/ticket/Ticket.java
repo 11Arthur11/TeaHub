@@ -32,9 +32,6 @@ public class Ticket extends BaseEntity<Long> {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Column(name = "submitter_phone", nullable = false)
-    private String submitterPhone;
-
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private TicketStatus status;

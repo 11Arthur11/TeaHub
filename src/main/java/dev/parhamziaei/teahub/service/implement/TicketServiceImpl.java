@@ -268,7 +268,6 @@ public class TicketServiceImpl implements TicketService {
                 .subject(ticketRequest.getSubject())
                 .department(ticketRequest.getDepartment())
                 .relatedResourceId(relatedResourceId)
-                .submitterPhone(submitterUser.getPhone())
                 .build();
 
         ticket.setOwner(submitterUser);

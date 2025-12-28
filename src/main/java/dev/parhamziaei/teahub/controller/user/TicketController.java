@@ -35,7 +35,6 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
-    private final JwtService jwtService;
     private final MessageService messageService;
     private final CurrentUser currentUser;
 
