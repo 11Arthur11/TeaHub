@@ -1,17 +1,16 @@
-package dev.parhamziaei.teahub.enums.teaspeak;
+package dev.parhamziaei.teahub.enums.audio_bot;
 
-public enum QueryInstanceStatus {
+public enum NodeStatus {
+
     DISABLED("status.disabled"),
     FULL("status.full"),
     UNREACHABLE("status.unreachable"),
-    RECONNECTING("status.reconnecting"),
     LOGIN_FAILED("status.login-failed"),
-    DISPATCHED("status.dispatched"),
-    INITIATED("status.initiated");
+    DISPATCHED("status.dispatched"),;
 
     private final String key;
 
-    QueryInstanceStatus(String key) {
+    NodeStatus(String key) {
         this.key = key;
     }
 

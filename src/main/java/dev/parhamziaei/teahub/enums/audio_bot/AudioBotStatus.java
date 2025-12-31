@@ -1,13 +1,16 @@
-package dev.parhamziaei.teahub.enums.teaspeak;
+package dev.parhamziaei.teahub.enums.audio_bot;
+
+import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 
 import java.util.Arrays;
 
-public enum TeaSpeakStatus {
+public enum AudioBotStatus {
+
     ONLINE("status.online"),
     OFFLINE("status.offline"),;
 
     private final String key;
-    TeaSpeakStatus(String key) {
+    AudioBotStatus(String key) {
         this.key = key;
     }
     public String key() {
@@ -19,4 +22,5 @@ public enum TeaSpeakStatus {
                 .findFirst()
                 .orElse(TeaSpeakStatus.OFFLINE);
     }
+
 }

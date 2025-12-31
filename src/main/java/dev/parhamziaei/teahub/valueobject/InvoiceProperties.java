@@ -1,11 +1,10 @@
-package dev.parhamziaei.teahub.configuration.properties.embedded;
+package dev.parhamziaei.teahub.valueobject;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 
 @Embeddable
 @Getter

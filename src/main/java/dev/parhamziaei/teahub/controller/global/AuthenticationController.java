@@ -19,8 +19,6 @@ import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.Cookie;
@@ -28,6 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/auth")
@@ -84,12 +84,12 @@ public class AuthenticationController {
         final Optional<String> oldPhoneVerifyToken = jwtService.extractJwtFromRequest(request, JwtType.PHONE_VERIFY_TOKEN);
 
         // note: this section make sure no one with active session can spam this method
-        if (oldTwoFactorToken.isPresent() && twoFactorService.hasActiveTwoFactorSession(oldTwoFactorToken.get())) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
-        }
-        if (oldPhoneVerifyToken.isPresent() && twoFactorService.hasActivePhoneVerifySession(oldPhoneVerifyToken.get())) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
-        }
+//!       if (oldTwoFactorToken.isPresent() && twoFactorService.hasActiveTwoFactorSession(oldTwoFactorToken.get())) {
+//            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+//        }
+//        if (oldPhoneVerifyToken.isPresent() && twoFactorService.hasActivePhoneVerifySession(oldPhoneVerifyToken.get())) {
+//            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+//        }
 
         // note: this if-else decides which user must register or login.
         if (userService.isUserRegistered(phoneNumber)) {

@@ -1,15 +1,13 @@
 package dev.parhamziaei.teahub.entity.jpa;
 
-import dev.parhamziaei.teahub.configuration.properties.embedded.InvoiceProperties;
-import dev.parhamziaei.teahub.configuration.properties.embedded.ResourceProperties;
+import dev.parhamziaei.teahub.valueobject.InvoiceProperties;
+import dev.parhamziaei.teahub.valueobject.ResourceProperties;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.Duration;
 
 @Entity
 @Table

@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.configuration.properties.embedded;
+package dev.parhamziaei.teahub.valueobject;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;

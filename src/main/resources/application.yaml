@@ -91,11 +91,11 @@ app:
     access-token-ttl: 1800s
     phone-verify-token-ttl: 300s
     refresh-token-ttl: 86400s
-    two-factor-token-ttl: 120s
+    two-factor-token-ttl: 180s
 
   sessions:
     phone-verify-session-ttl: 300s
-    two-factor-session-ttl: 120s
+    two-factor-session-ttl: 180s
 
 springdoc:
   api-docs:

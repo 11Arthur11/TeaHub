@@ -23,7 +23,7 @@ public class CookieFactory {
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) cookieProperties.twoFactorCookieTtl().toSeconds());
         cookie.setSecure(cookieProperties.secureCookie());
-        cookie.setAttribute("SameSite", "Strict");
+        cookie.setAttribute("SameSite", "None"); // ! To Strict on production phase
         return cookie;
     }
 
@@ -33,7 +33,7 @@ public class CookieFactory {
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) cookieProperties.phoneVerifyCookieTtl().toSeconds());
         cookie.setSecure(cookieProperties.secureCookie());
-        cookie.setAttribute("SameSite", "Strict");
+        cookie.setAttribute("SameSite", "None");
         return cookie;
     }
 
@@ -43,7 +43,7 @@ public class CookieFactory {
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
         cookie.setSecure(cookieProperties.secureCookie());
-        cookie.setAttribute("SameSite", "Strict");
+        cookie.setAttribute("SameSite", "None");
         return cookie;
     }
 
@@ -57,7 +57,7 @@ public class CookieFactory {
         jwtCookie.setHttpOnly(true);
         jwtCookie.setMaxAge((int) ttl.toSeconds());
         jwtCookie.setSecure(cookieProperties.secureCookie());
-        jwtCookie.setAttribute("SameSite", "Strict");
+        jwtCookie.setAttribute("SameSite", "None");
         return jwtCookie;
     }
 
@@ -71,7 +71,7 @@ public class CookieFactory {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setMaxAge((int) ttl.toSeconds());
         refreshTokenCookie.setSecure(cookieProperties.secureCookie());
-        refreshTokenCookie.setAttribute("SameSite", "Strict");
+        refreshTokenCookie.setAttribute("SameSite", "None");
         return refreshTokenCookie;
     }
 
