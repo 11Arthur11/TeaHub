@@ -12,7 +12,7 @@ import java.util.ArrayList;
 @Setter
 @Getter
 @NoArgsConstructor
-@DiscriminatorValue("TEASPEAK_RESOURCE")
+@DiscriminatorValue("TEASPEAK")
 @SuperBuilder
 public class TeaSpeakResource extends BillableResource {
 

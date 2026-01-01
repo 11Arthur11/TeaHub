@@ -1,52 +1,50 @@
 package dev.parhamziaei.teahub.service.deployment.strategy;
 
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
+import dev.parhamziaei.teahub.dto.request.resource.user.NewAudioBotResourceRequest;
+import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResourceToken;
+import dev.parhamziaei.teahub.entity.jpa.shop.AudioBotProduct;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
+import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
-import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
-import dev.parhamziaei.teahub.repository.jpa.TeaSpeakResourceRepository;
+import dev.parhamziaei.teahub.repository.jpa.AudioBotProductRepository;
+import dev.parhamziaei.teahub.repository.jpa.AudioBotResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
-import dev.parhamziaei.teahub.service.TeaSpeakService;
 import dev.parhamziaei.teahub.service.WalletService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@Slf4j
-@Component("TEASPEAK_DEPLOYER")
+@Component
 @RequiredArgsConstructor
-public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
+public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
 
-    private final TeaSpeakProductRepository teaSpeakProductRepo;
-    private final TeaSpeakResourceRepository teaSpeakResourceRepository;
+    private final AudioBotProductRepository audioBotProductRepository;
+    private final AudioBotResourceRepository audioBotResourceRepository;
     private final UserRepository userRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final WalletService walletService;
-    private final TeaSpeakService teaSpeakService;
 
     @Override
     public ResourceType getType() {
-        return ResourceType.TEASPEAK;
+        return ResourceType.AUDIO_BOT;
     }
 
     @Override
-    @Transactional
     public <T extends AbstractNewResourceRequest> void deploy(T request, Long userId) {
+        NewAudioBotResourceRequest audioBotRequest = (NewAudioBotResourceRequest) request;
+
         // ? loading product for resource details
-        TeaSpeakProduct product = teaSpeakProductRepo.findById(request.getProductId())
+        AudioBotProduct product = audioBotProductRepository.findById(request.getProductId())
                 .orElseThrow(NoSuchEntityException::new);
 
         // ? loading user for giving resource ownership
@@ -54,18 +52,16 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
                 .orElseThrow(NoSuchEntityException::new);
 
         // ? creating the base resource for deploying
-        TeaSpeakResource resource = TeaSpeakResource.builder()
+        AudioBotResource resource = AudioBotResource.builder()
                 .label(request.getLabel())
                 .owner(user)
                 .autoProlong(true)
                 .orderDate(LocalDateTime.now())
                 .expiration(LocalDateTime.now().plus(product.getExpiration()))
                 .resourceStatus(ResourceStatus.DEPLOYING)
-                .teaSpeakStatus(TeaSpeakStatus.OFFLINE)
-                .maxClients(product.getMaxClients())
+                .botStatus(AudioBotStatus.OFFLINE)
                 .build();
-        TeaSpeakResourceToken token = new TeaSpeakResourceToken();
-        resource.setPrivilegeToken(token);
+
 
         walletService.debit(
                 user.getWallet().getId(),
@@ -77,36 +73,25 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
         // ? adding resource to product resource-list
         product.addUserResource(resource);
 
-        teaSpeakResourceRepository.save(resource);
+        audioBotResourceRepository.save(resource);
 
-        // ? publishing the actual event
-        TeaSpeakDeployEvent deployEvent = TeaSpeakDeployEvent.builder()
-                .baseResourceId(resource.getId())
-                .maxClients(product.getMaxClients())
-                .build();
-
-        applicationEventPublisher.publishEvent(deployEvent);
+        // ? publishing the event
+        // TODO
     }
 
     @Override
-    @Transactional
     public void suspend(BillableResource resource) {
-        TeaSpeakResource teaSpeakResource = (TeaSpeakResource) resource;
-        teaSpeakService.suspendInternal(teaSpeakResource);
+
     }
 
     @Override
-    @Transactional
     public void resume(BillableResource resource) {
-        TeaSpeakResource teaSpeakResource = (TeaSpeakResource) resource;
-        teaSpeakService.resumeInternal(teaSpeakResource);
+
     }
 
     @Override
-    @Transactional
     public void delete(BillableResource resource) {
-        TeaSpeakResource teaSpeakResource = (TeaSpeakResource) resource;
-        teaSpeakService.deleteInternal(teaSpeakResource);
+
     }
 
 }

@@ -22,7 +22,7 @@ public class TeaSpeakResourceMapper implements ResourceMapperHandler {
 
     @Override
     public ResourceType getType() {
-        return ResourceType.TEASPEAK_RESOURCE;
+        return ResourceType.TEASPEAK;
     }
 
     private <T extends TeaSpeakResourceDetailResponse> T mapInternal(TeaSpeakResource resource, Class<T> clazz) {

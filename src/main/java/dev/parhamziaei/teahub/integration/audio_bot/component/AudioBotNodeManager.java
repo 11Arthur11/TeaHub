@@ -1,8 +1,10 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component;
 
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
+import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.integration.audio_bot.internal_service.AudioBotProvisionStrategyFactory;
 import dev.parhamziaei.teahub.integration.audio_bot.internal_service.AudioBotProvisionStrategyHandler;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.web.client.RestClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -47,6 +50,11 @@ public class AudioBotNodeManager {
                 strategyHandler.getType().name()
         );
         return provider;
+    }
+
+    @Transactional
+    protected String generateKey(AudioBotResource resource) {
+        return "RID:" + resource.getId() + "_UID:" + resource.getOwner().getId() + "_" + UUID.randomUUID();
     }
 
 }

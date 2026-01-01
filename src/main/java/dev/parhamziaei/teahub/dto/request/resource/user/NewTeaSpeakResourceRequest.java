@@ -6,5 +6,5 @@ import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
-@RequestSubType(ResourceType.TEASPEAK_RESOURCE)
+@RequestSubType(ResourceType.TEASPEAK)
 public class NewTeaSpeakResourceRequest extends AbstractNewResourceRequest {}

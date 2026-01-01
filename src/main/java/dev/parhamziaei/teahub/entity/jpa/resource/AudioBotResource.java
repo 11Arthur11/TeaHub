@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @Setter
 @Getter
 @NoArgsConstructor
-@DiscriminatorValue("AUDIO_BOT_RESOURCE")
+@DiscriminatorValue("AUDIO_BOT")
 @SuperBuilder
 public class AudioBotResource extends BillableResource {
 
