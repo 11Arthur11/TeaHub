@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Component("ROUND_ROBIN")
 @RequiredArgsConstructor
-public class RoundRobinProvisionStrategy implements TeaSpeakProvisionStrategyHandler {
+public class RoundRobinTeaSpeakProvisionStrategy implements TeaSpeakProvisionStrategyHandler {
 
     private final AtomicInteger pointer = new AtomicInteger(0);
     private final QueryInstanceRepository queryInstanceRepo;

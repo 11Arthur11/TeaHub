@@ -35,11 +35,20 @@ public class AudioBotNode extends BaseEntity<Long> {
     private LocalDateTime initiatedAt;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
-    private LocalDateTime updatedAt;
+    private LocalDateTime lastUsed;
 
     private Integer maxBotInstance;
 
+    private boolean isFull;
+
     @OneToMany(mappedBy = "parentNode", fetch = FetchType.LAZY)
     private List<AudioBotResource> instances = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist() {
+        this.initiatedAt = LocalDateTime.now().withNano(0);
+        this.lastUsed = LocalDateTime.now().withNano(0);
+        this.isFull = instances.size() >= maxBotInstance;
+    }
 
 }

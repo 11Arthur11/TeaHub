@@ -11,7 +11,7 @@ import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlr
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceNotFoundException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.TelnetConnectionPool;
 import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
-import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.ProvisionStrategyFactory;
+import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.TeaSpeakProvisionStrategyFactory;
 import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.TeaSpeakProvisionStrategyHandler;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
@@ -43,14 +43,14 @@ public class QueryInstanceService {
             QueryInstanceRepository queryInstanceRepo,
             TelnetConnectionPool connectionPool,
             QueryInstanceProperties queryInstanceProperties,
-            ProvisionStrategyFactory provisionStrategyFactory,
+            TeaSpeakProvisionStrategyFactory teaSpeakProvisionStrategyFactory,
             ModelMapper modelMapper,
             MessageService messageService
     ) {
         this.queryInstanceRepo = queryInstanceRepo;
         this.connectionPool = connectionPool;
         this.queryInstanceProperties = queryInstanceProperties;
-        this.strategyHandler = provisionStrategyFactory.getStrategy();
+        this.strategyHandler = teaSpeakProvisionStrategyFactory.getStrategy();
         this.modelMapper = modelMapper;
         this.messageService = messageService;
     }

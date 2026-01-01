@@ -4,18 +4,17 @@ import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class ProvisionStrategyFactory {
+public class TeaSpeakProvisionStrategyFactory {
 
     private final Map<ProvisionStrategy, TeaSpeakProvisionStrategyHandler> strategies;
     private final QueryInstanceProperties queryInstanceProperties;
 
-    public ProvisionStrategyFactory(
+    public TeaSpeakProvisionStrategyFactory(
             List<TeaSpeakProvisionStrategyHandler> handlers,
             QueryInstanceProperties queryInstanceProperties
     ) {
