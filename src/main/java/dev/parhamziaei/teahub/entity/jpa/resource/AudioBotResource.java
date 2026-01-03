@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Entity
 @Setter
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 @SuperBuilder
 public class AudioBotResource extends BillableResource {
 
-    private String identifier;
+    private UUID identifier;
 
     private String botNickname;
 

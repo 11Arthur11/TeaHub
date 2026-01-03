@@ -30,18 +30,6 @@ public class AudioBotNodeManager {
         this.strategyHandler = strategyFactory.getStrategy();
     }
 
-    private RestClient buildRestClient(AudioBotNode audioBotNode) {
-        String userPass = audioBotNode.getUsername() + ":" + audioBotNode.getPassword();
-        return RestClient.builder()
-                .defaultHeaders(httpHeaders -> {
-                    httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
-                    httpHeaders.add("Authorization", Base64.getEncoder().encodeToString(userPass.getBytes(StandardCharsets.UTF_8)));
-                    httpHeaders.add(HttpHeaders.ACCEPT_CHARSET, "utf-8");
-                })
-                .baseUrl(audioBotNode.getWebAddress())
-                .build();
-    }
-
     private AudioBotNode getAvailableBotNode() {
         AudioBotNode provider = strategyHandler.getProviderNode();
         log.info("Provision-Operation -> Selected audio-bot node is (ID={} - HOST={}) by {} Strategy",
@@ -50,11 +38,6 @@ public class AudioBotNodeManager {
                 strategyHandler.getType().name()
         );
         return provider;
-    }
-
-    @Transactional
-    protected String generateKey(AudioBotResource resource) {
-        return "RID:" + resource.getId() + "_UID:" + resource.getOwner().getId() + "_" + UUID.randomUUID();
     }
 
 }
