@@ -35,8 +35,14 @@ public class AudioBotGateway {
     public boolean testConnection(AudioBotNode audioBotNode) {
         try {
             RestClient restClient = buildRestClient(audioBotNode);
+
+            AudioBotCommandUri uri = AudioBotCommandUri.builder()
+                    .system()
+                    .info()
+                    .build();
+
             ResponseEntity<Void> is = restClient.get()
-                    .uri("/api/system/info")
+                    .uri(uri.value())
                     .retrieve()
                     .toBodilessEntity();
 
@@ -67,7 +73,7 @@ public class AudioBotGateway {
             AudioBotCommandUri uri = AudioBotCommandUri.builder()
                     .setting()
                     .create()
-                    .botName("test")
+                    .name("te")
                     .build();
 
             ResponseEntity<Void> is = restClient.get()
