@@ -1,14 +1,11 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component;
 
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
-import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.AudioBotCommandUri;
+import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.AudioBotUri;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -36,7 +33,7 @@ public class AudioBotGateway {
         try {
             RestClient restClient = buildRestClient(audioBotNode);
 
-            AudioBotCommandUri uri = AudioBotCommandUri.builder()
+            AudioBotUri uri = AudioBotUri.builder()
                     .system()
                     .info()
                     .build();
@@ -70,10 +67,9 @@ public class AudioBotGateway {
     public void createInstance(AudioBotNode audioBotNode) {
         try {
             RestClient restClient = buildRestClient(audioBotNode);
-            AudioBotCommandUri uri = AudioBotCommandUri.builder()
+            AudioBotUri uri = AudioBotUri.builder()
                     .setting()
-                    .create()
-                    .name("te")
+                    .create("T")
                     .build();
 
             ResponseEntity<Void> is = restClient.get()
