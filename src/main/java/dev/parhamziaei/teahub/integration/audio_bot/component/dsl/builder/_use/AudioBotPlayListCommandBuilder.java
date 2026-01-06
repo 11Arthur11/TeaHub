@@ -1,6 +1,8 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder._use;
 
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder.AudioBotBuildStep;
+import org.apache.tomcat.util.buf.UriUtil;
+import org.springframework.web.util.UriUtils;
 
 public class AudioBotPlayListCommandBuilder {
 
@@ -36,5 +38,16 @@ public class AudioBotPlayListCommandBuilder {
                 .append(")");
         return new AudioBotBuildStep(sb);
     }
+
+    public AudioBotBuildStep itemAdd(String fileName, String musicUrl) {
+        sb.append("/add/")
+                .append(fileName)
+                .append("/")
+                .append(UriUtils.encodePathSegment(musicUrl, "UTF-8"))
+                .append(")");
+        return new AudioBotBuildStep(sb);
+    }
+
+
 
 }
