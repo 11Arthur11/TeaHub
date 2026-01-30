@@ -13,7 +13,7 @@ public interface AudioBotNodeRepository extends JpaRepository<AudioBotNode, Long
     default List<AudioBotNode> findProvisionCandidates() {
         return findAll()
                 .stream()
-                .filter(ab -> !ab.isFull())
+                .filter(AudioBotNode::isAvailable)
                 .toList();
     }
 

@@ -54,7 +54,7 @@ public class ResourceService {
         walletService.assertSufficientBalance(userId, product.getPrice().getAmount());
 
         deploymentFactory.getStrategy(request.getType())
-                .deploy(request, userId);
+                .initializeDeploy(request, userId);
     }
 
     public List<ResourceListResponse> getAllUserResources(Long userId) {

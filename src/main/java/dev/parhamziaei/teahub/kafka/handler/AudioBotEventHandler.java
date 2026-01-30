@@ -1,0 +1,26 @@
+package dev.parhamziaei.teahub.kafka.handler;
+
+import dev.parhamziaei.teahub.kafka.event.resource.AudioBotDeployEvent;
+import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
+import dev.parhamziaei.teahub.service.AudioBotService;
+import dev.parhamziaei.teahub.service.TeaSpeakService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class AudioBotEventHandler {
+
+    private final AudioBotService audioBotService;
+
+    public void handleAudioBotDeploy(AudioBotDeployEvent event) {
+        try {
+            audioBotService.deployInstance(event);
+        } catch (Exception e) {
+            log.warn("Exception on AudioBotEventHandler -> {}", e.getMessage(), e);
+        }
+    }
+
+}

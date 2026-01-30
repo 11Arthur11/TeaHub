@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder.root;
 
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder.AudioBotBuildStep;
+import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder._settings.AudioBotSettingBotBuilder;
 
 public class AudioBotSettingBuilder {
 
@@ -19,5 +20,11 @@ public class AudioBotSettingBuilder {
         sb.append("/delete/").append(name);
         return new AudioBotBuildStep(sb);
     }
+
+    public AudioBotSettingBotBuilder bot() {
+        sb.append("/bot");
+        return new AudioBotSettingBotBuilder(sb);
+    }
+
 
 }

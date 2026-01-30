@@ -15,9 +15,9 @@ import java.math.BigDecimal;
         visible = true
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = TeaSpeakProductInitRequest.class, name = "TEASPEAK_PRODUCT")
+        @JsonSubTypes.Type(value = TeaSpeakProductInitRequest.class, name = "TEASPEAK"),
+        @JsonSubTypes.Type(value = AudioBotProductInitRequest.class, name = "AUDIO_BOT")
 })
-
 @Data
 public abstract class AbstractProductInitRequest {
 
@@ -32,8 +32,5 @@ public abstract class AbstractProductInitRequest {
     private boolean enabled;
 
     private ProductPeriod productPeriod;
-//    @Schema(type = "string", description = "Duration in format like 1h, 2d only support days & hour", example = "30d")
-//    @JsonDeserialize(using = ExpirationDurationDeserializer.class)
-//    private Duration expiration;
 
 }

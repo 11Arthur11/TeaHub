@@ -15,6 +15,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class AudioBotProduct extends BillableProduct {
 
+    private Long providerNodeId;
 
+    public boolean hasCustomProvider() {
+        return providerNodeId != null;
+    }
 
 }

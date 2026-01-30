@@ -41,8 +41,14 @@ public class AudioBotNode extends BaseEntity<Long> {
 
     private boolean isFull;
 
+    private boolean enabled;
+
     @OneToMany(mappedBy = "parentNode", fetch = FetchType.LAZY)
     private List<AudioBotResource> instances = new ArrayList<>();
+
+    public boolean isAvailable() {
+        return !isFull && enabled;
+    }
 
     @PrePersist
     public void prePersist() {

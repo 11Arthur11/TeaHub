@@ -15,12 +15,14 @@ import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.kafka.event.resource.AudioBotDeployEvent;
 import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.service.WalletService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -33,6 +35,7 @@ public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
     private final AudioBotResourceRepository audioBotResourceRepository;
     private final UserRepository userRepository;
     private final WalletService walletService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public ResourceType getType() {
@@ -40,7 +43,7 @@ public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
     }
 
     @Override
-    public <T extends AbstractNewResourceRequest> void deploy(T request, Long userId) {
+    public <T extends AbstractNewResourceRequest> void initializeDeploy(T request, Long userId) {
         NewAudioBotResourceRequest audioBotRequest = (NewAudioBotResourceRequest) request;
 
         // ? loading product for resource details
@@ -62,7 +65,6 @@ public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
                 .botStatus(AudioBotStatus.OFFLINE)
                 .build();
 
-
         walletService.debit(
                 user.getWallet().getId(),
                 product.getPrice().getAmount(),
@@ -76,7 +78,13 @@ public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
         audioBotResourceRepository.save(resource);
 
         // ? publishing the event
-        // TODO
+        AudioBotDeployEvent event = new AudioBotDeployEvent(
+                product.getId(),
+                resource.getId(),
+                audioBotRequest
+        );
+
+        applicationEventPublisher.publishEvent(event);
     }
 
     @Override

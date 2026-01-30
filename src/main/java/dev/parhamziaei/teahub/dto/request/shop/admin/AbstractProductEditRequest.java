@@ -16,7 +16,7 @@ import java.math.BigDecimal;
         visible = true
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = TeaSpeakProductEditRequest.class, name = "TEASPEAK_PRODUCT")
+        @JsonSubTypes.Type(value = TeaSpeakProductEditRequest.class, name = "TEASPEAK")
 })
 @Data
 public class AbstractProductEditRequest {

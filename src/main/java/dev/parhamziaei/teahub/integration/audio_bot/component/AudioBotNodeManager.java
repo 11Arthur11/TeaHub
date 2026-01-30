@@ -30,7 +30,7 @@ public class AudioBotNodeManager {
         this.strategyHandler = strategyFactory.getStrategy();
     }
 
-    private AudioBotNode getAvailableBotNode() {
+    public AudioBotNode getAvailableBotNode() {
         AudioBotNode provider = strategyHandler.getProviderNode();
         log.info("Provision-Operation -> Selected audio-bot node is (ID={} - HOST={}) by {} Strategy",
                 provider.getId(),

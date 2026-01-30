@@ -44,7 +44,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
 
     @Override
     @Transactional
-    public <T extends AbstractNewResourceRequest> void deploy(T request, Long userId) {
+    public <T extends AbstractNewResourceRequest> void initializeDeploy(T request, Long userId) {
         // ? loading product for resource details
         TeaSpeakProduct product = teaSpeakProductRepo.findById(request.getProductId())
                 .orElseThrow(NoSuchEntityException::new);
