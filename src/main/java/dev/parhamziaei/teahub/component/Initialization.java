@@ -10,6 +10,7 @@ import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
 import dev.parhamziaei.teahub.enums.shop.ProductType;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.enums.user.Roles;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
@@ -78,7 +79,7 @@ public class Initialization implements CommandLineRunner {
         initRequest.setEnabled(true);
         initRequest.setProductName("Test TeaSpeak Product");
         initRequest.setCategoryId(1L);
-        initRequest.setType(ProductType.TEASPEAK_PRODUCT);
+        initRequest.setType(ResourceType.TEASPEAK);
         productService.addProduct(initRequest);
         log.info("Initialization-Operation -> Test Product initialized");
     }

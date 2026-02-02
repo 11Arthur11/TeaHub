@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Random;
 
-@Component("RANDOMIZED")
+@Component
 @RequiredArgsConstructor
 public class RandomizedAudioBotProvisionStrategy implements AudioBotProvisionStrategyHandler {
 

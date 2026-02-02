@@ -11,6 +11,8 @@ import lombok.EqualsAndHashCode;
 @Data
 public class NewAudioBotResourceRequest extends AbstractNewResourceRequest {
 
+    private String botNickname;
+
     private String serverAddress;
 
     private String serverPassword;

@@ -9,8 +9,8 @@ public class AudioBotRootBuilder {
 
     private final StringBuilder sb = new StringBuilder().append("/api");
 
-    public AudioBotSettingBuilder setting() {
-        sb.append("/setting");
+    public AudioBotSettingBuilder settings() {
+        sb.append("/settings");
         return new AudioBotSettingBuilder(sb);
     }
 

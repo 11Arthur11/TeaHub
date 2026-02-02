@@ -17,4 +17,6 @@ public interface AudioBotNodeRepository extends JpaRepository<AudioBotNode, Long
                 .toList();
     }
 
+    boolean existsByWebAddress(String webAddress);
+
 }

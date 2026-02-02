@@ -7,6 +7,7 @@ import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductInitRequest;
 import dev.parhamziaei.teahub.entity.jpa.shop.Category;
 import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.enums.shop.ProductType;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.repository.jpa.CategoryRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
@@ -18,15 +19,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TeaSpeakProductRegistry implements ProductRegistryHandler{
+public class TeaSpeakProductRegistry implements ProductRegistryHandler {
 
     private final CategoryRepository categoryRepo;
     private final TeaSpeakProductRepository teaSpeakProductRepo;
     private final TeaSpeakProductMapStruct teaSpeakProductMapStruct;
 
     @Override
-    public ProductType getType() {
-        return ProductType.TEASPEAK_PRODUCT;
+    public ResourceType getType() {
+        return ResourceType.TEASPEAK;
     }
 
     @Override

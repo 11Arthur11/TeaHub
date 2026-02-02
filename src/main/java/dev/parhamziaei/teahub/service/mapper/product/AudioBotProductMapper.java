@@ -1,11 +1,13 @@
 package dev.parhamziaei.teahub.service.mapper.product;
 
 import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductDetailResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.AudioBotProductDetailAdminResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.AudioBotProductListAdminResponse;
+import dev.parhamziaei.teahub.dto.response.shop.user.AudioBotProductListResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
-import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductListAdminResponse;
-import dev.parhamziaei.teahub.dto.response.shop.user.TeaSpeakProductListResponse;
+import dev.parhamziaei.teahub.entity.jpa.shop.AudioBotProduct;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
-import dev.parhamziaei.teahub.entity.jpa.shop.TeaSpeakProduct;
 import dev.parhamziaei.teahub.enums.shop.ProductType;
 import dev.parhamziaei.teahub.service.MessageService;
 import jakarta.transaction.Transactional;
@@ -15,14 +17,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TeaSpeakProductMapper implements ProductMapperHandler {
+public class AudioBotProductMapper implements ProductMapperHandler{
 
     private final ModelMapper modelMapper;
     private final MessageService messageService;
 
     @Override
     public ProductType getType() {
-        return ProductType.TEASPEAK_PRODUCT;
+        return ProductType.AUDIO_BOT_PRODUCT;
     }
 
     @Override
@@ -34,8 +36,8 @@ public class TeaSpeakProductMapper implements ProductMapperHandler {
 
     @Transactional
     @Override
-    public <U extends BillableProduct> TeaSpeakProductDetailAdminResponse enrichDetailProduct(U product) {
-        TeaSpeakProductDetailAdminResponse response = modelMapper.map(product, TeaSpeakProductDetailAdminResponse.class);
+    public <U extends BillableProduct> AudioBotProductDetailAdminResponse enrichDetailProduct(U product) {
+        AudioBotProductDetailAdminResponse response = modelMapper.map(product, AudioBotProductDetailAdminResponse.class);
         response.setPeriod(messageService.get(product.getPeriod()));
         response.setOrderedResources(product.getUserResources().size());
         return response;
@@ -43,21 +45,21 @@ public class TeaSpeakProductMapper implements ProductMapperHandler {
 
     @Override
     public AbstractProductListResponse mapToList(BillableProduct product) {
-        TeaSpeakProduct teaSpeakProduct = (TeaSpeakProduct) product;
-        return enrichListProduct(teaSpeakProduct, TeaSpeakProductListResponse.class);
+        AudioBotProduct audioBotProduct = (AudioBotProduct) product;
+        return enrichListProduct(audioBotProduct, AudioBotProductListResponse.class);
     }
 
     @Override
     public AbstractProductListResponse mapToListForAdmin(BillableProduct product) {
-        TeaSpeakProduct teaSpeakProduct = (TeaSpeakProduct) product;
-        return enrichListProduct(teaSpeakProduct, TeaSpeakProductListAdminResponse.class);
+        AudioBotProduct audioBotProduct = (AudioBotProduct) product;
+        return enrichListProduct(audioBotProduct, AudioBotProductListAdminResponse.class);
     }
 
     @Override
     @Transactional
-    public TeaSpeakProductDetailAdminResponse mapToDetail(BillableProduct product) {
-        TeaSpeakProduct teaSpeakProduct = (TeaSpeakProduct) product;
-        return enrichDetailProduct(teaSpeakProduct);
+    public AudioBotProductDetailAdminResponse mapToDetail(BillableProduct product) {
+        AudioBotProduct audioBotProduct = (AudioBotProduct) product;
+        return enrichDetailProduct(audioBotProduct);
     }
 
 }

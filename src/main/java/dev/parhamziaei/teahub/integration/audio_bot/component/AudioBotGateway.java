@@ -3,7 +3,7 @@ package dev.parhamziaei.teahub.integration.audio_bot.component;
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.AudioBotUri;
-import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotListResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceListResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.exception.AudioBotHttpException;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,6 @@ public class AudioBotGateway {
     }
 
     private RestClient buildRestClient(AudioBotNode audioBotNode) {
-
         return RestClient.builder()
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -62,14 +61,30 @@ public class AudioBotGateway {
         );
     }
 
+    public Integer testApi(AudioBotNode audioBotNode) {
+        RestClient restClient = getClient(audioBotNode);
+
+        AudioBotUri uri = AudioBotUri.builder()
+                .system()
+                .info()
+                .build();
+
+        ResponseEntity<Void> response = restClient.get()
+                .uri(uri.value())
+                .retrieve()
+                .toBodilessEntity();
+
+        return response.getStatusCode().value();
+    }
+
     public boolean testConnection(AudioBotNode audioBotNode) {
+        AudioBotUri uri = AudioBotUri.builder()
+                .system()
+                .info()
+                .build();
+
         try {
             RestClient restClient = getClient(audioBotNode);
-
-            AudioBotUri uri = AudioBotUri.builder()
-                    .system()
-                    .info()
-                    .build();
 
             ResponseEntity<Void> response = restClient.get()
                     .uri(uri.value())
@@ -99,7 +114,7 @@ public class AudioBotGateway {
 
     public void checkResponse(ResponseEntity<?> response, AudioBotNode audioBotNode, AudioBotUri uri) {
         if (response.getStatusCode().is2xxSuccessful()) {
-            log.info("MusicBot-Gateway -> Command ({}{}) executed successfully", audioBotNode.getWebAddress(), uri);
+            log.info("MusicBot-Gateway -> Command ({}{}) executed successfully", audioBotNode.getWebAddress(), uri.value());
         } else {
             log.warn("MusicBot-Gateway -> Command ({}{}) executed but responded with ({}) status code, body: {}",
                     audioBotNode.getWebAddress(),
@@ -120,6 +135,7 @@ public class AudioBotGateway {
 
             checkResponse(response, audioBotNode, uri);
         } catch (Exception ex) {
+            log.error("{}{}", audioBotNode.getWebAddress(), uri.value());
             log.warn("The music bot API request to web-address {} failed: {}",audioBotNode.getWebAddress(), ex.getMessage(), ex);
         }
     }
@@ -135,7 +151,7 @@ public class AudioBotGateway {
 
     public void createInstance(AudioBotNode audioBotNode, String identifier) {
         AudioBotUri createUri = AudioBotUri.builder()
-                .setting()
+                .settings()
                 .create(identifier)
                 .build();
         execute(audioBotNode, createUri);
@@ -143,7 +159,7 @@ public class AudioBotGateway {
 
     public void setInstanceConnectAddress(AudioBotResource resource, String address) {
         AudioBotUri setConnect = AudioBotUri.builder()
-                .setting()
+                .settings()
                 .bot()
                 .set(resource.getIdentifier().toString())
                 .connectAddress(address)
@@ -152,13 +168,35 @@ public class AudioBotGateway {
         execute(resource.getParentNode(), setConnect);
     }
 
-    public List<AudioBotListResponse> getInstanceList(AudioBotNode audioBotNode) {
+    public void setInstanceConnectNickname(AudioBotResource resource, String nickname) {
+        final AudioBotUri setNickname = AudioBotUri.builder()
+                .settings()
+                .bot()
+                .set(resource.getIdentifier().toString())
+                .connectNickname(nickname)
+                .build();
+
+        execute(resource.getParentNode(), setNickname);
+    }
+
+    public void setInstanceConnectNickname(AudioBotResource resource, Long botId, String nickname) {
+        final AudioBotUri setNickname = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .setConnectName(nickname)
+                .build();
+
+        execute(resource.getParentNode(), setNickname);
+    }
+
+
+    public List<AudioBotInstanceListResponse> getInstanceList(AudioBotNode audioBotNode) {
         AudioBotUri getListUri = AudioBotUri.builder()
                 .bot()
                 .list()
                 .build();
 
-        ResponseEntity<List<AudioBotListResponse>> responseList = getClient(audioBotNode).get()
+        ResponseEntity<List<AudioBotInstanceListResponse>> responseList = getClient(audioBotNode).get()
                 .uri(getListUri.value())
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {});
@@ -169,7 +207,7 @@ public class AudioBotGateway {
 
     public void setInstanceConnectPassword(AudioBotResource resource, String password) {
         AudioBotUri setPassword = AudioBotUri.builder()
-                .setting()
+                .settings()
                 .bot()
                 .set(resource.getIdentifier().toString())
                 .connectPassword(password)

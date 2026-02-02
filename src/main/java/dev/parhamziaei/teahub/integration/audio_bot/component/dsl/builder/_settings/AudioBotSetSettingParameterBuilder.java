@@ -19,4 +19,11 @@ public class AudioBotSetSettingParameterBuilder {
         return new AudioBotBuildStep(sb);
     }
 
+    public AudioBotBuildStep connectNickname(String nickname) {
+        sb.append("/connect.name/").append(nickname);
+        return new AudioBotBuildStep(sb);
+    }
+
+
+
 }

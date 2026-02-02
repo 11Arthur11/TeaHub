@@ -42,6 +42,7 @@ public enum ServiceMessage {
     PAYMENT_GATEWAY_ERROR("error.service.gateway"),
     PAYMENT_GATEWAY_CONFIG_ERROR("error.service.gateway.config"),
     PAYMENT_GATEWAY_NOT_FOUND("error.service.gateway.not-found"),
+    PAYMENT_INSUFFICIENT_BALANCE("error.service.insufficient-balance"),
 
     // ? resource management messages
     RESOURCE_PROCESSING("success.service.resource.deploying"),
@@ -55,7 +56,10 @@ public enum ServiceMessage {
     QUERY_INSTANCE_DELETED("success.service.query-instance.deleted"),
     QUERY_INSTANCE_PORT_RANGE_INVALID("error.service.query-instance.port-range-invalid"),
     QUERY_INSTANCE_NOT_FOUND("error.service.query-instance.not-found"),
-    QUERY_INSTANCE_ERROR("error.service.query-instance"),;
+    QUERY_INSTANCE_ERROR("error.service.query-instance"),
+
+    // ? audio bot node management messages
+    AUDIO_BOT_NODE_INITIATED("success.service.audio-bot-node.initiated"),;
 
     private final String key;
 

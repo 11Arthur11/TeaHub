@@ -14,7 +14,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class AudioBotNode extends BaseEntity<Long> {
@@ -39,6 +38,10 @@ public class AudioBotNode extends BaseEntity<Long> {
 
     private Integer maxBotInstance;
 
+    private Integer onlineInstanceCount;
+
+    private Integer allInstanceCount;
+
     private boolean isFull;
 
     private boolean enabled;
@@ -48,6 +51,26 @@ public class AudioBotNode extends BaseEntity<Long> {
 
     public boolean isAvailable() {
         return !isFull && enabled;
+    }
+
+    @Builder
+    public AudioBotNode(
+            String name,
+            String webAddress,
+            String username,
+            String password,
+            NodeStatus nodeStatus,
+            Integer maxBotInstance,
+            boolean enabled
+    ) {
+        this.name = name;
+        this.webAddress = webAddress;
+        this.username = username;
+        this.password = password;
+        this.maxBotInstance = maxBotInstance;
+        this.instances = new ArrayList<>();
+        this.enabled = enabled;
+        this.nodeStatus = nodeStatus;
     }
 
     @PrePersist

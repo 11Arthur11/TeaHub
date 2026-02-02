@@ -100,8 +100,9 @@ public class User extends BaseEntity<Long> implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.getName()));
     }
-
+    
     public boolean isAdmin() {
+        System.out.println("user " + this.getUsername() + " role " + this.getRole().getName() + " isAdmin?" + this.role.getName().equals(Roles.ADMIN.name())                    );
         return this.role.getName().equals(Roles.ADMIN.name());
     }
 

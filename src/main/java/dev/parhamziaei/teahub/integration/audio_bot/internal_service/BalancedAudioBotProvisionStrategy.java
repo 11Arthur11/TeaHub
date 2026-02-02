@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 
-@Component("BALANCED")
+@Component
 @RequiredArgsConstructor
 public class BalancedAudioBotProvisionStrategy implements AudioBotProvisionStrategyHandler {
 

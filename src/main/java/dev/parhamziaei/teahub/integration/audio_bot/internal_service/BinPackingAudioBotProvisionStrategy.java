@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 
-@Component("BIN_PACKING")
+@Component
 @RequiredArgsConstructor
 public class BinPackingAudioBotProvisionStrategy implements AudioBotProvisionStrategyHandler {
 

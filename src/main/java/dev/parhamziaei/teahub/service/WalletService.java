@@ -36,7 +36,6 @@ import static dev.parhamziaei.teahub.enums.payment.TransactionType.DEBIT;
 public class WalletService {
 
     private final WalletRepository walletRepo;
-    private final UserRepository userRepo;
     private final WalletTransactionRepository walletTransactionRepo;
     private final ModelMapper modelMapper;
     private final MessageService messageService;
@@ -44,6 +43,7 @@ public class WalletService {
     public void assertSufficientBalance(Long userId, BigDecimal amount) {
         Wallet wallet = walletRepo.findOne(WalletSpecification.forUserId(userId))
                 .orElseThrow(NoSuchEntityException::new);
+
         if (wallet.getBalance().getAmount().compareTo(amount) < 0)
             throw new InsufficientBalanceException();
     }

@@ -2,8 +2,14 @@ package dev.parhamziaei.teahub.integration.audio_bot.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public class AudioBotListResponse {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class AudioBotInstanceListResponse {
 
     @JsonProperty("Id")
     private Long id;

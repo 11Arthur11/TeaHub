@@ -80,6 +80,8 @@ app:
       # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
       two-facto-message-pattern-code: gaibs13nb08a8ku
       from-number: 100016949
+    audio-bot:
+      provision-strategy: balanced
 
   cookie-factory:
     secure-cookie: true

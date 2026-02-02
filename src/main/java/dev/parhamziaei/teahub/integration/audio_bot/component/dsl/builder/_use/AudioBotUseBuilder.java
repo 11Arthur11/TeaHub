@@ -22,6 +22,13 @@ public class AudioBotUseBuilder {
         return new AudioBotBuildStep(sb);
     }
 
+    public AudioBotBuildStep setConnectName(String name) {
+        sb.append("/(/settings/set/connect.name/")
+                .append(name)
+                .append(")");
+        return new AudioBotBuildStep(sb);
+    }
+
     public AudioBotBuildStep commander(boolean enabled) {
         sb.append("/(/bot/commander/")
         .append(enabled ? "on" : "off")

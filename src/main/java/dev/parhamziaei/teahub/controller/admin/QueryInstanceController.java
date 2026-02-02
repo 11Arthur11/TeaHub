@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class QueryInstanceController {
 
-    private final CurrentUser currentUser;
     private final QueryInstanceService queryInstanceService;
     private final MessageService messageService;
 

@@ -17,6 +17,7 @@ import dev.parhamziaei.teahub.exception.custom.service.storage.MediaTypeNotAllow
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.*;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmentReachedException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
+import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
 import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
@@ -246,6 +247,14 @@ public class GlobalExceptionHandler {
         return ResponseBuilder.buildError(
                 messageService.get(ServiceMessage.PAYMENT_FAILED),
                 HttpStatus.FORBIDDEN
+        );
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<SimpleResponse> handleInsufficientBalanceException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.PAYMENT_INSUFFICIENT_BALANCE),
+                HttpStatus.BAD_REQUEST
         );
     }
 
