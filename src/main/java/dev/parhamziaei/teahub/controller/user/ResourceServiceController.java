@@ -15,9 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/resources")
+@RequestMapping("/v1/services")
 @RequiredArgsConstructor
-public class ResourceController {
+public class ResourceServiceController {
 
     private final ResourceService resourceService;
     private final CurrentUser currentUser;

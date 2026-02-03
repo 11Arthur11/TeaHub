@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.dto.response.resource.teaspeak.user;
+package dev.parhamziaei.teahub.dto.response.resource;
 
 import lombok.Data;
 

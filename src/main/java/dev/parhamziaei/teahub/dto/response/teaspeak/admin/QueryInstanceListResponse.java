@@ -21,4 +21,6 @@ public class QueryInstanceListResponse {
 
     private Integer stopPort;
 
+    private boolean active;
+
 }

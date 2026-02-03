@@ -16,5 +16,13 @@ public interface QueryInstanceRepository {
     void delete(QueryInstance queryInstance);
     void update(QueryInstance queryInstance);
     boolean existByAddress(String ip, Integer port);
+    default List<QueryInstance> findProvisionCandidates() {
+        return findAll().stream()
+                .filter(queryInstance -> !queryInstance.isFull() && queryInstance.isActive())
+                .toList();
+    }
+    default boolean isAnyProvisionCandidateAvailable() {
+        return !findProvisionCandidates().isEmpty();
+    }
 
 }

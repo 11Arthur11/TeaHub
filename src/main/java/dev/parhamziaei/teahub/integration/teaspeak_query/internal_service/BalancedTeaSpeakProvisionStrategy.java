@@ -19,11 +19,10 @@ public class BalancedTeaSpeakProvisionStrategy implements TeaSpeakProvisionStrat
     @Override
     @Transactional
     public QueryInstance getProviderQueryInstance() {
-        return queryInstanceRepository.findAll()
+        return queryInstanceRepository.findProvisionCandidates()
                 .stream()
-                .filter(queryInstance -> !queryInstance.isFull())
                 .min(Comparator.comparing(qi -> qi.getInstances().size()))
-                .orElseThrow(QueryProvisionException::new);
+                .orElseThrow(() ->  new QueryProvisionException("No query instances found with " + getType() + " strategy"));
     }
 
     @Override

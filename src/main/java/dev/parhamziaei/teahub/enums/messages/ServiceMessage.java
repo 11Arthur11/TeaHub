@@ -47,6 +47,8 @@ public enum ServiceMessage {
     // ? resource management messages
     RESOURCE_PROCESSING("success.service.resource.deploying"),
     RESOURCE_PROLONGED("success.service.resource.prolonged"),
+    RESOURCE_SUSPENDED("success.service.resource.suspended"),
+    RESOURCE_PROVISION_ERROR("success.service.resource.provision-error"),
 
     // ? query instance management messages
     QUERY_INSTANCE_INITIATED("success.service.query-instance.initiated"),

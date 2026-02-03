@@ -18,12 +18,10 @@ public class RandomizedTeaSpeakProvisionStrategy implements TeaSpeakProvisionStr
     
     @Override
     public QueryInstance getProviderQueryInstance() {
-        List<QueryInstance> available =  queryInstanceRepo.findAll()
-                .stream()
-                .filter(queryInstance -> !queryInstance.isFull())
-                .toList();
+        List<QueryInstance> available =  queryInstanceRepo.findProvisionCandidates();
+
         if (available.isEmpty())
-            throw new QueryProvisionException();
+            throw new QueryProvisionException("No query instances found with " + getType() + " strategy");
 
         Random random = new Random();
         return available.get(random.nextInt(available.size()));

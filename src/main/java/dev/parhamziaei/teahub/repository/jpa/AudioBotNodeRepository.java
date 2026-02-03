@@ -17,6 +17,11 @@ public interface AudioBotNodeRepository extends JpaRepository<AudioBotNode, Long
                 .toList();
     }
 
+    @Transactional
+    default boolean isAnyProvisionCandidateAvailable() {
+        return !findProvisionCandidates().isEmpty();
+    }
+
     boolean existsByWebAddress(String webAddress);
 
 }

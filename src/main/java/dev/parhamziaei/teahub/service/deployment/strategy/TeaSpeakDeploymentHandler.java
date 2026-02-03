@@ -11,7 +11,10 @@ import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
+import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryProvisionException;
 import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
+import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
@@ -36,6 +39,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
     private final ApplicationEventPublisher applicationEventPublisher;
     private final WalletService walletService;
     private final TeaSpeakService teaSpeakService;
+    private final QueryInstanceRepository queryInstanceRepo;
 
     @Override
     public ResourceType getType() {
@@ -45,6 +49,9 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
     @Override
     @Transactional
     public <T extends AbstractNewResourceRequest> void initializeDeploy(T request, Long userId) {
+        if (!queryInstanceRepo.isAnyProvisionCandidateAvailable())
+            throw new ResourceProvisionException("Cannot deploy " + getType() + " resource, because no Node or Instance found to provide this resource");
+
         // ? loading product for resource details
         TeaSpeakProduct product = teaSpeakProductRepo.findById(request.getProductId())
                 .orElseThrow(NoSuchEntityException::new);
@@ -79,7 +86,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
 
         teaSpeakResourceRepository.save(resource);
 
-        // ? publishing the actual event
+        // ? publishing the event
         TeaSpeakDeployEvent deployEvent = TeaSpeakDeployEvent.builder()
                 .baseResourceId(resource.getId())
                 .maxClients(product.getMaxClients())

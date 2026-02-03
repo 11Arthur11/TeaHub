@@ -10,6 +10,9 @@ import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.*;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceSuspendedException;
 import dev.parhamziaei.teahub.exception.custom.service.shop.CategoryNotFoundException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.FileStorageServiceException;
 import dev.parhamziaei.teahub.exception.custom.service.storage.MediaSizeTooLargeException;
@@ -254,6 +257,23 @@ public class GlobalExceptionHandler {
     public ResponseEntity<SimpleResponse> handleInsufficientBalanceException() {
         return ResponseBuilder.buildError(
                 messageService.get(ServiceMessage.PAYMENT_INSUFFICIENT_BALANCE),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    //TODO <Resource & Deployment Exceptions>
+    @ExceptionHandler(ResourceProvisionException.class)
+    public ResponseEntity<SimpleResponse> handleResourceProvisionException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.RESOURCE_PROVISION_ERROR),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(ResourceSuspendedException.class)
+    public ResponseEntity<SimpleResponse> handleResourceSuspendedException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.RESOURCE_SUSPENDED),
                 HttpStatus.BAD_REQUEST
         );
     }

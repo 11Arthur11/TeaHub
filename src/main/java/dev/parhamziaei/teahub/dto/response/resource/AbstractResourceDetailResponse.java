@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public abstract class BaseResourceDetailResponse {
+public abstract class AbstractResourceDetailResponse {
 
     private Long id;
     private String label;

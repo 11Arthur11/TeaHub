@@ -15,8 +15,10 @@ import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
 import dev.parhamziaei.teahub.kafka.event.resource.AudioBotDeployEvent;
 import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
+import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
@@ -36,6 +38,7 @@ public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
     private final UserRepository userRepository;
     private final WalletService walletService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final AudioBotNodeRepository audioBotNodeRepo;
 
     @Override
     public ResourceType getType() {
@@ -44,6 +47,9 @@ public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
 
     @Override
     public <T extends AbstractNewResourceRequest> void initializeDeploy(T request, Long userId) {
+        if (!audioBotNodeRepo.isAnyProvisionCandidateAvailable())
+            throw new ResourceProvisionException("Cannot deploy " + getType() + " resource, because no Node or Instance found to provide this resource");
+
         NewAudioBotResourceRequest audioBotRequest = (NewAudioBotResourceRequest) request;
 
         // ? loading product for resource details

@@ -2,9 +2,9 @@ package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
-import dev.parhamziaei.teahub.dto.response.resource.BaseResourceDetailResponse;
-import dev.parhamziaei.teahub.dto.response.resource.teaspeak.admin.ResourceListAdminResponse;
-import dev.parhamziaei.teahub.dto.response.resource.teaspeak.user.ResourceListResponse;
+import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
+import dev.parhamziaei.teahub.dto.response.resource.ResourceListAdminResponse;
+import dev.parhamziaei.teahub.dto.response.resource.ResourceListResponse;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -92,14 +92,14 @@ public class ResourceService {
     }
 
     @Transactional
-    public BaseResourceDetailResponse findResourceByUser(Long userId, Long resourceId) {
+    public AbstractResourceDetailResponse findResourceByUser(Long userId, Long resourceId) {
         BillableResource resource = billableResourceRepository.findOneByOwnerId(userId, resourceId)
                 .orElseThrow(NoSuchEntityException::new);
         return mapperFactory.getHandler(resource.getResourceType()).mapResourceDetailResponse(resource);
     }
 
     @Transactional
-    public BaseResourceDetailResponse findResource(Long resourceId) {
+    public AbstractResourceDetailResponse findResource(Long resourceId) {
         BillableResource resource = billableResourceRepository.findById(resourceId)
                 .orElseThrow(NoSuchEntityException::new);
         return mapperFactory.getHandler(resource.getResourceType()).mapResourceDetailAdminResponse(resource);

@@ -6,6 +6,7 @@ import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
 import dev.parhamziaei.teahub.enums.audio_bot.NodeStatus;
 import dev.parhamziaei.teahub.integration.audio_bot.internal_service.AudioBotProvisionStrategyFactory;
 import dev.parhamziaei.teahub.integration.audio_bot.internal_service.AudioBotProvisionStrategyHandler;
+import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +25,15 @@ import java.util.UUID;
 public class AudioBotNodeManager {
 
     private final AudioBotProvisionStrategyHandler strategyHandler;
+    private final AudioBotNodeRepository audioBotNodeRepo;
     private final AudioBotGateway audioBotGateway;
 
     @Autowired
     public AudioBotNodeManager(
-            AudioBotProvisionStrategyFactory strategyFactory, AudioBotGateway audioBotGateway
+            AudioBotProvisionStrategyFactory strategyFactory, AudioBotNodeRepository audioBotNodeRepo, AudioBotGateway audioBotGateway
     ) {
         this.strategyHandler = strategyFactory.getStrategy();
+        this.audioBotNodeRepo = audioBotNodeRepo;
         this.audioBotGateway = audioBotGateway;
     }
 

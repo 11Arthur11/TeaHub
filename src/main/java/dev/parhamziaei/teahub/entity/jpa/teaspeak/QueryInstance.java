@@ -40,6 +40,8 @@ public class QueryInstance extends BaseEntity<Long> {
 
     private Integer defaultQueryServerGroupId;
 
+    private boolean active;
+
     @Column(columnDefinition = "TIMESTAMP(0)", updatable = false)
     private LocalDateTime initiatedAt;
 

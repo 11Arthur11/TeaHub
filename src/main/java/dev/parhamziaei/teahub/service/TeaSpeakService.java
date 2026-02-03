@@ -9,7 +9,7 @@ import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceSuspendedException;
-import dev.parhamziaei.teahub.exception.custom.service.teaspeak.ActionNotExecutableException;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.QueryCLI;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.request.TSCreateQueryRequest;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSCreateQueryResponse;
@@ -43,10 +43,10 @@ public class TeaSpeakService {
         User user = userRepo.findById(userId)
                 .orElseThrow(NoSuchEntityException::new);
 
-        TeaSpeakResource resource =teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
+        TeaSpeakResource resource = teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
-        if (resource.getResourceStatus() !=  ResourceStatus.ACTIVE)
+        if (resource.getResourceStatus() != ResourceStatus.ACTIVE)
             throw new ResourceSuspendedException(resource.getId().toString());
 
         return resource;

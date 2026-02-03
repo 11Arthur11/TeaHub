@@ -17,11 +17,10 @@ public class BinPackingTeaSpeakProvisionStrategy implements TeaSpeakProvisionStr
 
     @Override
     public QueryInstance getProviderQueryInstance() {
-        return queryInstanceRepo.findAll()
+        return queryInstanceRepo.findProvisionCandidates()
                 .stream()
-                .filter(queryInstance -> !queryInstance.isFull())
                 .min(Comparator.comparing(QueryInstance::getId))
-                .orElseThrow(QueryProvisionException::new);
+                .orElseThrow(() ->  new QueryProvisionException("No query instances found with " + getType() + " strategy"));
     }
 
     @Override

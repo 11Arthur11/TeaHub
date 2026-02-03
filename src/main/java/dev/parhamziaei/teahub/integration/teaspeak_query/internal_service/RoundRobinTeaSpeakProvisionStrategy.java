@@ -19,14 +19,13 @@ public class RoundRobinTeaSpeakProvisionStrategy implements TeaSpeakProvisionStr
 
     @Override
     public QueryInstance getProviderQueryInstance() {
-        List<QueryInstance> available = queryInstanceRepo.findAll()
+        List<QueryInstance> available = queryInstanceRepo.findProvisionCandidates()
                 .stream()
-                .filter(qi -> !qi.isFull())
                 .sorted(Comparator.comparing(QueryInstance::getId))
                 .toList();
 
         if (available.isEmpty()) {
-            throw new QueryProvisionException("No available query instances found");
+            throw new QueryProvisionException("No query instances found with " + getType() + " strategy");
         }
 
         int index = pointer.getAndIncrement();

@@ -157,6 +157,16 @@ public class AudioBotGateway {
         execute(audioBotNode, createUri);
     }
 
+    public void disconnectInstance(AudioBotResource audioBotNode, Long botId) {
+        final AudioBotUri disconnectUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .disconnect()
+                .build();
+
+        execute(audioBotNode.getParentNode(), disconnectUri);
+    }
+
     public void setInstanceConnectAddress(AudioBotResource resource, String address) {
         AudioBotUri setConnect = AudioBotUri.builder()
                 .settings()
