@@ -6,6 +6,8 @@ import dev.parhamziaei.teahub.dto.response.resource.audio_bot.user.AudioBotResou
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.ABConnectSettings;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceSettingsResponse;
 import dev.parhamziaei.teahub.service.AudioBotService;
 import dev.parhamziaei.teahub.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,11 @@ public class AudioBotResourceMapper implements ResourceMapperHandler {
         resourceDetail.setBotStatus(messageService.get(resource.getBotStatus()));
         resourceDetail.setResourceStatus(messageService.get(resource.getResourceStatus()));
         resourceDetail.setProductName(resource.getProduct().getProductName());
+
+        ABConnectSettings instanceConnectSettings = audioBotService.getInstanceSetting(resource).getConnect();
+        resourceDetail.setBotNickname(instanceConnectSettings.getName());
+        resourceDetail.setServerAddress(instanceConnectSettings.getAddress());
+        resourceDetail.setServerPassword(instanceConnectSettings.getServerPassword().getPassword());
         return resourceDetail;
     }
 

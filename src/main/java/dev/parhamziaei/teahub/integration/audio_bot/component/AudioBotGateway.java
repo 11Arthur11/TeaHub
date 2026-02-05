@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.AudioBotUri;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceListResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceSettingsResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.exception.AudioBotHttpException;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -213,6 +214,22 @@ public class AudioBotGateway {
 
         checkResponse(responseList, audioBotNode, getListUri);
         return responseList.getBody();
+    }
+
+    public AudioBotInstanceSettingsResponse getInstanceSettings(AudioBotResource resource) {
+        AudioBotUri getUri = AudioBotUri.builder()
+                .settings()
+                .bot()
+                .get(resource.getIdentifier().toString())
+                .build();
+
+        ResponseEntity<AudioBotInstanceSettingsResponse> response = getClient(resource.getParentNode()).get()
+                .uri(getUri.value())
+                .retrieve()
+                .toEntity(AudioBotInstanceSettingsResponse.class);
+
+        checkResponse(response, resource.getParentNode(), getUri);
+        return response.getBody();
     }
 
     public void setInstanceConnectPassword(AudioBotResource resource, String password) {

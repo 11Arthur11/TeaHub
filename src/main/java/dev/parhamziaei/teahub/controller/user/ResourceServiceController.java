@@ -51,7 +51,7 @@ public class ResourceServiceController {
         );
     }
 
-    @PostMapping("/{resourceId}")
+    @PostMapping("/{resourceId}/prolong")
     public ResponseEntity<SimpleResponse> prolongResource(@PathVariable Long resourceId) {
         resourceService.prolongResource(currentUser.getId(), resourceId);
         return ResponseBuilder.buildSuccess(

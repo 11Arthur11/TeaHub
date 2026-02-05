@@ -14,6 +14,7 @@ import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceSuspende
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotGateway;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotNodeManager;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceListResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceSettingsResponse;
 import dev.parhamziaei.teahub.kafka.event.resource.AudioBotDeployEvent;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotProductRepository;
@@ -66,6 +67,7 @@ public class AudioBotService {
             audioBotGateway.setInstanceConnectNickname(resource, event.getResourceRequest().getBotNickname());
         audioBotGateway.connectInstance(node, identifier.toString());
         syncWithNode(resource);
+        resource.setResourceStatus(ResourceStatus.ACTIVE);
     }
 
     @Transactional
@@ -96,6 +98,10 @@ public class AudioBotService {
                 .filter(a -> a.getName().equals(resource.getIdentifier().toString()))
                 .findFirst()
                 .orElseThrow(AudioBotSynchronizationException::new);
+    }
+
+    public AudioBotInstanceSettingsResponse getInstanceSetting(AudioBotResource resource) {
+        return audioBotGateway.getInstanceSettings(resource);
     }
 
     @Transactional
