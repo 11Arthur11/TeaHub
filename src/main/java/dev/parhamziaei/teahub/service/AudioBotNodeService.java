@@ -5,13 +5,12 @@ import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeDetailRes
 import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeListResponse;
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
-import dev.parhamziaei.teahub.enums.audio_bot.NodeStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotAlreadyInitiatedException;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotGateway;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotNodeManager;
-import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceListResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceListResponse;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -71,7 +70,7 @@ public class AudioBotNodeService {
 
         node.setNodeStatus(audioBotNodeManager.calculateNodeStatus(node));
 
-        List<AudioBotInstanceListResponse> instanceList = audioBotGateway.getInstanceList(node);
+        List<ABInstanceListResponse> instanceList = audioBotGateway.getInstanceList(node);
 
         AudioBotNodeDetailResponse nodeResponse = modelMapper.map(node, AudioBotNodeDetailResponse.class);
         nodeResponse.setNodeStatus(messageService.get(node.getNodeStatus()));

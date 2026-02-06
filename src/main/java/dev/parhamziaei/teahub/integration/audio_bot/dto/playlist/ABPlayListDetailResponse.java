@@ -1,0 +1,18 @@
+package dev.parhamziaei.teahub.integration.audio_bot.dto.playlist;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ABPlayListDetailResponse extends ABPlayListsResponse {
+
+    List<ABPlayListItemResponse> abPlayListItem;
+
+}

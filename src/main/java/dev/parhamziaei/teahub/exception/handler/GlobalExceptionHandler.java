@@ -9,6 +9,10 @@ import dev.parhamziaei.teahub.exception.custom.global.ConflictEntityException;
 import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotAlreadyInitiatedException;
+import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotGatewayException;
+import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotMustBeConnectedException;
+import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotSynchronizationException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.*;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
@@ -209,6 +213,39 @@ public class GlobalExceptionHandler {
         return ResponseBuilder.buildError(
                 messageService.get(ServiceMessage.DEFAULT_ACTION_FAILED) + e.getMessage(),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    // ? <AudioBot & Audio Bot Node Exceptions>
+    @ExceptionHandler(AudioBotAlreadyInitiatedException.class)
+    public ResponseEntity<SimpleResponse> handleAudioBotAlreadyInitiatedException(AudioBotAlreadyInitiatedException e) {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.AUDIO_BOT_WEB_ADDRESS_ALREADY_INITIATED) + e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(AudioBotSynchronizationException.class)
+    public ResponseEntity<SimpleResponse> handleAudioBotSynchronizationException(AudioBotSynchronizationException e) {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.DEFAULT_EXTERNAL_SERVICE_UNAVAILABLE),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    @ExceptionHandler(AudioBotMustBeConnectedException.class)
+    public ResponseEntity<SimpleResponse> handleAudioBotMustBeConnectedException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.AUDIO_BOT_MUST_BE_CONNECTED),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    @ExceptionHandler(AudioBotGatewayException.class)
+    public ResponseEntity<SimpleResponse> handleAudioBotGatewayException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.DEFAULT_ACTION_FAILED),
+                HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
 

@@ -89,16 +89,6 @@ public class WalletService {
     public void debit(Long walletId, BigDecimal amount, TransactionReason reason, Long relatedResourceId) {
         Wallet wallet = walletRepo.findByIdAndLock(walletId);
 
-        if (wallet.getOwner().isAdmin()) {
-            log.info(
-                    "Admin ({}) with phone number ({}) performed a ({}) amount debit operation with no charge",
-                    wallet.getOwner().getFullName(),
-                    wallet.getOwner().getPhone(),
-                    amount
-            );
-            return;
-        }
-
         if (wallet.getBalance().getAmount().compareTo(amount) < 0)
             throw new InsufficientBalanceException();
 
@@ -114,6 +104,7 @@ public class WalletService {
                 .build();
 
         wallet.addTransaction(transaction);
+        walletTransactionRepo.save(transaction);
     }
 
     @Transactional
@@ -132,6 +123,7 @@ public class WalletService {
                 .build();
 
         wallet.addTransaction(transaction);
+        walletTransactionRepo.save(transaction);
     }
 
 }

@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AudioBotInstanceSettingsResponse {
+public class ABInstanceSettingsResponse {
 
-    private ABConnectSettings connect;
+    private ABConnectSettingsResponse connect;
 
 }

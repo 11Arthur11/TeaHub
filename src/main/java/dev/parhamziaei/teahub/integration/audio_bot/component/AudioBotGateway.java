@@ -2,9 +2,11 @@ package dev.parhamziaei.teahub.integration.audio_bot.component;
 
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
+import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotGatewayException;
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.AudioBotUri;
-import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceListResponse;
-import dev.parhamziaei.teahub.integration.audio_bot.dto.AudioBotInstanceSettingsResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListsResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceListResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceSettingsResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.exception.AudioBotHttpException;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +64,7 @@ public class AudioBotGateway {
         );
     }
 
-    public Integer testApi(AudioBotNode audioBotNode) {
+    public Integer probeNodeHealth(AudioBotNode audioBotNode) {
         RestClient restClient = getClient(audioBotNode);
 
         AudioBotUri uri = AudioBotUri.builder()
@@ -136,8 +138,8 @@ public class AudioBotGateway {
 
             checkResponse(response, audioBotNode, uri);
         } catch (Exception ex) {
-            log.error("{}{}", audioBotNode.getWebAddress(), uri.value());
-            log.warn("The music bot API request to web-address {} failed: {}",audioBotNode.getWebAddress(), ex.getMessage(), ex);
+            log.error("Failed to execute ({}{})", audioBotNode.getWebAddress(), uri.value(), ex);
+            throw new AudioBotGatewayException(ex.getMessage());
         }
     }
 
@@ -201,13 +203,13 @@ public class AudioBotGateway {
     }
 
 
-    public List<AudioBotInstanceListResponse> getInstanceList(AudioBotNode audioBotNode) {
+    public List<ABInstanceListResponse> getInstanceList(AudioBotNode audioBotNode) {
         AudioBotUri getListUri = AudioBotUri.builder()
                 .bot()
                 .list()
                 .build();
 
-        ResponseEntity<List<AudioBotInstanceListResponse>> responseList = getClient(audioBotNode).get()
+        ResponseEntity<List<ABInstanceListResponse>> responseList = getClient(audioBotNode).get()
                 .uri(getListUri.value())
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {});
@@ -216,20 +218,59 @@ public class AudioBotGateway {
         return responseList.getBody();
     }
 
-    public AudioBotInstanceSettingsResponse getInstanceSettings(AudioBotResource resource) {
+    public ABInstanceSettingsResponse getInstanceSettings(AudioBotResource resource) {
         AudioBotUri getUri = AudioBotUri.builder()
                 .settings()
                 .bot()
                 .get(resource.getIdentifier().toString())
                 .build();
 
-        ResponseEntity<AudioBotInstanceSettingsResponse> response = getClient(resource.getParentNode()).get()
+        ResponseEntity<ABInstanceSettingsResponse> response = getClient(resource.getParentNode()).get()
                 .uri(getUri.value())
                 .retrieve()
-                .toEntity(AudioBotInstanceSettingsResponse.class);
+                .toEntity(ABInstanceSettingsResponse.class);
 
         checkResponse(response, resource.getParentNode(), getUri);
         return response.getBody();
+    }
+
+    public void setConnectOnRuntime(AudioBotResource resource, boolean connectOnRuntime) {
+        final AudioBotUri setConnectOnRuntimeUri = AudioBotUri.builder()
+                .settings()
+                .bot()
+                .set(resource.getIdentifier().toString())
+                .connectOnRuntime(connectOnRuntime)
+                .build();
+
+        execute(resource.getParentNode(), setConnectOnRuntimeUri);
+    }
+
+    public void createNewPlaylist(AudioBotResource resource, Long botId, String fileName, String playlistName) {
+        final AudioBotUri createNewPlaylistUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .playlist()
+                .create(fileName, playlistName)
+                .build();
+
+        execute(resource.getParentNode(), createNewPlaylistUri);
+    }
+
+    public List<ABPlayListsResponse> getInstancePlayLists(AudioBotResource resource, Long botId) {
+        final AudioBotUri getPlaylistsUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .playlist()
+                .list()
+                .build();
+
+        ResponseEntity<List<ABPlayListsResponse>> playlistsResponse = getClient(resource.getParentNode()).get()
+                .uri(getPlaylistsUri.value())
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<>() {});
+
+        checkResponse(playlistsResponse, resource.getParentNode(), getPlaylistsUri);
+        return playlistsResponse.getBody();
     }
 
     public void setInstanceConnectPassword(AudioBotResource resource, String password) {

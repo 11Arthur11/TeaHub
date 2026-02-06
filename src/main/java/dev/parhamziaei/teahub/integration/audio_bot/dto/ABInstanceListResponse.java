@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AudioBotInstanceListResponse {
+public class ABInstanceListResponse {
 
     @JsonProperty("Id")
     private Long id;

@@ -12,6 +12,7 @@ public enum ServiceMessage {
     DEFAULT_DELETED("success.service.default.deleted"),
     DEFAULT_NO_SUCH_DATA("error.service.default.no-such-data"),
     DEFAULT_NO_SUCH_ENTITY("error.service.default.no-such-entity"),
+    DEFAULT_EXTERNAL_SERVICE_UNAVAILABLE("error.service.external-default-unavailable"),
 
     // ? ticket service messages
     TICKET_MAX_ATTACHMENT_REACHED("error.service.ticket.max_attachment_reached"),
@@ -61,7 +62,9 @@ public enum ServiceMessage {
     QUERY_INSTANCE_ERROR("error.service.query-instance"),
 
     // ? audio bot node management messages
-    AUDIO_BOT_NODE_INITIATED("success.service.audio-bot-node.initiated"),;
+    AUDIO_BOT_NODE_INITIATED("success.service.audio-bot-node.initiated"),
+    AUDIO_BOT_WEB_ADDRESS_ALREADY_INITIATED("success.audio-bot-node.already-initiated"),
+    AUDIO_BOT_MUST_BE_CONNECTED("error.audio-bot-instance.must-be-connected"),;
 
     private final String key;
 

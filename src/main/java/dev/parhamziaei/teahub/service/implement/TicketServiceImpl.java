@@ -78,7 +78,7 @@ public class TicketServiceImpl implements TicketService {
 
     private <T extends AbstractTicketResponse> T enrichTicket(Ticket ticket, T dto) {
         dto.setDepartment(messageService.get(ticket.getDepartment()));
-        dto.setStatus(messageService.get(ticket.getDepartment()));
+        dto.setStatus(messageService.get(ticket.getStatus()));
         return dto;
     }
 

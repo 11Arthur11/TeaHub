@@ -24,6 +24,11 @@ public class AudioBotSetSettingParameterBuilder {
         return new AudioBotBuildStep(sb);
     }
 
+    public AudioBotBuildStep connectOnRuntime(boolean connectOnRuntime) {
+        sb.append("/run/").append(connectOnRuntime);
+        return new AudioBotBuildStep(sb);
+    }
+
 
 
 }

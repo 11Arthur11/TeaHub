@@ -12,6 +12,16 @@ public class AudioBotPlayListCommandBuilder {
         this.sb = sb;
     }
 
+    public AudioBotBuildStep create(String fileName, String playlistName) {
+        sb.append("/create/")
+                .append(fileName)
+                .append("/")
+                .append(playlistName)
+                .append(")");
+
+        return new AudioBotBuildStep(sb);
+    }
+
     public AudioBotBuildStep list() {
         sb.append("/list)");
         return new AudioBotBuildStep(sb);

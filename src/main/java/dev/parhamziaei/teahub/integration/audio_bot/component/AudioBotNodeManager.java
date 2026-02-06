@@ -1,23 +1,14 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component;
 
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
-import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
-import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
 import dev.parhamziaei.teahub.enums.audio_bot.NodeStatus;
 import dev.parhamziaei.teahub.integration.audio_bot.internal_service.AudioBotProvisionStrategyFactory;
 import dev.parhamziaei.teahub.integration.audio_bot.internal_service.AudioBotProvisionStrategyHandler;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -50,7 +41,7 @@ public class AudioBotNodeManager {
     public NodeStatus calculateNodeStatus(AudioBotNode audioBotNode) {
         if (!audioBotNode.isEnabled())
             return NodeStatus.DISABLED;
-        switch (audioBotGateway.testApi(audioBotNode)) {
+        switch (audioBotGateway.probeNodeHealth(audioBotNode)) {
             case 200 -> {
                 return NodeStatus.DISPATCHED;
             }
