@@ -23,8 +23,8 @@ public class ResourceAdminController {
                     "You can apply filters via query parameters in ResourceFilterRequest.",
             tags = {"Resource (Admin)"}
     )
-    @GetMapping
-    public ResponseEntity<?> getAllResources(@RequestParam ResourceFilterRequest filter) {
+    @PostMapping
+    public ResponseEntity<?> getAllResources(@RequestBody ResourceFilterRequest filter) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 resourceService.getAllResources(filter),

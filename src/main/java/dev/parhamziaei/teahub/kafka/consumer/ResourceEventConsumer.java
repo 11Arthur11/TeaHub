@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 )
 public class ResourceEventConsumer {
 
-    ResourceEventHandler resourceEventHandler;
+    private final ResourceEventHandler resourceEventHandler;
 
     @KafkaHandler
     protected void handleExpiredEvent(ResourceExpiredEvent event) {

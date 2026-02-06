@@ -119,7 +119,7 @@ public class AudioBotGateway {
         if (response.getStatusCode().is2xxSuccessful()) {
             log.info("MusicBot-Gateway -> Command ({}{}) executed successfully", audioBotNode.getWebAddress(), uri.value());
         } else {
-            log.warn("MusicBot-Gateway -> Command ({}{}) executed but responded with ({}) status code, body: {}",
+            log.warn("MusicBot-Gateway -> Command ({}{}) sent but responded with ({}) status code, body: {}",
                     audioBotNode.getWebAddress(),
                     uri,
                     response.getStatusCode(),
