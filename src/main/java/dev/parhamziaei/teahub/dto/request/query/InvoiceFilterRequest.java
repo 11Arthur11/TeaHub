@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InvoiceFilterRequest extends AbstractPaginationRequest {
+public class InvoiceFilterRequest extends BasePaginationRequest {
 
     @EnumValue(enumClass = InvoiceStatus.class)
     private InvoiceStatus status;

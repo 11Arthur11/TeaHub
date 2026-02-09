@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.controller.user;
 
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
+import dev.parhamziaei.teahub.dto.request.resource.user.BillableResourceEditRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
@@ -57,6 +58,16 @@ public class ResourceServiceController {
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.RESOURCE_PROLONGED),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/{resourceId}/edit")
+    public ResponseEntity<SimpleResponse> prolongResource(@PathVariable Long resourceId, @RequestBody BillableResourceEditRequest editRequest) {
+        resourceService.editResource(currentUser.getId(), resourceId, editRequest);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.RESOURCE_EDITED),
                 HttpStatus.OK
         );
     }

@@ -1,10 +1,9 @@
 package dev.parhamziaei.teahub.dto.request.resource.user;
 
-import dev.parhamziaei.teahub.validation.annotation.SafeName;
 import lombok.Data;
 
 @Data
-public class EditAudioBotResourceRequest {
+public class AudioBotResourceEditRequest {
 
     private String botNickname;
 

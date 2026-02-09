@@ -41,4 +41,11 @@ public class AudioBotUseBuilder {
         return new AudioBotPlayListCommandBuilder(sb);
     }
 
+    public AudioBotBuildStep updateNickname(String nickname) {
+        sb.append("/(/bot/name/")
+        .append(nickname)
+        .append(")");
+        return new AudioBotBuildStep(sb);
+    }
+
 }

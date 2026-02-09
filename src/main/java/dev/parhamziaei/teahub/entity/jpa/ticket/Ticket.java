@@ -28,7 +28,7 @@ public class Ticket extends BaseEntity<Long> {
 
     private Long relatedResourceId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
     private User owner;
 

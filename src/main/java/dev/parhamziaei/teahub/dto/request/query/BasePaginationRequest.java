@@ -7,8 +7,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class AbstractPaginationRequest {
+public class BasePaginationRequest {
     protected int page = 0;
     protected int size = 20;
-
 }

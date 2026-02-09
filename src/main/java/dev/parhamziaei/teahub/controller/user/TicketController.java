@@ -61,10 +61,8 @@ public class TicketController {
             @RequestPart("ticket") TicketUserRequest ticketRequest,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        if (files == null) {
-            files = new ArrayList<>();
-        }
-        ticketService.submit(currentUser.getId(), ticketRequest, files);
+        ticketRequest.getMessage().setFiles(files);
+        ticketService.submit(currentUser.getId(), ticketRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.TICKET_SUBMITTED),
@@ -98,12 +96,11 @@ public class TicketController {
             @RequestPart("content") String content,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        TicketMessageRequest ticketMessageRequest = new TicketMessageRequest(content);
+        TicketMessageRequest ticketMessageRequest = new TicketMessageRequest(content, files);
         ticketService.addNewMessage(
                 ticketMessageRequest,
                 currentUser.getId(),
-                ticketId,
-                files
+                ticketId
         );
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,

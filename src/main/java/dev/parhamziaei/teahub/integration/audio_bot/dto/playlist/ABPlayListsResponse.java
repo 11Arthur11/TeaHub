@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ABPlayListsResponse {
 
     @JsonProperty("Id")
-    private String identifier;
+    private String playlistFilename;
 
     @JsonProperty("Title")
     private String title;

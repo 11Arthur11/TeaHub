@@ -47,4 +47,12 @@ public class BillableResource extends BaseEntity<Long> {
 
     private boolean autoProlong = true;
 
+    public String getFormattedId() {
+        return String.format("%06d", product.getId());
+    }
+
+    public String getFormattedName() {
+        return String.format(product.getProductName() + " - " + "%06d", product.getId());
+    }
+
 }

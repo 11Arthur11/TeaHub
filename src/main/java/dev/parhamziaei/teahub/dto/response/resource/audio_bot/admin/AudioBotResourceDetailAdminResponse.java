@@ -7,5 +7,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class AudioBotResourceDetailAdminResponse extends AudioBotResourceDetailResponse {
+    private String identifier;
     private String ownerPhone;
 }

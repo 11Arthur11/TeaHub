@@ -47,6 +47,7 @@ public enum ServiceMessage {
 
     // ? resource management messages
     RESOURCE_PROCESSING("success.service.resource.deploying"),
+    RESOURCE_EDITED("success.service.resource.edited"),
     RESOURCE_PROLONGED("success.service.resource.prolonged"),
     RESOURCE_SUSPENDED("success.service.resource.suspended"),
     RESOURCE_PROVISION_ERROR("success.service.resource.provision-error"),
@@ -63,7 +64,9 @@ public enum ServiceMessage {
 
     // ? audio bot node management messages
     AUDIO_BOT_NODE_INITIATED("success.service.audio-bot-node.initiated"),
-    AUDIO_BOT_WEB_ADDRESS_ALREADY_INITIATED("success.audio-bot-node.already-initiated"),
+    AUDIO_BOT_NODE_EDITED("success.service.audio-bot-node.edited"),
+    AUDIO_BOT_NODE_WEB_ADDRESS_ALREADY_INITIATED("success.audio-bot-node.already-initiated"),
+    AUDIO_BOT_NODE_HAS_ACTIVE_INSTANCE("success.audio-bot-node.has-active-instance"),
     AUDIO_BOT_MUST_BE_CONNECTED("error.audio-bot-instance.must-be-connected"),;
 
     private final String key;

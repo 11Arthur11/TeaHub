@@ -12,6 +12,14 @@ public class AudioBotPlayListCommandBuilder {
         this.sb = sb;
     }
 
+    public AudioBotBuildStep delete(String filename) {
+        sb.append("/delete/")
+                .append(filename)
+                .append(")");
+
+        return new AudioBotBuildStep(sb);
+    }
+
     public AudioBotBuildStep create(String fileName, String playlistName) {
         sb.append("/create/")
                 .append(fileName)
@@ -49,11 +57,11 @@ public class AudioBotPlayListCommandBuilder {
         return new AudioBotBuildStep(sb);
     }
 
-    public AudioBotBuildStep itemAdd(String fileName, String musicUrl) {
+    public AudioBotBuildStep itemAdd(String fileName, String trackLink) {
         sb.append("/add/")
                 .append(fileName)
                 .append("/")
-                .append(UriUtils.encodePathSegment(musicUrl, "UTF-8"))
+                .append(trackLink)
                 .append(")");
         return new AudioBotBuildStep(sb);
     }

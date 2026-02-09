@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
+import dev.parhamziaei.teahub.dto.request.resource.user.BillableResourceEditRequest;
 import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
 import dev.parhamziaei.teahub.dto.response.resource.ResourceListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.resource.ResourceListResponse;
@@ -10,11 +11,13 @@ import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
 import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpecification;
 import dev.parhamziaei.teahub.service.deployment.DeploymentStrategyFactory;
+import dev.parhamziaei.teahub.service.mapper.BillableResourceMapStruct;
 import dev.parhamziaei.teahub.service.mapper.resource.ResourceMapperFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +45,7 @@ public class ResourceService {
     private final MessageService messageService;
     private final BillableResourceRepository billableResourceRepository;
     private final ResourceMapperFactory mapperFactory;
+    private final BillableResourceMapStruct billableResourceMapStruct;
 
     @Transactional
     public void newBillableResource(Long userId, AbstractNewResourceRequest request) {
@@ -77,6 +81,10 @@ public class ResourceService {
                 .and(BillableResourceSpecification.byStatus(filter.getByResourceStatus()));
 
         Page<BillableResource> resourcesPage = billableResourceRepository.findAll(spec, pageable);
+
+        if (!resourcesPage.hasContent())
+            throw new NoSuchDataException();
+
         List<ResourceListAdminResponse> mapped = resourcesPage.getContent()
                 .stream()
                 .map(r -> {
@@ -134,8 +142,8 @@ public class ResourceService {
     }
 
     @Transactional
-    public void prolongResource (Long userid, Long resourceId) {
-        BillableResource resource = billableResourceRepository.findOneByOwnerId(userid, resourceId)
+    public void prolongResource (Long userId, Long resourceId) {
+        BillableResource resource = billableResourceRepository.findOneByOwnerId(userId, resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
         User owner = resource.getOwner();
@@ -154,6 +162,14 @@ public class ResourceService {
             deploymentFactory.getStrategy(resource.getResourceType())
                     .resume(resource);
         }
+    }
+
+    public void editResource(Long userId, Long resourceId, BillableResourceEditRequest editRequest) {
+        BillableResource resource = billableResourceRepository.findOneByOwnerId(userId, resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        billableResourceMapStruct.toEntity(editRequest, resource);
+        billableResourceRepository.save(resource);
     }
 
     @Transactional

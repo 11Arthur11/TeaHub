@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class WalletTransactionFilterRequest extends AbstractPaginationRequest {
+public class WalletTransactionFilterRequest extends BasePaginationRequest {
 
     private Long relatedResourceId;
     private TransactionType transactionType;

@@ -1,9 +1,12 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component;
 
+import dev.parhamziaei.teahub.dto.request.query.BasePaginationRequest;
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotGatewayException;
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.AudioBotUri;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListDetailResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListItemResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListsResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceListResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceSettingsResponse;
@@ -21,6 +24,7 @@ import org.springframework.web.client.RestClient;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -117,14 +121,18 @@ public class AudioBotGateway {
 
     public void checkResponse(ResponseEntity<?> response, AudioBotNode audioBotNode, AudioBotUri uri) {
         if (response.getStatusCode().is2xxSuccessful()) {
-            log.info("MusicBot-Gateway -> Command ({}{}) executed successfully", audioBotNode.getWebAddress(), uri.value());
+            log.info("MusicBot-Gateway -> Command [{}{}] executed successfully", audioBotNode.getWebAddress(), uri.value());
+            if (response.getBody() != null)
+                log.debug(response.getBody().toString());
         } else {
-            log.warn("MusicBot-Gateway -> Command ({}{}) sent but responded with ({}) status code, body: {}",
+            log.warn("MusicBot-Gateway -> Command [{}{}] sent but responded with ({}) status code, body: {}",
                     audioBotNode.getWebAddress(),
                     uri,
                     response.getStatusCode(),
                     response.getBody()
             );
+            if (response.getBody() != null)
+                log.debug(response.getBody().toString());
             throw new AudioBotHttpException("STATUS:" + response.getStatusCode());
         }
     }
@@ -157,6 +165,7 @@ public class AudioBotGateway {
                 .settings()
                 .create(identifier)
                 .build();
+
         execute(audioBotNode, createUri);
     }
 
@@ -202,6 +211,15 @@ public class AudioBotGateway {
         execute(resource.getParentNode(), setNickname);
     }
 
+    public void updateInstanceNickname(AudioBotResource resource, Long botId, String nickname) {
+        final AudioBotUri setNickname = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .updateNickname(nickname)
+                .build();
+
+        execute(resource.getParentNode(), setNickname);
+    }
 
     public List<ABInstanceListResponse> getInstanceList(AudioBotNode audioBotNode) {
         AudioBotUri getListUri = AudioBotUri.builder()
@@ -245,16 +263,16 @@ public class AudioBotGateway {
         execute(resource.getParentNode(), setConnectOnRuntimeUri);
     }
 
-    public void createNewPlaylist(AudioBotResource resource, Long botId, String fileName, String playlistName) {
-        final AudioBotUri createNewPlaylistUri = AudioBotUri.builder()
-                .bot()
-                .use(botId)
-                .playlist()
-                .create(fileName, playlistName)
-                .build();
-
-        execute(resource.getParentNode(), createNewPlaylistUri);
-    }
+//    public void createNewPlaylist(AudioBotResource resource, Long botId, String fileName, String playlistName) {
+//        final AudioBotUri createNewPlaylistUri = AudioBotUri.builder()
+//                .bot()
+//                .use(botId)
+//                .playlist()
+//                .create(fileName, playlistName)
+//                .build();
+//
+//        execute(resource.getParentNode(), createNewPlaylistUri);
+//    }
 
     public List<ABPlayListsResponse> getInstancePlayLists(AudioBotResource resource, Long botId) {
         final AudioBotUri getPlaylistsUri = AudioBotUri.builder()
@@ -282,6 +300,69 @@ public class AudioBotGateway {
                 .build();
 
         execute(resource.getParentNode(), setPassword);
+    }
+
+    public void createPlaylist(AudioBotResource resource, Long botId, String playlistName) {
+        final AudioBotUri createPlaylistUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .playlist()
+                .create(UUID.randomUUID().toString(), playlistName)
+                .build();
+
+        execute(resource.getParentNode(), createPlaylistUri);
+    }
+
+    public void deletePlaylist(AudioBotResource resource, Long botId, String playlistFilename) {
+        final AudioBotUri deletePlaylistUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .playlist()
+                .delete(playlistFilename)
+                .build();
+
+        execute(resource.getParentNode(), deletePlaylistUri);
+    }
+
+    public void addTrackToPlaylist(AudioBotResource resource, Long botId, String playlistFilename, String trackLink) {
+        final AudioBotUri addTrackUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .playlist()
+                .itemAdd(playlistFilename, trackLink)
+                .build();
+
+        execute(resource.getParentNode(), addTrackUri);
+    }
+
+    public ABPlayListDetailResponse getPlaylistDetail(AudioBotResource resource, Long botId, String playlistFilename, BasePaginationRequest paginationRequest) {
+        final AudioBotUri getPlaylistsUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .playlist()
+                .show(
+                        playlistFilename,
+                        paginationRequest.getPage(),
+                        paginationRequest.getSize()
+                )
+                .build();
+
+        ResponseEntity<ABPlayListDetailResponse> playlistsResponse = getClient(resource.getParentNode()).get()
+                .uri(getPlaylistsUri.value())
+                .retrieve()
+                .toEntity(ABPlayListDetailResponse.class);
+
+        checkResponse(playlistsResponse, resource.getParentNode(), getPlaylistsUri);
+
+        ABPlayListDetailResponse playlistDetail = playlistsResponse.getBody();
+
+        if (playlistDetail != null && playlistDetail.getPlayListItems() != null) {
+            for (int i=0; i<playlistDetail.getPlayListItems().size(); i++) {
+                playlistDetail.getPlayListItems().get(i).setOrder(i);
+            }
+        }
+
+        return playlistsResponse.getBody();
     }
 
 }

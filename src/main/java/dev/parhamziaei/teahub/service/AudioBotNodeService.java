@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.service;
 
+import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeEditRequest;
 import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeInitRequest;
 import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeDetailResponse;
 import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeListResponse;
@@ -8,11 +9,14 @@ import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotAlreadyInitiatedException;
+import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotNodeHasActiveInstanceException;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotGateway;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotNodeManager;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceListResponse;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
+import dev.parhamziaei.teahub.service.mapper.AudioBotMapStruct;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +31,7 @@ public class AudioBotNodeService {
     private final MessageService messageService;
     private final AudioBotGateway audioBotGateway;
     private final AudioBotNodeManager audioBotNodeManager;
+    private final AudioBotMapStruct audioBotMapStruct;
 
     public void initiateNode(AudioBotNodeInitRequest nodeInitRequest) {
         if (audioBotNodeRepository.existsByWebAddress(nodeInitRequest.getWebAddress()))
@@ -83,6 +88,26 @@ public class AudioBotNodeService {
                 );
 
         return nodeResponse;
+    }
+
+    public void editNode(Long nodeId, AudioBotNodeEditRequest editRequest) {
+        AudioBotNode node = audioBotNodeRepository.findById(nodeId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        audioBotMapStruct.toEntity(editRequest, node);
+        node.setNodeStatus(audioBotNodeManager.calculateNodeStatus(node));
+        audioBotNodeRepository.save(node);
+    }
+
+    public void deleteNode(Long nodeId) {
+        AudioBotNode node = audioBotNodeRepository.findById(nodeId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        Hibernate.initialize(node.getInstances());
+        if (node.getInstances().isEmpty())
+            audioBotNodeRepository.delete(node);
+        else
+            throw new AudioBotNodeHasActiveInstanceException();
     }
 
 }

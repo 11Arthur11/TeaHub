@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ABPlayListItemResponse {
 
+    private Integer order;
+
     @JsonProperty("Link")
     private String link;
 

@@ -1,7 +1,9 @@
 package dev.parhamziaei.teahub.service;
 
-import dev.parhamziaei.teahub.dto.request.resource.user.EditAudioBotResourceRequest;
-import dev.parhamziaei.teahub.dto.response.audio_bot.user.AudioBotPlayListsUserResponse;
+import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistTrackAddRequest;
+import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistCreateRequest;
+import dev.parhamziaei.teahub.dto.request.query.BasePaginationRequest;
+import dev.parhamziaei.teahub.dto.request.resource.user.AudioBotResourceEditRequest;
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.entity.jpa.shop.AudioBotProduct;
@@ -17,12 +19,15 @@ import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotGateway;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotNodeManager;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceListResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceSettingsResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListDetailResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListsResponse;
 import dev.parhamziaei.teahub.kafka.event.resource.AudioBotDeployEvent;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.service.mapper.AudioBotMapStruct;
+import dev.parhamziaei.teahub.utils.UriUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -77,7 +82,6 @@ public class AudioBotService {
         resource.setResourceStatus(ResourceStatus.ACTIVE);
     }
 
-    @Transactional
     public AudioBotResource loadResourceByPermission(Long userId, Long resourceId) {
         User user = userRepo.findById(userId)
                 .orElseThrow(NoSuchEntityException::new);
@@ -111,7 +115,6 @@ public class AudioBotService {
         return audioBotGateway.getInstanceSettings(resource);
     }
 
-    @Transactional
     public void stopInstance(Long userId, Long resourceId) {
         AudioBotResource resource = loadResourceByPermission(userId, resourceId);
         ABInstanceListResponse instance = getInstanceFromNode(resource);
@@ -121,7 +124,6 @@ public class AudioBotService {
             throw new ActionNotExecutableException("Instance is already disconnected");
     }
 
-    @Transactional
     public void startInstance(Long userId, Long resourceId) {
         AudioBotResource resource = loadResourceByPermission(userId, resourceId);
         ABInstanceListResponse instance = getInstanceFromNode(resource);
@@ -131,17 +133,17 @@ public class AudioBotService {
             throw new ActionNotExecutableException("Instance is already connected");
     }
 
-    @Transactional
     protected void changeInstanceNickname(AudioBotResource resource, String newNickname) {
         ABInstanceListResponse instance = getInstanceFromNode(resource);
-        if (instance.getStatus().equals(AudioBotStatus.OFFLINE))
+        if (instance.getStatus().equals(AudioBotStatus.OFFLINE)) {
             audioBotGateway.setInstanceConnectNickname(resource, newNickname);
-        else
+        } else {
             audioBotGateway.setInstanceConnectNickname(resource, instance.getId(), newNickname);
+            audioBotGateway.updateInstanceNickname(resource, instance.getId(), newNickname);
+        }
     }
 
-    @Transactional
-    public void editInstance(Long userId, Long resourceId, EditAudioBotResourceRequest editRequest) {
+    public void editInstance(Long userId, Long resourceId, AudioBotResourceEditRequest editRequest) {
         AudioBotResource resource = loadResourceByPermission(userId, resourceId);
         if (editRequest.getServerAddress() != null)
             audioBotGateway.setInstanceConnectAddress(resource, editRequest.getServerAddress());
@@ -152,15 +154,73 @@ public class AudioBotService {
         audioBotMapStruct.toEntity(editRequest, resource);
     }
 
-    @Transactional
-    public List<AudioBotPlayListsUserResponse> getInstancePlayLists(Long userId, Long resourceId) {
+    public List<ABPlayListsResponse> getInstancePlayLists(Long userId, Long resourceId) {
         AudioBotResource resource = loadResourceByPermission(userId, resourceId);
         ABInstanceListResponse instance = getInstanceFromNode(resource);
         if (!instance.getStatus().equals(AudioBotStatus.CONNECTED))
             throw new AudioBotMustBeConnectedException();
-        return audioBotGateway.getInstancePlayLists(resource, instance.getId())
-                .stream()
-                .map(abp -> modelMapper.map(abp, AudioBotPlayListsUserResponse.class))
-                .toList();
+        return audioBotGateway.getInstancePlayLists(resource, instance.getId());
     }
+
+    public ABPlayListDetailResponse getInstancePlayListDetail(Long userId, Long resourceId, String playlistFilename, BasePaginationRequest paginationRequest) {
+        AudioBotResource resource = loadResourceByPermission(userId, resourceId);
+        ABInstanceListResponse instance = getInstanceFromNode(resource);
+        if (!instance.getStatus().equals(AudioBotStatus.CONNECTED))
+            throw new AudioBotMustBeConnectedException();
+
+        return audioBotGateway.getPlaylistDetail(
+                resource,
+                instance.getId(),
+                playlistFilename,
+                paginationRequest
+        );
+    }
+
+    public void createPlayList(Long userId, Long resourceId, AudioBotPlaylistCreateRequest playlistRequest) {
+        AudioBotResource resource = loadResourceByPermission(userId, resourceId);
+        ABInstanceListResponse instance = getInstanceFromNode(resource);
+        if (!instance.getStatus().equals(AudioBotStatus.CONNECTED))
+            throw new AudioBotMustBeConnectedException();
+
+        audioBotGateway.createPlaylist(
+                resource,
+                instance.getId(),
+                playlistRequest.getPlaylistName()
+        );
+    }
+
+    public void deletePlayList(Long userId, Long resourceId, String playlistFilename) {
+        AudioBotResource resource = loadResourceByPermission(userId, resourceId);
+        ABInstanceListResponse instance = getInstanceFromNode(resource);
+        if (!instance.getStatus().equals(AudioBotStatus.CONNECTED))
+            throw new AudioBotMustBeConnectedException();
+
+        audioBotGateway.deletePlaylist(
+                resource,
+                instance.getId(),
+                playlistFilename
+        );
+    }
+
+    public void addLinkToPlayList(
+            Long userId,
+            Long resourceId,
+            String playlistFilename,
+            AudioBotPlaylistTrackAddRequest trackAddRequest
+    ) {
+        AudioBotResource resource = loadResourceByPermission(userId, resourceId);
+        ABInstanceListResponse instance = getInstanceFromNode(resource);
+        if (!instance.getStatus().equals(AudioBotStatus.CONNECTED))
+            throw new AudioBotMustBeConnectedException();
+
+//        String trackLink = UriUtils.encodeURIComponent(trackAddRequest.getTrackLink());
+
+        audioBotGateway.addTrackToPlaylist(
+                resource,
+                instance.getId(),
+                playlistFilename,
+                trackAddRequest.getTrackLink()
+        );
+    }
+
 }

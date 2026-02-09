@@ -129,7 +129,7 @@ public class TicketAdminController {
             @RequestPart("ticket") TicketAdminRequest ticketRequest,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        ticketService.submit(currentUser.getId(), ticketRequest, files);
+        ticketService.submit(currentUser.getId(), ticketRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.TICKET_SUBMITTED),

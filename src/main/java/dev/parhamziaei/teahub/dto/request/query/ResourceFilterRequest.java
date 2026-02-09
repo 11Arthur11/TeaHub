@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ResourceFilterRequest extends AbstractPaginationRequest{
+public class ResourceFilterRequest extends BasePaginationRequest {
 
     private ResourceStatus byResourceStatus;
     private ResourceType byType;

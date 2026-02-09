@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.controller.admin;
 
+import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeEditRequest;
 import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeInitRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
@@ -33,6 +34,36 @@ public class AudioBotNodeController {
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.AUDIO_BOT_NODE_INITIATED),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "edit a audio bot node",
+            description = "edit an existing audio bot node based on the provided configuration.",
+            tags = {"Audio Bot Node (Admin)"}
+    )
+    @PostMapping("/{nodeId}/edit")
+    public ResponseEntity<SimpleResponse> editAudioBotNode(@PathVariable Long nodeId, @RequestBody AudioBotNodeEditRequest editRequest) {
+        audioBotNodeService.editNode(nodeId, editRequest);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.AUDIO_BOT_NODE_INITIATED),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "edit a audio bot node",
+            description = "delete an existing audio bot node. can't delete a node with active resource",
+            tags = {"Audio Bot Node (Admin)"}
+    )
+    @DeleteMapping("/{nodeId}")
+    public ResponseEntity<SimpleResponse> deleteAudioBotNode(@PathVariable Long nodeId) {
+        audioBotNodeService.deleteNode(nodeId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
                 HttpStatus.OK
         );
     }

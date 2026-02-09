@@ -9,10 +9,7 @@ import dev.parhamziaei.teahub.exception.custom.global.ConflictEntityException;
 import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
-import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotAlreadyInitiatedException;
-import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotGatewayException;
-import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotMustBeConnectedException;
-import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotSynchronizationException;
+import dev.parhamziaei.teahub.exception.custom.service.audio_bot.*;
 import dev.parhamziaei.teahub.exception.custom.service.payment.*;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
@@ -220,7 +217,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AudioBotAlreadyInitiatedException.class)
     public ResponseEntity<SimpleResponse> handleAudioBotAlreadyInitiatedException(AudioBotAlreadyInitiatedException e) {
         return ResponseBuilder.buildError(
-                messageService.get(ServiceMessage.AUDIO_BOT_WEB_ADDRESS_ALREADY_INITIATED) + e.getMessage(),
+                messageService.get(ServiceMessage.AUDIO_BOT_NODE_WEB_ADDRESS_ALREADY_INITIATED) + e.getMessage(),
                 HttpStatus.BAD_REQUEST
         );
     }
@@ -246,6 +243,14 @@ public class GlobalExceptionHandler {
         return ResponseBuilder.buildError(
                 messageService.get(ServiceMessage.DEFAULT_ACTION_FAILED),
                 HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
+
+    @ExceptionHandler(AudioBotNodeHasActiveInstanceException.class)
+    public ResponseEntity<SimpleResponse> handleAudioBotNodeHasActiveInstanceException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.AUDIO_BOT_NODE_HAS_ACTIVE_INSTANCE),
+                HttpStatus.BAD_REQUEST
         );
     }
 
