@@ -35,9 +35,6 @@ public class ResponseDecoder {
                 String soFar = outByte.toString(StandardCharsets.UTF_8);
                 if (soFar.contains("msg=") && soFar.length() - 6 >= soFar.lastIndexOf("msg=")) break;
             }
-            if (len == 0) {
-                try { Thread.sleep(10); } catch (InterruptedException ignored) {}
-            }
         }
 
         return outByte.toString(StandardCharsets.UTF_8);

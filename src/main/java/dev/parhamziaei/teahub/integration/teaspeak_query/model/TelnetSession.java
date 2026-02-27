@@ -28,15 +28,18 @@ public class TelnetSession {
     private PrintStream out;
     private InputStream in;
 
+    private int connectTimeout;
+
     private final ReentrantLock poolLock = new ReentrantLock();
     private final Semaphore lock = new Semaphore(1);
     private final AtomicReference<TelnetSessionState> state = new AtomicReference<>();
 
-    public TelnetSession(TelnetClient client, ServerQueryCredentials credentials) {
+    public TelnetSession(TelnetClient client, ServerQueryCredentials credentials, int connectTimeout) {
         this.client = client;
         this.credentials = credentials;
         this.out = new PrintStream(client.getOutputStream());
         this.in = client.getInputStream();
+        this.connectTimeout = connectTimeout;
     }
 
     public String getKey() {
@@ -58,8 +61,11 @@ public class TelnetSession {
     }
 
     public String execute(String command) {
+        boolean acquired = false;
         try {
             this.lock.acquire();
+            acquired = true;
+            this.client.setSoTimeout(connectTimeout);
             out.println(command);
             out.flush();
             log.debug("Telnet Query -> command: [{}] executed to ({})", command, getKey());
@@ -74,7 +80,8 @@ public class TelnetSession {
             log.warn("Telnet Query -> unexpected error while executing ({}) to {}:{}",  command, credentials.ip(), credentials.port(), e);
             throw new QueryCommandExecutionException("unexpected error while executing command: " + command);
         } finally {
-            this.lock.release();
+            if (acquired)
+                this.lock.release();
         }
     }
 

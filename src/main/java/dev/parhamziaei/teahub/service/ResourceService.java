@@ -132,6 +132,8 @@ public class ResourceService {
 
             resource.setExpiration(LocalDateTime.now().plus(product.getExpiration()));
         } catch (InsufficientBalanceException ignored) {
+            resource.setResourceStatus(ResourceStatus.PENDING_PROLONG);
+
             deploymentFactory.getStrategy(resource.getResourceType())
                     .suspend(resource);
 
@@ -142,7 +144,7 @@ public class ResourceService {
     }
 
     @Transactional
-    public void prolongResource (Long userId, Long resourceId) {
+    public void prolongResource(Long userId, Long resourceId) {
         BillableResource resource = billableResourceRepository.findOneByOwnerId(userId, resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
@@ -155,6 +157,11 @@ public class ResourceService {
                 product.getPrice().getAmount(),
                 TransactionReason.PROLONG,
                 resourceId
+        );
+
+        // ? prolonging resource
+        resource.setExpiration(
+                resource.getExpiration().plus(product.getExpiration())
         );
 
         if (resource.getResourceStatus() == ResourceStatus.PENDING_PROLONG) {

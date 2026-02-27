@@ -104,7 +104,6 @@ public class Initialization implements CommandLineRunner {
         Role adminRole = roleRepository.findByName(Roles.ADMIN.value())
                 .orElseThrow(() -> new NoSuchRoleException(Roles.ADMIN.value()));
         UserSetting userSetting = new UserSetting();
-        Wallet wallet = new Wallet();
         User adminUser = User.builder()
                 .email(initProperties.adminEmail())
                 .phone(initProperties.adminPhoneNumber())
@@ -114,7 +113,7 @@ public class Initialization implements CommandLineRunner {
                 .build();
 
         adminUser.setRole(adminRole);
-        adminUser.setWallet(wallet);
+        adminUser.setWallet(new Wallet());
         adminUser.setSetting(userSetting);
         userRepository.save(adminUser);
     }

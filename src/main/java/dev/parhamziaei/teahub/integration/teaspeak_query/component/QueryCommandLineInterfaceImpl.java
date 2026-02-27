@@ -1,5 +1,8 @@
 package dev.parhamziaei.teahub.integration.teaspeak_query.component;
 
+import com.github.theholywaffle.teamspeak3.TS3Api;
+import com.github.theholywaffle.teamspeak3.TS3Config;
+import com.github.theholywaffle.teamspeak3.TS3Query;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.request.TSCreateQueryRequest;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSCreateQueryResponse;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSPrivilegeAddResponse;
@@ -98,7 +101,6 @@ public class QueryCommandLineInterfaceImpl implements QueryCLI{
         session.execute(commandFactory.deletePrivilegeCommand(token));
         connectionPool.returnToPool(session);
     }
-
 
 
 }

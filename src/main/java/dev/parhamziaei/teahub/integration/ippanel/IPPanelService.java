@@ -60,8 +60,8 @@ public class IPPanelService {
                     .retrieve()
                     .toEntity(PatternMessageResponse.class);
 
-            assert response.getBody() != null;
-            log.info("SMS sent success: {}", response.getBody().getMeta().isOk());
+            if (response.getBody() != null)
+                log.info("SMS sent success: {}", response.getBody().getMeta().isOk());
         } catch (RestClientException e) {
             log.error("SMS sending error: {}", e.getMessage());
         }

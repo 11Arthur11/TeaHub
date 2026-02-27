@@ -16,34 +16,34 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InvoiceController {
 
-    private final CurrentUser currentUser;
-    private final InvoiceService invoiceService;
-
-    @GetMapping
-    public ResponseEntity<?> getInvoices(@ModelAttribute InvoiceFilterRequest request) {
-        return ResponseBuilder.buildSuccess(
-                ResponseType.DATA,
-                invoiceService.getByUserId(
-                        PageRequest.of(
-                                request.getPage(),
-                                request.getSize()),
-                        currentUser.getId(),
-                        request.getStatus()
-                ),
-                HttpStatus.OK
-        );
-    }
-
-    @GetMapping("/{invoiceToken}")
-    public ResponseEntity<?> getInvoice(@PathVariable("invoiceToken") String invoiceToken) {
-        return ResponseBuilder.buildSuccess(
-                ResponseType.DATA,
-                invoiceService.getOwnInvoice(
-                        currentUser.getId(),
-                        invoiceToken
-                ),
-                HttpStatus.OK
-        );
-    }
+//    private final CurrentUser currentUser;
+//    private final InvoiceService invoiceService;
+//
+//    @GetMapping
+//    public ResponseEntity<?> getInvoices(@ModelAttribute InvoiceFilterRequest request) {
+//        return ResponseBuilder.buildSuccess(
+//                ResponseType.DATA,
+//                invoiceService.getByUserId(
+//                        PageRequest.of(
+//                                request.getPage(),
+//                                request.getSize()),
+//                        currentUser.getId(),
+//                        request.getStatus()
+//                ),
+//                HttpStatus.OK
+//        );
+//    }
+//
+//    @GetMapping("/{invoiceToken}")
+//    public ResponseEntity<?> getInvoice(@PathVariable("invoiceToken") String invoiceToken) {
+//        return ResponseBuilder.buildSuccess(
+//                ResponseType.DATA,
+//                invoiceService.getOwnInvoice(
+//                        currentUser.getId(),
+//                        invoiceToken
+//                ),
+//                HttpStatus.OK
+//        );
+//    }
 
 }

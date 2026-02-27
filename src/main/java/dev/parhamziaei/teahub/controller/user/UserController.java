@@ -26,9 +26,6 @@ import java.util.Map;
 public class UserController {
 
     private final CurrentUser currentUser;
-    private final PaymentService paymentService;
-    private final MessageService messageService;
-    private final WalletService walletService;
     private final UserService userService;
 
     @GetMapping
@@ -43,28 +40,5 @@ public class UserController {
         );
     }
 
-    @Operation(summary = "Redirect user to /v1/invoices/{invoiceToken} - invoice Token will send as data with response")
-    @PostMapping("/wallet/charge")
-    public ResponseEntity<?> chargeWallet(@RequestBody BalanceChargeRequest request) {
-        String invoiceToken = paymentService.createChargeWalletInvoice(
-                currentUser.getId(),
-                request.getAmount()
-        );
-        return ResponseBuilder.buildSuccess(
-                ResponseType.PROCESSING,
-                messageService.get(ServiceMessage.PAYMENT_INVOICE_CREATED),
-                Map.of("invoiceToken", invoiceToken),
-                HttpStatus.OK
-        );
-    }
-
-    @GetMapping("/wallet/transactions")
-    public ResponseEntity<?> getWalletTransactions(@RequestBody WalletTransactionFilterRequest filter) {
-        return ResponseBuilder.buildSuccess(
-                ResponseType.DATA,
-                walletService.getWalletTransactions(currentUser.getWalletId(), filter),
-                HttpStatus.OK
-        );
-    }
 
 }

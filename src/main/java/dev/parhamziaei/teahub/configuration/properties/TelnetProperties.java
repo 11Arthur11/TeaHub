@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.configuration.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.relational.core.sql.In;
 
 import java.time.Duration;
 
@@ -8,6 +9,7 @@ import java.time.Duration;
 public record TelnetProperties(
         Integer defaultTimeoutMillis,
         Duration reconnectDelay,
-        Integer reconnectTries
+        Integer reconnectTries,
+        Integer commandTimeout
 ) {
 }

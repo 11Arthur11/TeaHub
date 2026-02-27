@@ -47,7 +47,6 @@ public class AudioBotService {
     private final AudioBotResourceRepository audioBotResourceRepository;
     private final UserRepository userRepo;
     private final AudioBotMapStruct audioBotMapStruct;
-    private final ModelMapper modelMapper;
 
     @Transactional
     public void deployInstance(AudioBotDeployEvent event) {
