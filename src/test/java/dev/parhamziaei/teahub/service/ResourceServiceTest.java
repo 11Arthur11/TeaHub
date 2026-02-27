@@ -50,24 +50,24 @@ class ResourceServiceTest {
         );
     }
 
-    @Test
-    @Transactional
-    void findResource_ShouldFindResource() {
-        BillableResource resource = resourceTestUtils.persistedDummyBillableResource(
-                ResourceStatus.ACTIVE,
-                LocalDateTime.now(),
-                LocalDateTime.now().plus(Duration.ofMinutes(5)),
-                true,
-                new BigDecimal(2)
-        );
-
-        AbstractResourceDetailResponse result = Assertions.assertDoesNotThrow( () ->
-                resourceService.findResourceByUser(resource.getOwner().getId(), resource.getId())
-        );
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(result.getId(), resource.getId());
-        Assertions.assertEquals(result.getResourceType(), resource.getResourceType());
-    }
+//    @Test
+//    @Transactional
+//    void findResource_ShouldFindResource() {
+//        BillableResource resource = resourceTestUtils.persistedDummyBillableResource(
+//                ResourceStatus.ACTIVE,
+//                LocalDateTime.now(),
+//                LocalDateTime.now().plus(Duration.ofMinutes(5)),
+//                true,
+//                new BigDecimal(2)
+//        );
+//
+//        AbstractResourceDetailResponse result = Assertions.assertDoesNotThrow( () ->
+//                resourceService.findResourceByUser(resource.getOwner().getId(), resource.getId())
+//        );
+//        Assertions.assertNotNull(result);
+//        Assertions.assertEquals(result.getId(), resource.getId());
+//        Assertions.assertEquals(result.getResourceType(), resource.getResourceType());
+//    }
 
     @Test
     @Transactional

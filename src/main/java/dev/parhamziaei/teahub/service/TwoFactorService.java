@@ -90,8 +90,9 @@ public class TwoFactorService {
 
         // ! for fast testing
         log.debug("two factor: {}", session.getCode());
+
         String sessionId = UUID.randomUUID().toString();
-//        smsService.sendTwoFactorSMS(session.getCode(), session.getPhoneNumber());
+        smsService.sendTwoFactorSMS(session.getCode(), session.getPhoneNumber());
         session.setCode(encoder.encode(session.getCode()));
         twoFactorRepo.save(sessionId, session, sessionProperties.twoFactorSessionTtl());
         return sessionId;

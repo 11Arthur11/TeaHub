@@ -9,7 +9,6 @@ import java.time.Duration;
 public record TelnetProperties(
         Integer defaultTimeoutMillis,
         Duration reconnectDelay,
-        Integer reconnectTries,
-        Integer commandTimeout
+        Integer reconnectTries
 ) {
 }

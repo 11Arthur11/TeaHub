@@ -63,7 +63,8 @@ public class IPPanelService {
             if (response.getBody() != null)
                 log.info("SMS sent success: {}", response.getBody().getMeta().isOk());
         } catch (RestClientException e) {
-            log.error("SMS sending error: {}", e.getMessage());
+            // todo make this log the exception message
+            log.error("SMS sending error", e.getMessage());
         }
 
     }

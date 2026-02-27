@@ -30,14 +30,12 @@ public class TelnetConnectionPool {
     protected int telnetReconnectTries;
     protected Duration reconnectDelay;
     private final TelnetEventProducer telnetEventProducer;
-    protected final int defaultCommandTimeout;
 
     TelnetConnectionPool(TelnetProperties telnetProperties, TelnetEventProducer telnetEventProducer) {
         this.timeout = telnetProperties.defaultTimeoutMillis();
         this.telnetReconnectTries = telnetProperties.reconnectTries();
         this.reconnectDelay = telnetProperties.reconnectDelay();
         this.telnetEventProducer = telnetEventProducer;
-        this.defaultCommandTimeout = telnetProperties.commandTimeout();
     }
 
     public void addConnection(ServerQueryCredentials credentials) {
@@ -46,7 +44,7 @@ public class TelnetConnectionPool {
         try {
             client.connect(credentials.ip(), credentials.port());
             log.debug("Pooling-Operation -> Connected to {}:{}", credentials.ip(), credentials.port());
-            TelnetSession session = new TelnetSession(client, credentials, defaultCommandTimeout);
+            TelnetSession session = new TelnetSession(client, credentials);
 
             String key = session.getKey();
             session.login();
@@ -147,7 +145,7 @@ public class TelnetConnectionPool {
                             );
                             log.debug("Heartbeat-Operation -> successful to {}:{} , trying to login...", credentials.ip(), credentials.port());
 
-                            TelnetSession newSession = new TelnetSession(refreshedClient, credentials, defaultCommandTimeout);
+                            TelnetSession newSession = new TelnetSession(refreshedClient, credentials);
 
                             newSession.login();
                             log.debug("Heartbeat-Operation -> login successful to {}:{} , adding connection to pool...", credentials.ip(), credentials.port());
@@ -198,7 +196,7 @@ public class TelnetConnectionPool {
                 );
                 log.debug("Reconnect-Operation -> successful to {}:{} , trying to login...", credentials.ip(), credentials.port());
 
-                TelnetSession newSession = new TelnetSession(newClient, credentials, defaultCommandTimeout);
+                TelnetSession newSession = new TelnetSession(newClient, credentials);
 
                 newSession.login();
                 log.debug("Reconnect-Operation -> login successful to {}:{} , adding connection to pool...", credentials.ip(), credentials.port());

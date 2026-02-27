@@ -21,6 +21,7 @@ public class ExpirationDurationDeserializer extends JsonDeserializer<Duration> {
             throw new IllegalArgumentException(String.format("Invalid duration format: %s", text));
 
         long numberPart = Long.parseLong(text.substring(0, text.length() - 1));
+
         if (text.endsWith("d"))
             return Duration.ofDays(numberPart);
         if (text.endsWith("h"))
