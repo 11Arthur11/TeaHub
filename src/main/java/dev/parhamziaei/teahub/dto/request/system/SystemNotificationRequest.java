@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,7 +21,6 @@ public class SystemNotificationRequest {
     @NotBlank
     private String text;
 
-    @JsonDeserialize(using = ExpirationDurationDeserializer.class)
-    private String expiresAt;
+    private LocalDateTime expiresAt;
 
 }
