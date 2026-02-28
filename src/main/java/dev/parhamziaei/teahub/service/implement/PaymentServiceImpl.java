@@ -64,7 +64,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public String createPaymentGateway(String invoiceToken, Long gatewayId) {
+    public String createPaymentGatewayUri(String invoiceToken, Long gatewayId) {
         Gateway gatewayEntity = gatewayRepository.findById(gatewayId)
                 .orElseThrow(GatewayNotFoundException::new);
 
@@ -78,7 +78,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         PaymentGatewayHandler paymentHandler = paymentGatewayFactory.getGateway(gatewayEntity.getGatewayType());
-        return paymentHandler.createPaymentGate(invoice);
+        return paymentHandler.createPaymentGateway(invoice);
     }
 
     @Override

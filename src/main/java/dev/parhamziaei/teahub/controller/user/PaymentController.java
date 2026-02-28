@@ -39,7 +39,7 @@ public class PaymentController {
     ) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.PROCESSING,
-                new RedirectResponse(paymentService.createPaymentGateway(invoiceToken, gatewayId)),
+                new RedirectResponse(paymentService.createPaymentGatewayUri(invoiceToken, gatewayId)),
                 HttpStatus.CREATED
         );
     }

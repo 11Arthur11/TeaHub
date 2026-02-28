@@ -27,7 +27,6 @@ import dev.parhamziaei.teahub.repository.jpa.AudioBotProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.service.mapper.AudioBotMapStruct;
-import dev.parhamziaei.teahub.utils.UriUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

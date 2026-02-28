@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 public interface PaymentService {
     String createChargeWalletInvoice(Long userId, BigDecimal amount);
-    String createPaymentGateway(String invoiceToken, Long gatewayId);
+    String createPaymentGatewayUri(String invoiceToken, Long gatewayId);
     void verifyAPCallback(APCallbackRequest callbackRequest);
     <T extends CallbackRequest> void savePaymentTransaction(T callbackRequest, Invoice invoice, PaymentGatewayType gatewayType);
 }

@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<SimpleResponse> handleEntityInUseException(EntityInUseException e) {
         return ResponseBuilder.buildFailed(
                 ResponseType.FAILURE,
-                messageService.get(ServiceMessage.DEFAULT_IN_USE) +  e.getMessage(),
+                messageService.get(ServiceMessage.DEFAULT_IN_USE) + e.getMessage(),
                 HttpStatus.BAD_REQUEST
         );
     }

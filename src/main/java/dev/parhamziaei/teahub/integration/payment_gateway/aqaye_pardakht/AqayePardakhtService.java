@@ -110,7 +110,7 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
     }
 
     @Override
-    public String createPaymentGate(Invoice invoice) {
+    public String createPaymentGateway(Invoice invoice) {
         APTransactionRequest request = APTransactionRequest.builder()
                 .pin(apPinCode)
                 .amount(String.valueOf(invoice.getMoney().getAmount().intValue()))

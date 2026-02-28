@@ -1,0 +1,10 @@
+package dev.parhamziaei.teahub.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class ApplicationSettingsService {
+
+
+
+}
