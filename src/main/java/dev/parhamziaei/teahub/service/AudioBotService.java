@@ -212,6 +212,7 @@ public class AudioBotService {
             throw new AudioBotMustBeConnectedException();
 
 //        String trackLink = UriUtils.encodeURIComponent(trackAddRequest.getTrackLink());
+        //todo -> not working properly
 
         audioBotGateway.addTrackToPlaylist(
                 resource,

@@ -39,6 +39,7 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
     private String apPinCode;
     private final static String AP_PAYMENT_URL = "https://panel.aqayepardakht.ir/startpay/sandbox/";
     private final String callbackUrl;
+    private final PaymentServiceProperties paymentProperties;
 
     public AqayePardakhtService(
             PaymentServiceProperties paymentProperties,
@@ -46,6 +47,7 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
             ApplicationSettingProperties appSetting,
             InvoiceRepository invoiceRepo
     ) {
+        this.paymentProperties = paymentProperties;
         this.invoiceRepo = invoiceRepo;
         this.gatewayRepo = gatewayRepo;
         this.callbackUrl = appSetting.backendDomain() + "/v1/payments/gateway/callback/ap"; //appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
@@ -111,9 +113,12 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
 
     @Override
     public String createPaymentGateway(Invoice invoice) {
+        int invoiceAmount = invoice.getMoney().getAmount().intValue();
+        int finalAmount = (invoiceAmount + invoiceAmount * (paymentProperties.taxPercentage() / 100));
+
         APTransactionRequest request = APTransactionRequest.builder()
                 .pin(apPinCode)
-                .amount(String.valueOf(invoice.getMoney().getAmount().intValue()))
+                .amount(String.valueOf(finalAmount))
                 .callback(callbackUrl)
                 .invoice_id(invoice.getInvoiceToken())
                 .build();

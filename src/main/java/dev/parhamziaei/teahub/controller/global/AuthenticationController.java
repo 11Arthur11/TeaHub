@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -143,9 +144,8 @@ public class AuthenticationController {
         final Optional<String> optionalSessionToken = jwtService.extractJwtFromRequest(request, JwtType.TWO_FACTOR_TOKEN);
 
         // note: if user try to log in with no active session this will handle it
-        if (optionalSessionToken.isEmpty()) {
+        if (optionalSessionToken.isEmpty())
             throw new InvalidTwoFactorException("invalid login two factor token");
-        }
         final String loginTwoFactorToken = optionalSessionToken.get();
         final String phoneNumber = jwtService.getPhoneNumber(loginTwoFactorToken);
 

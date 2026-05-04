@@ -192,6 +192,4 @@ public class QueryInstanceService {
         queryInstanceRepo.delete(instance);
     }
 
-
-
 }
