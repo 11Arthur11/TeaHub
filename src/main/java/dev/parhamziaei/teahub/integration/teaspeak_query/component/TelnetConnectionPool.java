@@ -39,6 +39,9 @@ public class TelnetConnectionPool {
     }
 
     public void addConnection(ServerQueryCredentials credentials) {
+        if (connections.containsKey(getKey(credentials)))
+            removeConnection(credentials);
+
         TelnetClient client = new TelnetClient();
         client.setConnectTimeout(timeout);
         try {
@@ -118,11 +121,11 @@ public class TelnetConnectionPool {
     @Async
     @Scheduled(cron = "0 */1 * * * *")
     public void heartbeat() {
-        log.debug("Heartbeat-Operation -> started...");
         connections.values()
                 .stream()
                 .filter(s -> s.getState().get() != TelnetSessionState.BUSY)
                 .forEach(session -> {
+                    log.debug("Heartbeat-Operation -> started heartbeat for: {}", session.getKey());
                     boolean connected;
                     if (session.getClient().isConnected()) {
                         String versionResponse = session.execute("version");

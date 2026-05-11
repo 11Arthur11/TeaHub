@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.component.CurrentUser;
+import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceEditRequest;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
@@ -48,6 +49,21 @@ public class QueryInstanceController {
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.QUERY_INSTANCE_INITIATED),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "edit an existing query instance",
+            description = "edit query instance, if base credentials was edited, query will be re-dispatched.",
+            tags = {"Query Instance"}
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<SimpleResponse> editQueryInstance(@PathVariable Long id, @RequestBody QueryInstanceEditRequest editRequest) {
+        queryInstanceService.editQueryInstance(id, editRequest);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
                 HttpStatus.OK
         );
     }

@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
+import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceEditRequest;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
 import dev.parhamziaei.teahub.dto.response.teaspeak.admin.QueryInstanceListResponse;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
@@ -15,7 +16,9 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.TeaSpe
 import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.TeaSpeakProvisionStrategyHandler;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
+import dev.parhamziaei.teahub.service.mapper.QueryInstanceMapStruct;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -38,6 +41,7 @@ public class QueryInstanceService {
     private final TeaSpeakProvisionStrategyHandler strategyHandler;
     private final ModelMapper modelMapper;
     private final MessageService messageService;
+    private final QueryInstanceMapStruct mapStruct;
 
     public QueryInstanceService(
             QueryInstanceRepository queryInstanceRepo,
@@ -45,7 +49,8 @@ public class QueryInstanceService {
             QueryInstanceProperties queryInstanceProperties,
             TeaSpeakProvisionStrategyFactory teaSpeakProvisionStrategyFactory,
             ModelMapper modelMapper,
-            MessageService messageService
+            MessageService messageService,
+            QueryInstanceMapStruct mapStruct
     ) {
         this.queryInstanceRepo = queryInstanceRepo;
         this.connectionPool = connectionPool;
@@ -53,6 +58,7 @@ public class QueryInstanceService {
         this.strategyHandler = teaSpeakProvisionStrategyFactory.getStrategy();
         this.modelMapper = modelMapper;
         this.messageService = messageService;
+        this.mapStruct = mapStruct;
     }
 
     public QueryInstance loadQueryInstance(Long id) {
@@ -80,6 +86,24 @@ public class QueryInstanceService {
         QueryInstance queryInstance = queryInstanceRepo.findByAddress(ip, port)
                 .orElseThrow(QueryInstanceNotFoundException::new);
         queryInstance.setStatus(status);
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public void editQueryInstance(Long id, QueryInstanceEditRequest request) {
+        QueryInstance queryInstance = queryInstanceRepo.findById(id)
+                .orElseThrow(QueryInstanceNotFoundException::new);
+
+        mapStruct.toEntity(request, queryInstance);
+        mapStruct.credentialsMapping(request, queryInstance);
+
+        boolean credentialsEdited = request.getQueryUsername() != null || request.getQueryPassword() != null
+                || request.getQueryIpAddress() != null || request.getQueryPort() != null;
+
+        if (credentialsEdited)
+            dispatchQueryInstance(queryInstance);
+
+        queryInstanceRepo.update(queryInstance);
     }
 
     @Transactional
