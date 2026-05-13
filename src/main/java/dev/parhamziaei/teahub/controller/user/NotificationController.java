@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.controller.user;
 
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.system.user.SystemNotificationUserResponse;
 import dev.parhamziaei.teahub.entity.jpa.system.SystemNotification;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
@@ -22,7 +23,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<?> getAllGlobalNotifications() {
+    public ResponseEntity<DataResponse<List<SystemNotificationUserResponse>>> getAllGlobalNotifications() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 notificationService.getGlobalNotifications(SystemNotificationUserResponse.class),

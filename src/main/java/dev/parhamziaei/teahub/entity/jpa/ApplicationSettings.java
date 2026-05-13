@@ -13,7 +13,7 @@ import lombok.Setter;
 @Table
 @Getter
 @Setter
-public class ApplicationSetting {
+public class ApplicationSettings {
 
     @Id
     private final Long id = 1L;

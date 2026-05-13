@@ -5,6 +5,9 @@ import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.query.TicketFilterRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketMessageRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketUserRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
+import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
+import dev.parhamziaei.teahub.dto.response.ticket.AbstractTicketResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketDetailBaseResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketListUserResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
@@ -16,6 +19,7 @@ import dev.parhamziaei.teahub.service.interfaces.TicketService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -40,7 +44,7 @@ public class TicketController {
 
     @Operation(summary = "Getting all user tickets as list")
     @GetMapping
-    public ResponseEntity<?> getTickets(@ModelAttribute TicketFilterRequest filterRequest) {
+    public ResponseEntity<DataResponse<PagedModel<TicketListUserResponse>>> getTickets(@ModelAttribute TicketFilterRequest filterRequest) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 ticketService.getUserTickets(
@@ -57,7 +61,7 @@ public class TicketController {
             value = "/submit",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
-    public ResponseEntity<?> submitTicket(
+    public ResponseEntity<SimpleResponse> submitTicket(
             @RequestPart("ticket") TicketUserRequest ticketRequest,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
@@ -72,7 +76,7 @@ public class TicketController {
 
     @Operation(summary = "Ticket Details with all messages")
     @GetMapping("/detail/{id}")
-    public ResponseEntity<?> getTicketDetails(@PathVariable Long id) {
+    public ResponseEntity<DataResponse<TicketDetailBaseResponse>> getTicketDetails(@PathVariable Long id) {
         TicketDetailBaseResponse ticketDetails = ticketService.getTicketDetails(
                 id,
                 currentUser.getId(),
@@ -91,7 +95,7 @@ public class TicketController {
             value = "/detail/{ticketId}/message",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
-    public ResponseEntity<?> addTicketMessage(
+    public ResponseEntity<SimpleResponse> addTicketMessage(
             @PathVariable Long ticketId,
             @RequestPart("content") String content,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
@@ -110,7 +114,7 @@ public class TicketController {
     }
 
     @GetMapping("/attachment/{identifier}")
-    public ResponseEntity<?> getAttachment(@PathVariable String identifier) {
+    public ResponseEntity<Resource> getAttachment(@PathVariable String identifier) {
         ImageInternal image = ticketService.getTicketAttachment(identifier, currentUser.getId());
         return ResponseBuilder.buildImageResponse(image);
     }

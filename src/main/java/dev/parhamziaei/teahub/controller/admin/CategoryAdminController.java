@@ -1,7 +1,9 @@
 package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.shop.admin.CategoryAdminRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.CategoryListAdminResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.CategoryService;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/admin/categories")
@@ -28,7 +32,7 @@ public class CategoryAdminController {
             tags = {"Categories (Admin)"}
     )
     @GetMapping
-    public ResponseEntity<?> getAllCategories() {
+    public ResponseEntity<DataResponse<List<CategoryListAdminResponse>>> getAllCategories() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 categoryService.getAllCategories(),
@@ -43,7 +47,7 @@ public class CategoryAdminController {
             tags = {"Categories (Admin)"}
     )
     @PostMapping("/edit/{categoryId}")
-    public ResponseEntity<?> editCategory(
+    public ResponseEntity<SimpleResponse> editCategory(
             @Valid @RequestBody CategoryAdminRequest categoryAdminRequest,
             @PathVariable Long categoryId
     ) {
@@ -78,7 +82,7 @@ public class CategoryAdminController {
             tags = {"Categories (Admin)"}
     )
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long categoryId) {
+    public ResponseEntity<SimpleResponse> deleteCategory(@PathVariable Long categoryId) {
         categoryService.deleteCategory(categoryId);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,

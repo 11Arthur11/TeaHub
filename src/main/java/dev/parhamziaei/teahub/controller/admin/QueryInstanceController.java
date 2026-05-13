@@ -3,7 +3,9 @@ package dev.parhamziaei.teahub.controller.admin;
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceEditRequest;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
+import dev.parhamziaei.teahub.dto.response.teaspeak.admin.QueryInstanceListResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -15,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/admin/query-instances")
@@ -30,7 +34,7 @@ public class QueryInstanceController {
             tags = {"Query Instance"}
     )
     @GetMapping
-    public ResponseEntity<?> getAllQueryInstance() {
+    public ResponseEntity<DataResponse<List<QueryInstanceListResponse>>> getAllQueryInstance() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 queryInstanceService.getAllQueryInstance(),

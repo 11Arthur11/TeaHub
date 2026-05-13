@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.controller.user;
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.payment.user.BalanceChargeRequest;
 import dev.parhamziaei.teahub.dto.request.query.WalletTransactionFilterRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.user.user.UserDetailResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
@@ -29,7 +30,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<?> getProfile() {
+    public ResponseEntity<DataResponse<UserDetailResponse>> getProfile() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 userService.getProfile(

@@ -1,6 +1,5 @@
 package dev.parhamziaei.teahub.schedule.resource;
 
-import dev.parhamziaei.teahub.entity.jpa.ApplicationSetting;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.kafka.producer.ResourceEventProducer;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/test")
 public class TestController {
 
-    private final JwtService jwtService;
-
     @GetMapping("/ip")
     public ResponseEntity<?> getIp(
             HttpServletRequest request

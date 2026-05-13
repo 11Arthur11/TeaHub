@@ -1,11 +1,15 @@
 package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
+import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
+import dev.parhamziaei.teahub.dto.response.resource.ResourceListAdminResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.service.ResourceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +28,7 @@ public class ResourceAdminController {
             tags = {"Resource (Admin)"}
     )
     @PostMapping
-    public ResponseEntity<?> getAllResources(@RequestBody ResourceFilterRequest filter) {
+    public ResponseEntity<DataResponse<PagedModel<ResourceListAdminResponse>>> getAllResources(@RequestBody ResourceFilterRequest filter) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 resourceService.getAllResources(filter),
@@ -38,7 +42,7 @@ public class ResourceAdminController {
             tags = {"Resource (Admin)"}
     )
     @GetMapping("/{resourceId}")
-    public ResponseEntity<?> getResource(@PathVariable Long resourceId) {
+    public ResponseEntity<DataResponse<AbstractResourceDetailResponse>> getResource(@PathVariable Long resourceId) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 resourceService.findResource(resourceId),

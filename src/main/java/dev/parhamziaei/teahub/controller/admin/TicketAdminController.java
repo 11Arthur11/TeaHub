@@ -4,6 +4,8 @@ import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.query.TicketFilterRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketAdminRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketEditAdminRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
+import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketListAdminResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
@@ -43,7 +45,7 @@ public class TicketAdminController {
             tags = {"Ticket (Admin)"}
     )
     @GetMapping
-    public ResponseEntity<?> getAllTickets(
+    public ResponseEntity<DataResponse<PagedModel<TicketListAdminResponse>>> getAllTickets(
             @ModelAttribute @Valid TicketFilterRequest filterRequest
     ) {
         return ResponseBuilder.buildSuccess(
@@ -60,7 +62,7 @@ public class TicketAdminController {
             tags = {"Ticket (Admin)"}
     )
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getAllUserTickets(
+    public ResponseEntity<DataResponse<PagedModel<TicketListAdminResponse>>> getAllUserTickets(
             @ModelAttribute TicketFilterRequest filterRequest,
             @PathVariable Long userId
     ) {
@@ -82,7 +84,7 @@ public class TicketAdminController {
             tags = {"Ticket (Admin)"}
     )
     @PutMapping("/edit/{ticketId}")
-    public ResponseEntity<?> editTicket(
+    public ResponseEntity<SimpleResponse> editTicket(
             @Valid @RequestBody TicketEditAdminRequest editRequest,
             @PathVariable Long ticketId
     ) {
@@ -101,7 +103,7 @@ public class TicketAdminController {
             tags = {"Ticket (Admin)"}
     )
     @GetMapping("/detail/{ticketId}")
-    public ResponseEntity<?> getTicketDetails(@PathVariable Long ticketId){
+    public ResponseEntity<DataResponse<TicketDetailAdminResponse>> getTicketDetails(@PathVariable Long ticketId){
         TicketDetailAdminResponse ticket = ticketService.getTicketDetails(
                 ticketId,
                 currentUser.getId(),
@@ -125,10 +127,11 @@ public class TicketAdminController {
             value = "/submit",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
-    public ResponseEntity<?> submitTicket(
+    public ResponseEntity<SimpleResponse> submitTicket(
             @RequestPart("ticket") TicketAdminRequest ticketRequest,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
+        ticketRequest.getMessage().setFiles(files);
         ticketService.submit(currentUser.getId(), ticketRequest);
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,

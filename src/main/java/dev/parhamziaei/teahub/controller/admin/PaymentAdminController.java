@@ -1,9 +1,12 @@
 package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.payment.admin.GatewayConfigRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
+import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
+import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
 import dev.parhamziaei.teahub.service.GatewayService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
@@ -13,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/admin/payments")
@@ -29,7 +34,7 @@ public class PaymentAdminController {
             tags = {"Payment (Admin)"}
     )
     @GetMapping("/gateways/modules")
-    public ResponseEntity<?> getModules() {
+    public ResponseEntity<DataResponse<List<PaymentGatewayType>>> getModules() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 gatewayService.getGatewayTypes(),
@@ -43,7 +48,7 @@ public class PaymentAdminController {
             tags = {"Payment (Admin)"}
     )
     @GetMapping("/gateways/{id}")
-    public ResponseEntity<?> getGatewayDetails(@PathVariable Long id) {
+    public ResponseEntity<DataResponse<Gateway>> getGatewayDetails(@PathVariable Long id) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 gatewayService.getGatewayDetail(id),

@@ -2,6 +2,9 @@ package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeEditRequest;
 import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeInitRequest;
+import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeDetailResponse;
+import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeListResponse;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
@@ -14,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -74,7 +79,8 @@ public class AudioBotNodeController {
             tags = {"Audio Bot Node (Admin)"}
     )
     @GetMapping
-    public ResponseEntity<?> getAllAudioBotNodes() {
+    public
+    ResponseEntity<DataResponse<List<AudioBotNodeListResponse>>> getAllAudioBotNodes() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 audioBotNodeService.getNodeList(),
@@ -88,7 +94,7 @@ public class AudioBotNodeController {
             tags = {"Audio Bot Node (Admin)"}
     )
     @GetMapping("/{nodeId}")
-    public ResponseEntity<?> getAudioBotNodeDetail(@PathVariable Long nodeId) {
+    public ResponseEntity<DataResponse<AudioBotNodeDetailResponse>> getAudioBotNodeDetail(@PathVariable Long nodeId) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 audioBotNodeService.getNodeDetail(nodeId),

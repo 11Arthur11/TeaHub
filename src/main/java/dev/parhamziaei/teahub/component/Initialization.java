@@ -3,13 +3,12 @@ package dev.parhamziaei.teahub.component;
 import dev.parhamziaei.teahub.configuration.properties.InitializeProperties;
 import dev.parhamziaei.teahub.dto.request.shop.admin.CategoryAdminRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductInitRequest;
-import dev.parhamziaei.teahub.entity.jpa.ApplicationSetting;
+import dev.parhamziaei.teahub.entity.jpa.ApplicationSettings;
 import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
-import dev.parhamziaei.teahub.enums.shop.ProductType;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.enums.user.Roles;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
@@ -86,7 +85,7 @@ public class Initialization implements CommandLineRunner {
 
     public void initApplicationSetting() {
         if (applicationSettingRepository.findAll().isEmpty())
-            applicationSettingRepository.save(new ApplicationSetting());
+            applicationSettingRepository.save(new ApplicationSettings());
     }
 
     public void initRoles() {

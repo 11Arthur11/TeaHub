@@ -3,6 +3,9 @@ package dev.parhamziaei.teahub.controller.user;
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.payment.user.BalanceChargeRequest;
 import dev.parhamziaei.teahub.dto.request.query.WalletTransactionFilterRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
+import dev.parhamziaei.teahub.dto.response.global.DetailedDataResponse;
+import dev.parhamziaei.teahub.dto.response.user.WalletTransactionResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -11,6 +14,7 @@ import dev.parhamziaei.teahub.service.interfaces.PaymentService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +33,7 @@ public class WalletController {
 
     @Operation(summary = "Redirect user to /v1/invoices/{invoiceToken} - invoice Token will send as data with response")
     @PostMapping("/charge")
-    public ResponseEntity<?> chargeWallet(@RequestBody BalanceChargeRequest request) {
+    public ResponseEntity<DetailedDataResponse<Map<String, String>>> chargeWallet(@RequestBody BalanceChargeRequest request) {
         String invoiceToken = paymentService.createChargeWalletInvoice(
                 currentUser.getId(),
                 request.getAmount()
@@ -43,7 +47,8 @@ public class WalletController {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<?> getWalletTransactions(@RequestParam WalletTransactionFilterRequest filter) {
+    public
+    ResponseEntity<DataResponse<PagedModel<WalletTransactionResponse>>> getWalletTransactions(@RequestParam WalletTransactionFilterRequest filter) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 walletService.getWalletTransactions(currentUser.getWalletId(), filter),

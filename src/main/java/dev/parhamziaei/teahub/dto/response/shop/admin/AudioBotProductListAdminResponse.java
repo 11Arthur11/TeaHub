@@ -8,4 +8,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class AudioBotProductListAdminResponse extends AbstractProductListResponse {
     private Long providerNodeId;
+    private boolean enabled;
 }

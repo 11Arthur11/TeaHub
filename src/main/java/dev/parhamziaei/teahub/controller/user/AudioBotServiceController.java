@@ -5,16 +5,22 @@ import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistTrackAd
 import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistCreateRequest;
 import dev.parhamziaei.teahub.dto.request.query.BasePaginationRequest;
 import dev.parhamziaei.teahub.dto.request.resource.user.AudioBotResourceEditRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListDetailResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListsResponse;
 import dev.parhamziaei.teahub.service.AudioBotService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,7 +65,7 @@ public class AudioBotServiceController {
     }
 
     @GetMapping("/{resourceId}/playlists")
-    public ResponseEntity<?> getAudioBotPlaylists(@PathVariable Long resourceId) {
+    public ResponseEntity<DataResponse<List<ABPlayListsResponse>>> getAudioBotPlaylists(@PathVariable Long resourceId) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 audioBotService.getInstancePlayLists(currentUser.getId(), resourceId),
@@ -102,7 +108,7 @@ public class AudioBotServiceController {
     }
 
     @PostMapping("/{resourceId}/playlists/{playlistFilename}/details")
-    public ResponseEntity<?> getAudioBotPlaylistDetail(
+    public ResponseEntity<DataResponse<ABPlayListDetailResponse>> getAudioBotPlaylistDetail(
             @PathVariable Long resourceId,
             @PathVariable String playlistFilename,
             @RequestBody BasePaginationRequest paginationRequest

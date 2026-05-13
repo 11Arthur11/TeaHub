@@ -3,7 +3,10 @@ package dev.parhamziaei.teahub.controller.user;
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
 import dev.parhamziaei.teahub.dto.request.resource.user.BillableResourceEditRequest;
+import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
+import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
+import dev.parhamziaei.teahub.dto.response.resource.ResourceListResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -14,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/services")
@@ -35,7 +40,7 @@ public class ResourceServiceController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getResources() {
+    public ResponseEntity<DataResponse<List<ResourceListResponse>>> getResources() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 resourceService.getAllUserResources(currentUser.getId()),
@@ -44,7 +49,7 @@ public class ResourceServiceController {
     }
 
     @GetMapping("/{resourceId}")
-    public ResponseEntity<?> getResourceById(@PathVariable Long resourceId) {
+    public ResponseEntity<DataResponse<AbstractResourceDetailResponse>> getResourceById(@PathVariable Long resourceId) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 resourceService.findResourceByUser(currentUser.getId(), resourceId),
