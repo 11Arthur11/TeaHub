@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 @ConfigurationProperties("app.service.payment")
 public record PaymentServiceProperties(
         BigDecimal minimumWalletChargeAmountIrt,
-        Integer taxPercentage
+        Integer taxPercentage,
+        String paymentSuccessRedirectUri,
+        String paymentFailedRedirectUri
 ) {
 }

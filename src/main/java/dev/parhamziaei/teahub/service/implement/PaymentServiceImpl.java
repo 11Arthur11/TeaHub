@@ -3,7 +3,7 @@ package dev.parhamziaei.teahub.service.implement;
 import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
 import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
-import dev.parhamziaei.teahub.entity.jpa.payment.Payment;
+import dev.parhamziaei.teahub.entity.jpa.payment.PaymentTransaction;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
@@ -17,10 +17,7 @@ import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.req
 import dev.parhamziaei.teahub.integration.payment_gateway.dto.CallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayFactory;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayHandler;
-import dev.parhamziaei.teahub.repository.jpa.GatewayRepository;
-import dev.parhamziaei.teahub.repository.jpa.InvoiceRepository;
-import dev.parhamziaei.teahub.repository.jpa.PaymentRepository;
-import dev.parhamziaei.teahub.repository.jpa.UserRepository;
+import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.WalletService;
@@ -45,9 +42,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentServiceProperties paymentProperties;
     private final PaymentGatewayFactory paymentGatewayFactory;
     private final GatewayRepository gatewayRepository;
-    private final PaymentRepository paymentRepository;
+    private final PaymentTransactionRepository paymentTransactionRepository;
     private final WalletService walletService;
     private final MessageService messageService;
+    private final AqayePardakhtGatewayRepository apRepo;
 
     @Override
     public String createChargeWalletInvoice(Long userId, BigDecimal amount) {
@@ -64,42 +62,41 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public String createPaymentGatewayUri(String invoiceToken, Long gatewayId) {
+    public String createPaymentGatewayUri(Long userId, String invoiceToken, Long gatewayId) {
         Gateway gatewayEntity = gatewayRepository.findById(gatewayId)
                 .orElseThrow(GatewayNotFoundException::new);
 
         Invoice invoice = invoiceRepo.findOne(
-                Specification.allOf(InvoiceSpecification.hasInvoiceToken(invoiceToken)
-                )
+                Specification.allOf(InvoiceSpecification.hasInvoiceToken(invoiceToken))
+                        .and(InvoiceSpecification.mustHaveOwnerId(userId))
         ).orElseThrow(NoSuchEntityException::new);
 
         if (!invoice.getStatus().equals(InvoiceStatus.PENDING)) {
             throw new InvoiceException("invoice is not pending for payment : " + invoiceToken);
         }
 
-        PaymentGatewayHandler paymentHandler = paymentGatewayFactory.getGateway(gatewayEntity.getGatewayType());
+        PaymentGatewayHandler paymentHandler = paymentGatewayFactory.getGateway(gatewayEntity.getType());
         return paymentHandler.createPaymentGateway(invoice);
     }
 
     @Override
     @Transactional
     public void verifyAPCallback(APCallbackRequest callbackRequest) {
-        PaymentGatewayHandler paymentHandler = paymentGatewayFactory.getGateway(PaymentGatewayType.AQAYE_PARDAKHT);
-        if (paymentHandler.verifyTransaction(callbackRequest)) {
-            Invoice invoice = invoiceRepo.findOne(
-                    Specification.allOf(InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceId())
-                    )
-            ).orElseThrow(NoSuchEntityException::new);
-            walletService.credit(invoice.getOwner().getId(), invoice.getMoney().getAmount(), TransactionReason.WALLET_CHARGE);
+        paymentGatewayFactory.getGateway(PaymentGatewayType.AQAYE_PARDAKHT)
+                .verifyTransaction(callbackRequest);
+        Invoice invoice = invoiceRepo.findOne(
+                Specification.allOf(InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceId())
+                )
+        ).orElseThrow(NoSuchEntityException::new);
+        walletService.credit(invoice.getOwner().getId(), invoice.getMoney().getAmount(), TransactionReason.WALLET_CHARGE);
 
-            if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
-                invoice.setStatus(InvoiceStatus.PAID);
-                invoice.setPaidAt(LocalDateTime.now().withNano(0));
-                invoiceRepo.save(invoice);
-                savePaymentTransaction(callbackRequest, invoice, paymentHandler.getGatewayType());
-            } else {
-                throw new InvoiceException("invoice is cancelled and cannot be payment verified : " + invoice.getInvoiceToken());
-            }
+        if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
+            invoice.setStatus(InvoiceStatus.PAID);
+            invoice.setPaidAt(LocalDateTime.now().withNano(0));
+            invoiceRepo.save(invoice);
+            savePaymentTransaction(callbackRequest, invoice, apRepo.find().orElseThrow(GatewayNotFoundException::new).getName());
+        } else {
+            throw new InvoiceException("invoice is cancelled and cannot be payment-verified: " + invoice.getInvoiceToken());
         }
     }
 
@@ -108,16 +105,16 @@ public class PaymentServiceImpl implements PaymentService {
     public <T extends CallbackRequest> void savePaymentTransaction(
             T callbackRequest,
             Invoice invoice,
-            PaymentGatewayType gatewayType
+            String gatewayName
     ) {
         APCallbackRequest apCallback = (APCallbackRequest) callbackRequest;
-        Payment payment = Payment.builder()
+        PaymentTransaction paymentTransaction = PaymentTransaction.builder()
                 .transactionId(callbackRequest.getTransid())
-                .gateway(gatewayType)
+                .gatewayName(gatewayName)
                 .trackingId(apCallback.getTracking_number())
                 .build();
-        payment.setForInvoice(invoice);
-        paymentRepository.save(payment);
+        paymentTransaction.setForInvoice(invoice);
+        paymentTransactionRepository.save(paymentTransaction);
     }
 
 }

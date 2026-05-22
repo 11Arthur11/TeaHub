@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.controller.admin;
 
+import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductEditRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductInitRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
@@ -14,6 +15,7 @@ import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
@@ -90,6 +92,45 @@ public class ProductAdminController {
         );
     }
 
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = AbstractNewResourceRequest.class),
+                    examples = {
+                            @ExampleObject(
+                                    name = "teaspeak-product",
+                                    summary = "Add TeaSpeak Product",
+                                    value = """
+                                            {
+                                              "type": "TEASPEAK",
+                                              "productName": "TeaSpeak Server 32 Slot",
+                                              "categoryId": 1,
+                                              "price": 5000,
+                                              "enabled": true,
+                                              "productPeriod": "MONTHLY",
+                                              "maxClients": 32
+                                            }
+                                            """
+                            ),
+                            @ExampleObject(
+                                    name = "audio-bot-product",
+                                    summary = "Add AudioBot Product (providerNodeId is Optional)",
+                                    value = """
+                                            {
+                                              "type": "AUDIO_BOT",
+                                              "productName": "Audio Bot Hourly",
+                                              "categoryId": 1,
+                                              "price": 1000,
+                                              "enabled": true,
+                                              "productPeriod": "HOURLY",
+                                              "providerNodeId": 1
+                                            }
+                                            """
+                            )
+                    }
+            )
+    )
     @Operation(
             summary = "Add new product",
             description = "Creates a new product with initial configuration and makes it available in the system.",

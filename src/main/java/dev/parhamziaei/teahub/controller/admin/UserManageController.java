@@ -35,7 +35,9 @@ public class UserManageController {
             tags = {"User Manage (Admin)"}
     )
     @GetMapping
-    public ResponseEntity<DataResponse<PagedModel<UserListResponse>>> getAllUsers(@ModelAttribute UsersFilterRequest filter) {
+    public ResponseEntity<DataResponse<PagedModel<UserListResponse>>> getAllUsers(
+            @ModelAttribute UsersFilterRequest filter
+    ) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 userService.getAllUsers(filter),

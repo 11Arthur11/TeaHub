@@ -1,7 +1,10 @@
 package dev.parhamziaei.teahub.controller.admin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.query.TicketFilterRequest;
+import dev.parhamziaei.teahub.dto.request.ticket.TicketSubmitRequestDoc;
 import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketAdminRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketEditAdminRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
@@ -16,6 +19,8 @@ import dev.parhamziaei.teahub.service.interfaces.TicketService;
 import dev.parhamziaei.teahub.utils.PhoneNumbers;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +42,7 @@ public class TicketAdminController {
     private final TicketService ticketService;
     private final CurrentUser currentUser;
     private final MessageService messageService;
+    private final ObjectMapper objectMapper;
 
     @Operation(
             summary = "Get all tickets",
@@ -121,16 +127,24 @@ public class TicketAdminController {
             summary = "Submit a new ticket",
             description = "Allows admin to submit a new ticket with optional file attachments. " +
                     "Ticket data is sent as multipart/form-data with 'ticket' and 'files' fields.",
-            tags = {"Ticket (Admin)"}
+            tags = {"Ticket (Admin)"},
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(implementation = TicketSubmitRequestDoc.class)
+                    )
+            )
     )
     @PostMapping(
             value = "/submit",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     public ResponseEntity<SimpleResponse> submitTicket(
-            @RequestPart("ticket") TicketAdminRequest ticketRequest,
+            @RequestPart("ticket") String ticketString,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
-    ) {
+    ) throws JsonProcessingException {
+        TicketAdminRequest ticketRequest = objectMapper.readValue(ticketString, TicketAdminRequest.class);
         ticketRequest.getMessage().setFiles(files);
         ticketService.submit(currentUser.getId(), ticketRequest);
         return ResponseBuilder.buildSuccess(

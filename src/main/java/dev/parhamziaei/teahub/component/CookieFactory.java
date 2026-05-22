@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.component;
 
+import dev.parhamziaei.teahub.configuration.properties.ApplicationSettingProperties;
 import dev.parhamziaei.teahub.configuration.properties.CookieFactoryProperties;
 import dev.parhamziaei.teahub.configuration.properties.JwtProperties;
 import dev.parhamziaei.teahub.enums.user.JwtType;
@@ -16,9 +17,11 @@ public class CookieFactory {
 
     private final JwtProperties jwtProperties;
     private final CookieFactoryProperties cookieProperties;
+    private final ApplicationSettingProperties applicationSettingProperties;
 
     public Cookie twoFactorCookie(String token) {
         Cookie cookie = new Cookie(JwtType.TWO_FACTOR_TOKEN.value(), token);
+        cookie.setDomain(applicationSettingProperties.frontendDomain());
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) cookieProperties.twoFactorCookieTtl().toSeconds());
@@ -29,6 +32,7 @@ public class CookieFactory {
 
     public Cookie phoneVerifyCookie(String token) {
         Cookie cookie = new Cookie(JwtType.PHONE_VERIFY_TOKEN.value(), token);
+        cookie.setDomain(applicationSettingProperties.frontendDomain());
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) cookieProperties.phoneVerifyCookieTtl().toSeconds());
@@ -39,6 +43,7 @@ public class CookieFactory {
 
     public Cookie emptyCookie(JwtType type) {
         Cookie cookie = new Cookie(type.value(), null);
+        cookie.setDomain(applicationSettingProperties.frontendDomain());
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
@@ -53,6 +58,7 @@ public class CookieFactory {
 
     public Cookie buildAccessTokenCookie(String token, Duration ttl) {
         Cookie jwtCookie = new Cookie(JwtType.ACCESS_TOKEN.value(), token);
+        jwtCookie.setDomain(applicationSettingProperties.frontendDomain());
         jwtCookie.setPath("/");
         jwtCookie.setHttpOnly(true);
         jwtCookie.setMaxAge((int) ttl.toSeconds());
@@ -67,6 +73,7 @@ public class CookieFactory {
 
     public Cookie buildRefreshTokenCookie(String token, Duration ttl) {
         Cookie refreshTokenCookie = new Cookie(JwtType.REFRESH_TOKEN.value(), token);
+        refreshTokenCookie.setDomain(applicationSettingProperties.frontendDomain());
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setMaxAge((int) ttl.toSeconds());

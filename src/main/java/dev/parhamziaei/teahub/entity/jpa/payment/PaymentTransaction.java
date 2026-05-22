@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Payment extends BaseEntity<Long> {
+public class PaymentTransaction extends BaseEntity<Long> {
 
     private String transactionId;
     private String trackingId;
@@ -22,7 +22,7 @@ public class Payment extends BaseEntity<Long> {
     @Embedded
     private Money amount;
 
-    private PaymentGatewayType gateway;
+    private String gatewayName;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime transactionDate;

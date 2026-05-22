@@ -12,12 +12,9 @@ public class ABPlayListItemResponse {
 
     private Integer order;
 
-    @JsonProperty("Link")
     private String link;
 
-    @JsonProperty("Title")
     private String title;
 
-    @JsonProperty("AudioType")
     private String audioType;
 }

@@ -91,7 +91,7 @@ public class ResourceService {
                     ResourceListAdminResponse dto = modelMapper.map(r, ResourceListAdminResponse.class);
                     dto.setProductName(r.getProduct().getProductName());
                     dto.setResourceStatus(messageService.get(r.getResourceStatus()));
-                    dto.setOwnerPhone(r.getOwner().getPhone());
+                    dto.setOwnerId(r.getOwner().getId());
                     return dto;
                 }).toList();
         Page<ResourceListAdminResponse> mappedPage = new PageImpl<>(mapped, pageable, resourcesPage.getTotalElements());

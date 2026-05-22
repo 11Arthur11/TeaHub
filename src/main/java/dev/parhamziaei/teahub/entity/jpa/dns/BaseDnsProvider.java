@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.dns;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.enums.dns.DnsProviderStatus;
 import dev.parhamziaei.teahub.enums.dns.DnsProviderType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,15 +22,26 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class BaseDnsProvider extends BaseEntity<Long> {
+public class BaseDnsProvider {
 
-    private Boolean active;
+    @Id
+    private Long id;
+
+    private boolean active;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "provider_type", updatable = false, insertable = false)
-    private DnsProviderType provider;
+    private DnsProviderType type;
+
+    @Enumerated(EnumType.STRING)
+    private DnsProviderStatus status = DnsProviderStatus.UNKNOWN;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "provider")
-    private List<Zone> zones;
+    private List<DnsZone> dnsZones = new ArrayList<>();
+
+    public BaseDnsProvider(DnsProviderType type, Long id) {
+        this.id = id;
+        this.type = type;
+    }
 
 }

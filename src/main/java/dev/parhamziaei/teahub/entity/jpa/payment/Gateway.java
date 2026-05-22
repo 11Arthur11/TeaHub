@@ -1,25 +1,35 @@
 package dev.parhamziaei.teahub.entity.jpa.payment;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.enums.dns.DnsProviderType;
 import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
+@Setter
+@Table(name = "gateway")
+@DiscriminatorColumn(name = "gateway_type")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Gateway extends BaseEntity<Long> {
+public class Gateway {
+
+    @Id
+    private Long id;
 
     private String name;
 
-    private String merchantId;
+    private boolean active;
 
-    @Column(unique = true)
+    @Column(name = "gateway_type", updatable = false, insertable = false)
     @Enumerated(EnumType.STRING)
-    private PaymentGatewayType gatewayType;
+    private PaymentGatewayType type;
+
+    public Gateway(PaymentGatewayType type, Long id) {
+        this.id = id;
+        this.type = type;
+    }
 
 }

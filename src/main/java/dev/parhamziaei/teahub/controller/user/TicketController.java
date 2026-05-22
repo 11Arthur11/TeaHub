@@ -1,8 +1,11 @@
 package dev.parhamziaei.teahub.controller.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.parhamziaei.teahub.dto.internal.ImageInternal;
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.query.TicketFilterRequest;
+import dev.parhamziaei.teahub.dto.request.ticket.TicketSubmitRequestDoc;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketMessageRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketUserRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
@@ -18,7 +21,14 @@ import dev.parhamziaei.teahub.service.interfaces.JwtService;
 import dev.parhamziaei.teahub.service.interfaces.TicketService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.StringToClassMapItem;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.SchemaProperty;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/v1/tickets")
 public class TicketController {
 
@@ -42,7 +51,20 @@ public class TicketController {
     private final MessageService messageService;
     private final CurrentUser currentUser;
 
-    @Operation(summary = "Getting all user tickets as list")
+    @Qualifier("javaTimeModule")
+    private final ObjectMapper objectMapper;
+
+    public TicketController(TicketService ticketService, MessageService messageService, CurrentUser currentUser, ObjectMapper objectMapper) {
+        this.ticketService = ticketService;
+        this.messageService = messageService;
+        this.currentUser = currentUser;
+        this.objectMapper = objectMapper;
+    }
+
+    @Operation(
+            summary = "Getting all user tickets as list",
+            tags = {"Tickets"}
+    )
     @GetMapping
     public ResponseEntity<DataResponse<PagedModel<TicketListUserResponse>>> getTickets(@ModelAttribute TicketFilterRequest filterRequest) {
         return ResponseBuilder.buildSuccess(
@@ -56,17 +78,33 @@ public class TicketController {
         );
     }
 
-    @Operation(summary = "Submits ticket")
+    @Operation(
+            summary = "Submit ticket",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(implementation = TicketSubmitRequestDoc.class)
+                    )
+            ),
+            tags = {"Tickets"}
+    )
     @PostMapping(
             value = "/submit",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<SimpleResponse> submitTicket(
-            @RequestPart("ticket") TicketUserRequest ticketRequest,
+            @RequestPart("ticket") String ticket,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
-    ) {
+    ) throws JsonProcessingException {
+
+        TicketUserRequest ticketRequest =
+                objectMapper.readValue(ticket, TicketUserRequest.class);
+
         ticketRequest.getMessage().setFiles(files);
+
         ticketService.submit(currentUser.getId(), ticketRequest);
+
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.TICKET_SUBMITTED),
@@ -74,7 +112,10 @@ public class TicketController {
         );
     }
 
-    @Operation(summary = "Ticket Details with all messages")
+    @Operation(
+            summary = "Ticket Details with all messages",
+            tags = {"Tickets"}
+    )
     @GetMapping("/detail/{id}")
     public ResponseEntity<DataResponse<TicketDetailBaseResponse>> getTicketDetails(@PathVariable Long id) {
         TicketDetailBaseResponse ticketDetails = ticketService.getTicketDetails(
@@ -90,7 +131,10 @@ public class TicketController {
         );
     }
 
-    @Operation(summary = "Adding new message to existing ticket")
+    @Operation(
+            summary = "Add a message to existing ticket",
+            tags = {"Tickets"}
+    )
     @PutMapping(
             value = "/detail/{ticketId}/message",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
@@ -113,6 +157,10 @@ public class TicketController {
         );
     }
 
+    @Operation(
+            summary = "Downloading ticket attachments by identifier, returns a file",
+            tags = {"Tickets"}
+    )
     @GetMapping("/attachment/{identifier}")
     public ResponseEntity<Resource> getAttachment(@PathVariable String identifier) {
         ImageInternal image = ticketService.getTicketAttachment(identifier, currentUser.getId());

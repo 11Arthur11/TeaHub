@@ -20,13 +20,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class DnsRecord extends BaseEntity<Long> {
 
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "record_type", updatable = false, insertable = false)
-    private DnsRecordType type;
+    private DnsRecordType recordType;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private Zone zone;
+    private DnsZone dnsZone;
 
 }

@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.controller.user;
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.payment.user.BalanceChargeRequest;
 import dev.parhamziaei.teahub.dto.request.query.WalletTransactionFilterRequest;
+import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.DetailedDataResponse;
 import dev.parhamziaei.teahub.dto.response.user.WalletTransactionResponse;
@@ -13,6 +14,9 @@ import dev.parhamziaei.teahub.service.WalletService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -31,7 +35,10 @@ public class WalletController {
     private final WalletService walletService;
     private final CurrentUser currentUser;
 
-    @Operation(summary = "Redirect user to /v1/invoices/{invoiceToken} - invoice Token will send as data with response")
+    @Operation(
+            summary = "Redirect user to /v1/invoices/{invoiceToken} - invoice Token will send as data with response",
+            tags = {"Wallet"}
+    )
     @PostMapping("/charge")
     public ResponseEntity<DetailedDataResponse<Map<String, String>>> chargeWallet(@RequestBody BalanceChargeRequest request) {
         String invoiceToken = paymentService.createChargeWalletInvoice(
@@ -46,9 +53,16 @@ public class WalletController {
         );
     }
 
+    @Operation(
+            summary = "This is main api for receiving wallet transactions",
+            description = "use cases for example: related resources transactions in resource detail page - " +
+                    "Filter schema is WalletTransactionFilterRequest",
+            tags = {"Wallet"}
+    )
     @GetMapping("/transactions")
-    public
-    ResponseEntity<DataResponse<PagedModel<WalletTransactionResponse>>> getWalletTransactions(@RequestParam WalletTransactionFilterRequest filter) {
+    public ResponseEntity<DataResponse<PagedModel<WalletTransactionResponse>>> getWalletTransactions(
+            @ModelAttribute WalletTransactionFilterRequest filter
+    ) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 walletService.getWalletTransactions(currentUser.getWalletId(), filter),

@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter
 @Setter
-@DiscriminatorValue("AUDIO_BOT_PRODUCT")
+@DiscriminatorValue("AUDIO_BOT")
 @NoArgsConstructor
 @SuperBuilder
 public class AudioBotProduct extends BillableProduct {

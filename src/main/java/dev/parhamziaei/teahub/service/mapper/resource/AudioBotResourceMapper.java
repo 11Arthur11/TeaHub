@@ -50,6 +50,7 @@ public class AudioBotResourceMapper implements ResourceMapperHandler {
     public AbstractResourceDetailResponse mapResourceDetailAdminResponse(BillableResource resource) {
         AudioBotResource audioBotResource = (AudioBotResource) resource;
         AudioBotResourceDetailAdminResponse response = mapInternal(audioBotResource, AudioBotResourceDetailAdminResponse.class);
+        response.setOwnerId(audioBotResource.getOwner().getId());
         response.setIdentifier(audioBotResource.getIdentifier().toString());
         return response;
     }

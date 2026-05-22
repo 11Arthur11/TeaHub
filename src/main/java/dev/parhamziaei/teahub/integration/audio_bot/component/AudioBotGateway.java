@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.parhamziaei.teahub.dto.request.query.BasePaginationRequest;
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
@@ -13,11 +14,13 @@ import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceSettingsRespon
 import dev.parhamziaei.teahub.integration.audio_bot.exception.AudioBotHttpException;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -32,12 +35,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AudioBotGateway {
 
     private final AudioBotNodeRepository audioBotNodeRepository;
+    private final ObjectMapper audioBotMapper;
     private final Map<String, RestClient> clients = new ConcurrentHashMap<>();
 
     public AudioBotGateway(
-            AudioBotNodeRepository audioBotNodeRepository
+            AudioBotNodeRepository audioBotNodeRepository,
+            @Qualifier("audioBotApiMapper") ObjectMapper mapper
     ) {
         this.audioBotNodeRepository = audioBotNodeRepository;
+        this.audioBotMapper = mapper;
     }
 
     private RestClient buildRestClient(AudioBotNode audioBotNode) {
@@ -52,6 +58,7 @@ public class AudioBotGateway {
                     httpHeaders.add(HttpHeaders.ACCEPT_CHARSET, "utf-8");
                 })
                 .baseUrl(audioBotNode.getWebAddress())
+                .messageConverters(List.of(new MappingJackson2HttpMessageConverter(audioBotMapper)))
                 .build();
     }
 

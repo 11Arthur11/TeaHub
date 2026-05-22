@@ -37,8 +37,8 @@ logging:
 
 app:
   settings:
-    backend-domain: 'dev.xperia.top'
-    frontend-domain: 'xperia.top'
+    backend-domain: 'localhost'
+    frontend-domain: 'localhost'
   components:
     telnet:
       default-timeout-millis: 10000
@@ -49,6 +49,8 @@ app:
     payment:
       tax-percentage: 9
       minimum-wallet-charge-amount-irt: 50000
+      payment-failed-redirect-uri: "http://localhost"
+      payment-success-redirect-uri: "http://localhost"
     media-storage:
       allowed-media-extension:
         - jpg

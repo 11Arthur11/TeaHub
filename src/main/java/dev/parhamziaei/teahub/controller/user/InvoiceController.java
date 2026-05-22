@@ -23,15 +23,14 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @GetMapping
-    public ResponseEntity<DataResponse<PagedModel<InvoiceUserResponse>>> getInvoices(@ModelAttribute InvoiceFilterRequest request) {
+    public ResponseEntity<DataResponse<PagedModel<InvoiceUserResponse>>> getInvoices(
+            @ModelAttribute InvoiceFilterRequest filterRequest
+    ) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 invoiceService.getByUserId(
-                        PageRequest.of(
-                                request.getPage(),
-                                request.getSize()),
-                        currentUser.getId(),
-                        request.getStatus()
+                        filterRequest,
+                        currentUser.getId()
                 ),
                 HttpStatus.OK
         );

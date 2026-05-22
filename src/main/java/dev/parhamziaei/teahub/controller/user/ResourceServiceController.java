@@ -12,6 +12,9 @@ import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.ResourceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,40 @@ public class ResourceServiceController {
     private final CurrentUser currentUser;
     private final MessageService messageService;
 
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = AbstractNewResourceRequest.class),
+                    examples = {
+                            @ExampleObject(
+                                    name = "teaspeak-resource",
+                                    summary = "New TeaSpeak Resource",
+                                    value = """
+                                            {
+                                              "type": "TEASPEAK",
+                                              "productId": 0,
+                                              "label": "my server"
+                                            }
+                                            """
+                            ),
+                            @ExampleObject(
+                                    name = "audio-bot-resource - serverPassword is Optional",
+                                    summary = "New AudioBot Resource",
+                                    value = """
+                                            {
+                                              "type": "AUDIO_BOT",
+                                              "productId": 0,
+                                              "label": "my bot name",
+                                              "botNickname": "bot nickname in server",
+                                              "serverAddress": "server address",
+                                              "serverPassword": "password"
+                                            }
+                                            """
+                            )
+                    }
+            )
+    )
     @PostMapping("/new")
     public ResponseEntity<SimpleResponse> newResource(@Valid @RequestBody AbstractNewResourceRequest newResourceRequest) {
         resourceService.newBillableResource(currentUser.getId(), newResourceRequest);

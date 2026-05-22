@@ -72,7 +72,6 @@ public class TeaSpeakService {
                 .port(String.valueOf(instancePort))
                 .serverName(
                         generateInstanceName(
-                                teaSpeakResource.getLabel(),
                                 teaSpeakResource.getId()
                         )
                 ).build();
@@ -197,8 +196,8 @@ public class TeaSpeakService {
         currentToken.setQueryId(Long.parseLong(newToken.getToken_id()));
     }
 
-    private String generateInstanceName(String label, Long resourceId) {
-        return label.replace(" ", "\\s") + "\\s-\\sResourceID:\\s" + String.format("%06d", resourceId);
+    private String generateInstanceName(Long resourceId) {
+        return "\\s-\\sResourceID:\\s" + String.format("%06d", resourceId);
     }
 
 }

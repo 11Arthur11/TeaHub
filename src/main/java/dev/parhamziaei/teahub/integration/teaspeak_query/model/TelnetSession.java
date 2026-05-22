@@ -44,7 +44,7 @@ public class TelnetSession {
     }
 
     public void login() {
-        String loginCommand = "login " + credentials.username() + " " + credentials.password();
+        String loginCommand = "login client_login_name=" + credentials.username() + " client_login_password=" + credentials.password();
         String response = execute(loginCommand);
         if (response != null && !response.contains("msg=ok")) {
             throw new QueryLoginFailedException(
@@ -69,7 +69,7 @@ public class TelnetSession {
             if (response.contains("msg=ok")) {
                 return response;
             } else {
-                log.warn("Telnet Query -> send command failed to {}:{} - command: -{} response -> {}", credentials.ip(), credentials.port(), command, response);
+                log.warn("Telnet Query -> send command failed to {}:{} - command: [{}] response -> {}", credentials.ip(), credentials.port(), command, response);
                 throw new QueryCommandExecutionException("send command failed to " + credentials.ip() + ":" + credentials.port());
             }
         } catch (IOException | InterruptedException e) {

@@ -1,11 +1,9 @@
 package dev.parhamziaei.teahub.service.mapper.product;
 
 import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
-import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductDetailResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.AudioBotProductDetailAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.AudioBotProductListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.user.AudioBotProductListResponse;
-import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
 import dev.parhamziaei.teahub.entity.jpa.shop.AudioBotProduct;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.enums.shop.ProductType;
@@ -24,7 +22,7 @@ public class AudioBotProductMapper implements ProductMapperHandler{
 
     @Override
     public ProductType getType() {
-        return ProductType.AUDIO_BOT_PRODUCT;
+        return ProductType.AUDIO_BOT;
     }
 
     @Override

@@ -13,9 +13,9 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
 
   servlet:
     multipart:
@@ -32,12 +32,26 @@ logging:
     dev.parhamziaei: trace
   threshold:
     console: TRACE
+  file:
+    path: logs
+    name: logs/application.log
 
 app:
+  settings:
+    backend-domain: 'api.teacloud.ir'
+    frontend-domain: 'teacloud.ir'
   components:
     telnet:
       default-timeout-millis: 10000
+      reconnect-tries: 10
+      reconnect-delay: 60s
+
   service:
+    payment:
+      tax-percentage: 9
+      minimum-wallet-charge-amount-irt: 50000
+      payment-failed-redirect-uri: "https://dash.teacloud.ir/invoices"
+      payment-success-redirect-uri: "https://dash.teacloud.ir/invoices"
     media-storage:
       allowed-media-extension:
         - jpg
@@ -48,8 +62,7 @@ app:
         - image/jpeg
         - image/webp
       maximum-media-size-mb: 10
-      ticket-attachments-path: /app/uploads/ticket-attachments
-
+      ticket-attachments-path: /home/arthur/spring-boot/uploads/ticket-attachments
     ticket:
       max-attachment-per-message: 5
 
@@ -65,28 +78,34 @@ app:
       port-step: 5
     ip-panel:
       base-url: https://edge.ippanel.com/v1
-      api-key: OWYxNGU1Y2EtNDUwOC00NTYzLThiMTctMjIwMzQzNDAyODQ2YTMyYTg5MTM0NjBkNWNiOWMxZTY2ODhlNmQ1OWMzMjg=
+      api-key: YTA3NTJkZDctOGExMi00NzdlLTg1ZTMtNDdlZmM3Y2NlZjVlN2RmNDkyMWMxNjllNjZiZmZjNmQ1OWQ2NzBhNmVlYjk=
       # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
       two-facto-message-pattern-code: gaibs13nb08a8ku
       from-number: 100016949
+    audio-bot:
+      provision-strategy: balanced
 
   cookie-factory:
-    secure-cookie: false
-    two-factor-cookie-ttl: 1800s
+    secure-cookie: true #TODO make this true in production
+    two-factor-cookie-ttl: 300s
     phone-verify-cookie-ttl: 300s
+    same-site-attribute: "Strict"
 
   jason-web-token:
     base64-secret: f633915d212d5159e506d6d69f6d1adcad3aff7396b05545df48183e1331d537 #Change this value on production phase, this is the whole authentication layer key , keep it secret ;)
     access-token-ttl: 1800s
     phone-verify-token-ttl: 300s
     refresh-token-ttl: 86400s
-    two-factor-token-ttl: 120s
+    two-factor-token-ttl: 180s
 
   sessions:
     phone-verify-session-ttl: 300s
-    two-factor-session-ttl: 120s
+    two-factor-session-ttl: 180s
 
 springdoc:
   api-docs:
     enabled: true
     path: /docs
+
+server:
+  forward-headers-strategy: framework

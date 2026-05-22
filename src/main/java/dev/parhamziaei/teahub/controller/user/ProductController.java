@@ -44,7 +44,7 @@ public class ProductController {
                                                     "currency": "IRT"
                                                   },
                                                   "period": "روزانه",
-                                                  "productType": "TEASPEAK_PRODUCT",
+                                                  "productType": "TEASPEAK",
                                                   "maxClients": 32
                                                 },
                                                 {
@@ -55,7 +55,7 @@ public class ProductController {
                                                     "currency": "IRT"
                                                   },
                                                   "period": "ماهانه",
-                                                  "productType": "AUDIO_BOT_PRODUCT"
+                                                  "productType": "AUDIO_BOT"
                                                 }
                                               ]
                                             }

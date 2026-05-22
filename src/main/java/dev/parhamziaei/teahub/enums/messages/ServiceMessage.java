@@ -67,7 +67,10 @@ public enum ServiceMessage {
     AUDIO_BOT_NODE_EDITED("success.service.audio-bot-node.edited"),
     AUDIO_BOT_NODE_WEB_ADDRESS_ALREADY_INITIATED("success.audio-bot-node.already-initiated"),
     AUDIO_BOT_NODE_HAS_ACTIVE_INSTANCE("success.audio-bot-node.has-active-instance"),
-    AUDIO_BOT_MUST_BE_CONNECTED("error.audio-bot-instance.must-be-connected"),;
+    AUDIO_BOT_MUST_BE_CONNECTED("error.audio-bot-instance.must-be-connected"),
+
+    DNS_PROVIDER_NOT_CONFIGURED("error.service.dns-provider.not-configured"),
+    DNS_PROVIDER_API_ERROR("error.service.dns-provider.api-error"),;
 
     private final String key;
 

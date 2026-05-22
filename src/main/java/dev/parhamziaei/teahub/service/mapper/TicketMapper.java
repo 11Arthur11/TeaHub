@@ -49,6 +49,7 @@ public class TicketMapper {
         List<TicketMessageResponse> messagesDTO = mapMessages(ticket.getMessages());
         T dto = enrichTicket(ticket, modelMapper.map(ticket, responseType));
         dto.setMessages(messagesDTO);
+
         if (ticket.getRelatedResourceId() != null)
             billableResourceRepository.findById(ticket.getRelatedResourceId())
                     .ifPresent(r -> dto.setServiceName(r.getFormattedName()));

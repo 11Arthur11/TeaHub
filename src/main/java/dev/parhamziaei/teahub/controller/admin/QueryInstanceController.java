@@ -47,7 +47,7 @@ public class QueryInstanceController {
             description = "Creates and initiates a new query instance based on the provided configuration.",
             tags = {"Query Instance"}
     )
-    @PostMapping("/initiate")
+    @PostMapping
     public ResponseEntity<SimpleResponse> initQueryInstance(@Valid @RequestBody QueryInstanceInitRequest queryInitRequest) {
         queryInstanceService.initiateQueryInstance(queryInitRequest);
         return ResponseBuilder.buildSuccess(
@@ -62,7 +62,7 @@ public class QueryInstanceController {
             description = "edit query instance, if base credentials was edited, query will be re-dispatched.",
             tags = {"Query Instance"}
     )
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<SimpleResponse> editQueryInstance(@PathVariable Long id, @RequestBody QueryInstanceEditRequest editRequest) {
         queryInstanceService.editQueryInstance(id, editRequest);
         return ResponseBuilder.buildSuccess(
@@ -107,7 +107,7 @@ public class QueryInstanceController {
             description = "Permanently removes the specified query instance and remove it from wep application lifecycle",
             tags = {"Query Instance"}
     )
-    @DeleteMapping("/{id}/remove")
+    @DeleteMapping("/{id}")
     public ResponseEntity<SimpleResponse> removeQueryInstance(@PathVariable Long id) {
         queryInstanceService.removeQueryInstance(id);
         return ResponseBuilder.buildSuccess(

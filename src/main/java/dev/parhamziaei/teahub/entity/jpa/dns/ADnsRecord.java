@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @DiscriminatorValue("A")
 @SuperBuilder
-public class ARecord extends DnsRecord {
+public class ADnsRecord extends DnsRecord {
 
     private String ip;
 

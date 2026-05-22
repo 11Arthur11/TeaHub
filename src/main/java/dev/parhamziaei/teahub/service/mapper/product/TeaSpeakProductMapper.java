@@ -22,7 +22,7 @@ public class TeaSpeakProductMapper implements ProductMapperHandler {
 
     @Override
     public ProductType getType() {
-        return ProductType.TEASPEAK_PRODUCT;
+        return ProductType.TEASPEAK;
     }
 
     @Override

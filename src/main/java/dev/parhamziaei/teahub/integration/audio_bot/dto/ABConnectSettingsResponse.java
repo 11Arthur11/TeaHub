@@ -15,7 +15,6 @@ public class ABConnectSettingsResponse {
     private String badges;
     private String name;
 
-    @JsonProperty("server_password")
     private ServerPassword serverPassword;
 
     @Data

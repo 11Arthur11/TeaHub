@@ -2,30 +2,34 @@ package dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht;
 
 import dev.parhamziaei.teahub.configuration.properties.ApplicationSettingProperties;
 import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
-import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
+import dev.parhamziaei.teahub.dto.request.payment.admin.AqayePardakhtPersistRequest;
+import dev.parhamziaei.teahub.dto.request.payment.admin.GatewayPersistRequest;
+import dev.parhamziaei.teahub.entity.jpa.payment.AqayePardakhtGateway;
 import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
 import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayNotFoundException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.PaymentFailedException;
+import dev.parhamziaei.teahub.exception.custom.service.payment.PaymentVerificationException;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APTransactionRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APVerifyRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.response.APTransactionResponse;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.response.APVerifyResponse;
 import dev.parhamziaei.teahub.integration.payment_gateway.dto.CallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayHandler;
-import dev.parhamziaei.teahub.repository.jpa.GatewayRepository;
+import dev.parhamziaei.teahub.repository.jpa.AqayePardakhtGatewayRepository;
 import dev.parhamziaei.teahub.repository.jpa.InvoiceRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
+import dev.parhamziaei.teahub.service.mapper.AqayePardakhtGatewayMapStruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
@@ -34,8 +38,9 @@ import org.springframework.web.client.RestClientException;
 public class AqayePardakhtService implements PaymentGatewayHandler {
 
     private final InvoiceRepository invoiceRepo;
-    private final GatewayRepository gatewayRepo;
     private final RestClient restClient;
+    private final AqayePardakhtGatewayRepository apRepo;
+    private final AqayePardakhtGatewayMapStruct mapStruct;
     private String apPinCode;
     private final static String AP_PAYMENT_URL = "https://panel.aqayepardakht.ir/startpay/sandbox/";
     private final String callbackUrl;
@@ -43,13 +48,13 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
 
     public AqayePardakhtService(
             PaymentServiceProperties paymentProperties,
-            GatewayRepository gatewayRepo,
             ApplicationSettingProperties appSetting,
-            InvoiceRepository invoiceRepo
+            InvoiceRepository invoiceRepo,
+            AqayePardakhtGatewayRepository apRepo,
+            AqayePardakhtGatewayMapStruct mapStruct
     ) {
         this.paymentProperties = paymentProperties;
         this.invoiceRepo = invoiceRepo;
-        this.gatewayRepo = gatewayRepo;
         this.callbackUrl = appSetting.backendDomain() + "/v1/payments/gateway/callback/ap"; //appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
         this.restClient = RestClient.builder()
                 .defaultHeaders(httpHeaders -> {
@@ -58,18 +63,17 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
                 })
                 .baseUrl("https://panel.aqayepardakht.ir/api/v2")
                 .build();
+        this.apRepo = apRepo;
+        this.mapStruct = mapStruct;
     }
 
     @Override
-    @EventListener(ApplicationReadyEvent.class)
-    public void initialize() {
-        try {
-            Gateway gateway = gatewayRepo.findByGatewayType(PaymentGatewayType.AQAYE_PARDAKHT)
-                    .orElseThrow(GatewayNotFoundException::new);
-            this.apPinCode = gateway.getMerchantId();
-        } catch (GatewayNotFoundException e) {
-            log.warn("Payment-Gateway -> Aqaye pardakht gateway not configured.");
-        }
+    public <T extends GatewayPersistRequest> void persistGateway(T persistRequest) {
+        AqayePardakhtPersistRequest request = (AqayePardakhtPersistRequest) persistRequest;
+        AqayePardakhtGateway gateway = apRepo.find()
+                .orElse(mapStruct.toEntity(request, new AqayePardakhtGateway()));
+        apPinCode = gateway.getMerchantId();
+        apRepo.save(gateway);
     }
 
     @Override
@@ -127,11 +131,11 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
         if (response.getStatus().equals("success")) {
             return AP_PAYMENT_URL + response.getTransid();
         }
-        throw new GatewayException("Payment Gateway creation failure");
+        throw new GatewayException("PaymentTransaction Gateway creation failure");
     }
 
     @Override
-    public <T extends CallbackRequest> boolean verifyTransaction(T callbackRequest) {
+    public <T extends CallbackRequest> void verifyTransaction(T callbackRequest) {
         if (
                 callbackRequest == null
                 || !callbackRequest.getStatus().equals("1")
@@ -152,7 +156,6 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
                 .amount(invoice.getMoney().getAmount().intValue())
                 .build();
 
-        APVerifyResponse responseEntity = new APVerifyResponse();
         try {
             ResponseEntity<APVerifyResponse> verifyResponse = restClient.post()
                     .uri("/verify")
@@ -161,20 +164,13 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
                     .retrieve()
                     .toEntity(APVerifyResponse.class);
 
-            if (verifyResponse.getBody() != null) {
-                responseEntity = verifyResponse.getBody();
-            }
-
             log.info("Retrieved Aqaye Pardakht verify response: {}", verifyResponse.getStatusCode());
+        } catch (HttpClientErrorException.UnprocessableEntity e) {
+            log.error("Aqaye Pardakht gateway rejected the transaction: {}", e.getMessage());
+            throw new PaymentVerificationException("transaction verification failed");
         } catch (RestClientException e) {
-            log.error("API call failed for aqaye pardakht verify, because: {}", e.getMessage());
-            throw new GatewayException("API call failed for aqaye pardakht verify");
+            throw new GatewayException("API call failed for aqaye pardakht verify request");
         }
-
-        if (responseEntity != null) {
-            return responseEntity.getCode().equals("1") && responseEntity.getStatus().equals("success");
-        }
-        throw new GatewayException("gateway verify response is null");
     }
 
 }

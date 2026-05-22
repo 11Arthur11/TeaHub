@@ -2,6 +2,8 @@ package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
 import dev.parhamziaei.teahub.enums.audio_bot.NodeStatus;
+import dev.parhamziaei.teahub.enums.dns.DnsProviderStatus;
+import dev.parhamziaei.teahub.enums.dns.ZoneStatus;
 import dev.parhamziaei.teahub.enums.messages.AuthMessage;
 import dev.parhamziaei.teahub.enums.messages.Message;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
@@ -82,6 +84,14 @@ public class MessageService {
 
     public String get(AudioBotStatus botStatus) {
         return textSource.getMessage(botStatus.key(), null, Locale.forLanguageTag("fa"));
+    }
+
+    public String get(DnsProviderStatus status) {
+        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
+    }
+
+    public String get(ZoneStatus status) {
+        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
     }
 
     public String get(Roles roles) {

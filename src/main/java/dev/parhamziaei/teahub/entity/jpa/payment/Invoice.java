@@ -28,7 +28,7 @@ public class Invoice extends BaseEntity<Long> {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "payment_id")
-    private Payment paymentTransaction;
+    private PaymentTransaction paymentTransaction;
 
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdAt;

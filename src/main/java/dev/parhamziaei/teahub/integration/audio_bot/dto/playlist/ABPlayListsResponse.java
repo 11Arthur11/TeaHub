@@ -10,16 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ABPlayListsResponse {
 
-    @JsonProperty("Id")
     private String playlistFilename;
 
-    @JsonProperty("Title")
     private String title;
 
-    @JsonProperty("SongCount")
     private int songCount;
 
-    @JsonProperty("DisplayOffset")
     private int displayOffset;
 
 }

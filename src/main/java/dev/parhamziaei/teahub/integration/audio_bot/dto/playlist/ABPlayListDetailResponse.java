@@ -15,8 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ABPlayListDetailResponse extends ABPlayListsResponse {
 
-    @JsonProperty("Items")
-    List<ABPlayListItemResponse> playListItems;
+    private List<ABPlayListItemResponse> playListItems;
 
     public List<ABPlayListItemResponse> getPlayListItems() {
         if (playListItems == null)

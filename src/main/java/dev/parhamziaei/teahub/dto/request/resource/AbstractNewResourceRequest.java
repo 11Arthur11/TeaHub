@@ -22,6 +22,7 @@ import lombok.Data;
 })
 @Data
 public abstract class AbstractNewResourceRequest {
+
     private ResourceType type;
 
     @NotNull

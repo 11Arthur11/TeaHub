@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@DiscriminatorValue("TEASPEAK_PRODUCT")
+@DiscriminatorValue("TEASPEAK")
 @NoArgsConstructor
 @SuperBuilder
 public class TeaSpeakProduct extends BillableProduct {
