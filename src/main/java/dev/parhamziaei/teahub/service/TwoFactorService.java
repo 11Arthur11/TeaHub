@@ -34,7 +34,8 @@ public class TwoFactorService {
         TwoFactorSession session = twoFactorRepo.get(sessionId);
         if (jwtService.isTokenValid(twoFactorToken, JwtType.TWO_FACTOR_TOKEN) && session != null) {
             if (
-                    encoder.matches(code, session.getCode()) &&
+                    session.getCode().equals(code) && //REMINDER: FOR DEV PHASE ONLY !!!!!
+//                    encoder.matches(code, session.getCode()) &&
                     session.getAttempts() < 3 &&
                     session.getPhoneNumber().equals(jwtService.getPhoneNumber(twoFactorToken))
             ) {
@@ -55,7 +56,8 @@ public class TwoFactorService {
         PhoneVerifySession session = phoneVerifyRepo.get(sessionId);
         if (jwtService.isTokenValid(phoneVerifyToken, JwtType.PHONE_VERIFY_TOKEN) && session != null) {
             if (
-                    encoder.matches(code, session.getCode()) &&
+                    session.getCode().equals(code) && //REMINDER: FOR DEV PHASE ONLY !!!!!
+//                    encoder.matches(code, session.getCode()) &&
                     session.getAttempts() < 3 &&
                     session.getPhoneNumber().equals(jwtService.getPhoneNumber(phoneVerifyToken))
             ) {
@@ -88,12 +90,9 @@ public class TwoFactorService {
                 .verified(false)
                 .build();
 
-        // ! for fast testing
-        log.debug("two factor: {}", session.getCode());
-
         String sessionId = UUID.randomUUID().toString();
-        smsService.sendTwoFactorSMS(session.getCode(), session.getPhoneNumber());
-        session.setCode(encoder.encode(session.getCode()));
+//        smsService.sendTwoFactorSMS(session.getCode(), session.getPhoneNumber()); //REMINDER: FOR DEV PHASE ONLY !!!!!
+//        session.setCode(encoder.encode(session.getCode())); //REMINDER: FOR DEV PHASE ONLY !!!!!
         twoFactorRepo.save(sessionId, session, sessionProperties.twoFactorSessionTtl());
         return sessionId;
     }
@@ -107,8 +106,8 @@ public class TwoFactorService {
                 .build();
 
         String sessionId = UUID.randomUUID().toString();
-        smsService.sendTwoFactorSMS(session.getCode(), session.getPhoneNumber());
-        session.setCode(encoder.encode(session.getCode()));
+//        smsService.sendTwoFactorSMS(session.getCode(), session.getPhoneNumber()); //REMINDER: FOR DEV PHASE ONLY !!!!!
+//        session.setCode(encoder.encode(session.getCode())); //REMINDER: FOR DEV PHASE ONLY !!!!!
         phoneVerifyRepo.save(sessionId, session, sessionProperties.twoFactorSessionTtl());
         return sessionId;
     }

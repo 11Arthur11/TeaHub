@@ -2,8 +2,8 @@ package dev.parhamziaei.teahub.service.implement;
 
 import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
 import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
-import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
-import dev.parhamziaei.teahub.entity.jpa.payment.PaymentTransaction;
+import dev.parhamziaei.teahub.entity.jpa.payment.invoice.Invoice;
+import dev.parhamziaei.teahub.entity.jpa.payment.invoice.PaymentTransaction;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
@@ -22,6 +22,7 @@ import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.WalletService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
+import dev.parhamziaei.teahub.service.payment.PostPaymentRegistryFactory;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,29 +38,13 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
-    private final UserRepository userRepository;
     private final InvoiceRepository invoiceRepo;
-    private final PaymentServiceProperties paymentProperties;
     private final PaymentGatewayFactory paymentGatewayFactory;
     private final GatewayRepository gatewayRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final WalletService walletService;
-    private final MessageService messageService;
     private final AqayePardakhtGatewayRepository apRepo;
-
-    @Override
-    public String createChargeWalletInvoice(Long userId, BigDecimal amount) {
-        if (amount.compareTo(paymentProperties.minimumWalletChargeAmountIrt()) < 0)
-            throw new WalletChargeAmountTooSmallException(paymentProperties.minimumWalletChargeAmountIrt());
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        Invoice invoice = new Invoice(user, new Money(amount));
-        invoice.setDescription(messageService.get(Text.INVOICE_REASON_CREDIT) + amount);
-        invoiceRepo.save(invoice);
-        return invoice.getInvoiceToken();
-    }
+    private final PostPaymentRegistryFactory postPaymentRegistryFactory;
 
     @Override
     public String createPaymentGatewayUri(Long userId, String invoiceToken, Long gatewayId) {
@@ -88,13 +73,16 @@ public class PaymentServiceImpl implements PaymentService {
                 Specification.allOf(InvoiceSpecification.hasInvoiceToken(callbackRequest.getInvoiceId())
                 )
         ).orElseThrow(NoSuchEntityException::new);
-        walletService.credit(invoice.getOwner().getId(), invoice.getMoney().getAmount(), TransactionReason.WALLET_CHARGE);
+
+        postPaymentRegistryFactory.getHandler(invoice.getPostPaymentAction().getPostPaymentType())
+                .processAction(invoice);
 
         if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
             invoice.setStatus(InvoiceStatus.PAID);
             invoice.setPaidAt(LocalDateTime.now().withNano(0));
             invoiceRepo.save(invoice);
-            savePaymentTransaction(callbackRequest, invoice, apRepo.find().orElseThrow(GatewayNotFoundException::new).getName());
+            savePaymentTransaction(callbackRequest, invoice, apRepo.find()
+                    .orElseThrow(GatewayNotFoundException::new).getName());
         } else {
             throw new InvoiceException("invoice is cancelled and cannot be payment-verified: " + invoice.getInvoiceToken());
         }

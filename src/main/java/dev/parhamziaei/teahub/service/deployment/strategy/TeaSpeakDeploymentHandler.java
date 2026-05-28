@@ -12,7 +12,6 @@ import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
-import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryProvisionException;
 import dev.parhamziaei.teahub.kafka.event.resource.TeaSpeakDeployEvent;
 import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;

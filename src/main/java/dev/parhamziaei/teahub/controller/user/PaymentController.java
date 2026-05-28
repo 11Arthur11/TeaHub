@@ -40,7 +40,7 @@ public class PaymentController {
     @Operation(
             summary = "Get Gateways",
             description = "Returns a list of all available gateways to choose on payment",
-            tags = {"PaymentTransaction"}
+            tags = {"Payment"}
     )
     @GetMapping("/gateways")
     public ResponseEntity<DataResponse<List<GatewayListUserResponse>>> getAllGateways() {
@@ -54,7 +54,7 @@ public class PaymentController {
     @Operation(
             summary = "PaymentTransaction Page Redirect",
             description = "Returns a redirect response of payment gateway",
-            tags = {"PaymentTransaction"}
+            tags = {"Payment"}
     )
     @PostMapping("/pay")
     public ResponseEntity<DataResponse<RedirectResponse>> payInvoice(
@@ -77,7 +77,7 @@ public class PaymentController {
     @Operation(
             summary = "Callback of Aqaye Pardakht",
             description = "Send the callback of aqaye pardakht gateway to this api to verify the payment",
-            tags = {"PaymentTransaction"},
+            tags = {"Payment"},
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             mediaType = MediaType.APPLICATION_FORM_URLENCODED_VALUE

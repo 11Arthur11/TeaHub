@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.user;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
-import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
+import dev.parhamziaei.teahub.entity.jpa.payment.invoice.Invoice;
 import dev.parhamziaei.teahub.enums.user.Roles;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter

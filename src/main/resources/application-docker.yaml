@@ -39,7 +39,6 @@ logging:
 app:
   settings:
     backend-domain: 'api.teacloud.ir'
-    frontend-domain: 'teacloud.ir'
   components:
     telnet:
       default-timeout-millis: 10000
@@ -87,9 +86,10 @@ app:
 
   cookie-factory:
     secure-cookie: true #TODO make this true in production
+    domain: ''
     two-factor-cookie-ttl: 300s
     phone-verify-cookie-ttl: 300s
-    same-site-attribute: "Strict"
+    same-site-attribute: 'Strict'
 
   jason-web-token:
     base64-secret: f633915d212d5159e506d6d69f6d1adcad3aff7396b05545df48183e1331d537 #Change this value on production phase, this is the whole authentication layer key , keep it secret ;)

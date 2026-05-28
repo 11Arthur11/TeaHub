@@ -8,7 +8,6 @@ import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
-import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletTransactionRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletSpecification;
@@ -43,6 +42,9 @@ public class WalletService {
     public void assertSufficientBalance(Long userId, BigDecimal amount) {
         Wallet wallet = walletRepo.findOne(WalletSpecification.forUserId(userId))
                 .orElseThrow(NoSuchEntityException::new);
+
+        if (wallet.getOwner().isAdmin())
+            return;
 
         if (wallet.getBalance().getAmount().compareTo(amount) < 0)
             throw new InsufficientBalanceException();
@@ -88,6 +90,9 @@ public class WalletService {
     @Transactional
     public void debit(Long walletId, BigDecimal amount, TransactionReason reason, Long relatedResourceId) {
         Wallet wallet = walletRepo.findByIdAndLock(walletId);
+
+        if (wallet.getOwner().isAdmin())
+            return;
 
         if (wallet.getBalance().getAmount().compareTo(amount) < 0)
             throw new InsufficientBalanceException();

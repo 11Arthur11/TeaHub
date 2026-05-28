@@ -9,6 +9,7 @@ import dev.parhamziaei.teahub.dto.response.global.DetailedDataResponse;
 import dev.parhamziaei.teahub.dto.response.user.WalletTransactionResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
+import dev.parhamziaei.teahub.service.InvoiceService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.WalletService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
@@ -30,10 +31,10 @@ import java.util.Map;
 @RequestMapping("/v1/wallet")
 public class WalletController {
 
-    private final PaymentService paymentService;
     private final MessageService messageService;
     private final WalletService walletService;
     private final CurrentUser currentUser;
+    private final InvoiceService invoiceService;
 
     @Operation(
             summary = "Redirect user to /v1/invoices/{invoiceToken} - invoice Token will send as data with response",
@@ -41,7 +42,7 @@ public class WalletController {
     )
     @PostMapping("/charge")
     public ResponseEntity<DetailedDataResponse<Map<String, String>>> chargeWallet(@RequestBody BalanceChargeRequest request) {
-        String invoiceToken = paymentService.createChargeWalletInvoice(
+        String invoiceToken = invoiceService.createChargeWalletInvoice(
                 currentUser.getId(),
                 request.getAmount()
         );

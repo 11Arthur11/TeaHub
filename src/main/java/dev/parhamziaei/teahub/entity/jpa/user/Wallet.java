@@ -17,7 +17,7 @@ import java.util.List;
 @Setter
 public class Wallet extends BaseEntity<Long> {
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     private User owner;
 
     @Embedded

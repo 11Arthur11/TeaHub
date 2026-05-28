@@ -13,6 +13,8 @@ import dev.parhamziaei.teahub.enums.messages.AuthMessage;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.exception.custom.authentication.BrokenJwtException;
 import dev.parhamziaei.teahub.exception.custom.authentication.InvalidTwoFactorException;
+import dev.parhamziaei.teahub.repository.redis.PhoneVerifyRepo;
+import dev.parhamziaei.teahub.repository.redis.TwoFactorRepo;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.TwoFactorService;
 import dev.parhamziaei.teahub.service.interfaces.JwtService;
@@ -51,6 +53,8 @@ public class AuthenticationController {
     private final JwtProperties jwtProperties;
     private final MessageService messageService;
     private final AuthenticationFactory authFactory;
+    private final TwoFactorRepo twoFactorRepo;
+    private final PhoneVerifyRepo phoneVerifyRepo;
 
     @ApiResponses(value = {
             @ApiResponse(
@@ -75,7 +79,7 @@ public class AuthenticationController {
             tags = {"Auth"}
     )
     @PostMapping("/initiate")
-    public ResponseEntity<SimpleResponse> authEntry(
+    public ResponseEntity<?> authEntry(
             @Valid @RequestBody AuthEntryRequest entryRequest,
             HttpServletRequest request,
             HttpServletResponse response
@@ -98,9 +102,14 @@ public class AuthenticationController {
             final String twoFactorToken = jwtService.generateTwoFactorLoginToken(phoneNumber, sessionId);
             Cookie sessionCookie = cookieFactory.twoFactorCookie(twoFactorToken);
             response.addCookie(sessionCookie);
+
+            //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
+            String twoFactorCode = twoFactorRepo.get(sessionId).getCode();
+
             return ResponseBuilder.buildSuccess(
                     ResponseType.LOGIN_INITIATED,
                     messageService.get(AuthMessage.TWO_FACTOR_SENT),
+                    twoFactorCode, //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
                     HttpStatus.OK
             );
         } else {
@@ -108,9 +117,14 @@ public class AuthenticationController {
             final String phoneVerifyToken = jwtService.generatePhoneVerifyToken(phoneNumber, sessionId);
             Cookie sessionCookie = cookieFactory.phoneVerifyCookie(phoneVerifyToken);
             response.addCookie(sessionCookie);
+
+            //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
+            String twoFactorCode = phoneVerifyRepo.get(sessionId).getCode();
+
             return ResponseBuilder.buildSuccess(
                     ResponseType.REGISTER_INITIATED,
                     messageService.get(AuthMessage.TWO_FACTOR_SENT),
+                    twoFactorCode, //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
                     HttpStatus.OK
             );
         }

@@ -1,4 +1,4 @@
-package dev.parhamziaei.teahub.entity.jpa.payment;
+package dev.parhamziaei.teahub.entity.jpa.payment.invoice;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -30,6 +30,10 @@ public class Invoice extends BaseEntity<Long> {
     @JoinColumn(name = "payment_id")
     private PaymentTransaction paymentTransaction;
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "post_payment_action_id")
+    private PostPaymentAction postPaymentAction;
+
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdAt;
 
@@ -44,6 +48,11 @@ public class Invoice extends BaseEntity<Long> {
         this.money = money;
         this.invoiceToken = "INVOICE_" + UUID.randomUUID();
         this.status = InvoiceStatus.PENDING;
+    }
+
+    public void setPostPaymentAction(PostPaymentAction postPaymentAction) {
+        postPaymentAction.setForInvoice(this);
+        this.postPaymentAction = postPaymentAction;
     }
 
     @PrePersist

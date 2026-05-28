@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.integration.payment_gateway.handler;
 
 import dev.parhamziaei.teahub.dto.request.payment.admin.GatewayPersistRequest;
-import dev.parhamziaei.teahub.entity.jpa.payment.Invoice;
+import dev.parhamziaei.teahub.entity.jpa.payment.invoice.Invoice;
 import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
 import dev.parhamziaei.teahub.integration.payment_gateway.dto.CallbackRequest;
 

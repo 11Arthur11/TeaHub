@@ -4,8 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("app.settings")
 public record ApplicationSettingProperties(
-        String backendDomain,
-        String frontendDomain
+        String backendDomain
 ) {
 
 }

@@ -1,12 +1,12 @@
 package dev.parhamziaei.teahub.enums.payment;
 
-public enum TransactionReason {
+public enum PostPaymentType {
     PROLONG("transaction-reason.prolong"),
-    PURCHASE("transaction-reason.purchase"),
-    WALLET_CHARGE("transaction-reason.wallet-charge");
+    WALLET_CHARGE("transaction-reason.wallet-charge"),
+    ADMIN_DEBT("transaction-reason.admin-debt"),;
 
     private final String key;
-    TransactionReason(String key) {
+    PostPaymentType(String key) {
         this.key = key;
     }
     public String key() {

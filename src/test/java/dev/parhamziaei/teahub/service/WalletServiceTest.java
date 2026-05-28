@@ -3,23 +3,18 @@ package dev.parhamziaei.teahub.service;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
-import dev.parhamziaei.teahub.enums.user.JwtType;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
 import dev.parhamziaei.teahub.repository.jpa.WalletTransactionRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletTransactionSpecification;
 import dev.parhamziaei.teahub.test_util.UserTestUtil;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class WalletServiceTest {

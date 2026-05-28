@@ -7,7 +7,7 @@ public enum Text {
     MAIL_TITLE_FORGOT_PASSWORD("mail.title.forgot_password"),
 
     INVOICE_REASON_CREDIT("invoice-reason.credit"),
-    INVOICE_REASON_PROLONG("invoice-reason.prolong"),;
+    INVOICE_REASON_PROLONG("invoice-reason.prolong");
 
     private final String key;
 

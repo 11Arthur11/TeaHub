@@ -21,7 +21,7 @@ public class PhoneNumberValidator implements ConstraintValidator<PhoneNumber, St
     public boolean isValid(String phoneNumber, ConstraintValidatorContext context) {
         if (phoneNumber == null || phoneNumber.isEmpty()) return false;
 
-        Pattern pattern = Pattern.compile("^\\+98[0-9]{10}$");
+        Pattern pattern = Pattern.compile("^9\\d{9}$");
         Matcher matcher = pattern.matcher(phoneNumber);
         return matcher.matches();
     }

@@ -144,6 +144,25 @@ public class ResourceService {
     }
 
     @Transactional
+    public void prolongByInvoicePaid(Long resourceId) {
+        BillableResource resource = billableResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        BillableProduct product = resource.getProduct();
+
+        // ? prolonging resource
+        resource.setExpiration(
+                resource.getExpiration().plus(product.getExpiration())
+        );
+
+        if (resource.getResourceStatus() == ResourceStatus.PENDING_PROLONG) {
+            resource.setResourceStatus(ResourceStatus.ACTIVE);
+            deploymentFactory.getStrategy(resource.getResourceType())
+                    .resume(resource);
+        }
+    }
+
+    @Transactional
     public void prolongResource(Long userId, Long resourceId) {
         BillableResource resource = billableResourceRepository.findOneByOwnerId(userId, resourceId)
                 .orElseThrow(NoSuchEntityException::new);
