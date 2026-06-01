@@ -1,6 +1,5 @@
 package dev.parhamziaei.teahub.exception.handler;
 
-import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.messages.Message;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
@@ -11,8 +10,6 @@ import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.*;
-import dev.parhamziaei.teahub.exception.custom.service.dns.DnsProviderApiException;
-import dev.parhamziaei.teahub.exception.custom.service.dns.DnsProviderNotConfiguredException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.*;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
@@ -32,7 +29,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,7 +37,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
-import java.net.URI;
 
 @Slf4j
 @ControllerAdvice
@@ -49,11 +44,11 @@ import java.net.URI;
 public class GlobalExceptionHandler {
 
     private final MessageService messageService;
-    private final PaymentServiceProperties paymentServiceProperties;
 
     // TODO <Global, Default Exceptions>
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<SimpleResponse> generalException() {
+    public ResponseEntity<SimpleResponse> generalException(Exception e) {
+        log.error("Exception: {}", e.getMessage(), e);
         return ResponseBuilder.buildError(
                 messageService.get(Message.SERVER_INTERNAL_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR
@@ -69,7 +64,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<SimpleResponse> ioException() {
+    public ResponseEntity<SimpleResponse> ioException(IOException e) {
+        log.error("IOException: {}", e.getMessage(), e);
         return ResponseBuilder.buildError(
                 messageService.get(Message.SERVER_IO_ERROR),
                 HttpStatus.INTERNAL_SERVER_ERROR
@@ -260,7 +256,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    //TODO <Gateway & PaymentTransaction Exceptions>
+    //TODO <Gateway & Payment Exceptions>
     @ExceptionHandler(GatewayException.class)
     public ResponseEntity<SimpleResponse> handleGatewayException() {
         return ResponseBuilder.buildError(
@@ -309,13 +305,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(PaymentVerificationException.class)
-    public ResponseEntity<Void> handlePaymentVerificationException() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create(paymentServiceProperties.paymentFailedRedirectUri()));
-        return new ResponseEntity<>(headers, HttpStatus.FOUND);
-    }
-
     //TODO <Resource & Deployment Exceptions>
     @ExceptionHandler(ResourceProvisionException.class)
     public ResponseEntity<SimpleResponse> handleResourceProvisionException() {
@@ -347,23 +336,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<SimpleResponse> handleWalletChargeAmountTooSmallException() {
         return ResponseBuilder.buildError(
                 messageService.get(ServiceMessage.USER_WALLET_CHARGE_AMOUNT_TOO_SMALL),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    //TODO <DNS Provider Exceptions>
-    @ExceptionHandler(DnsProviderNotConfiguredException.class)
-    public ResponseEntity<SimpleResponse> handleDnsProviderNotConfiguredException() {
-        return ResponseBuilder.buildError(
-                messageService.get(ServiceMessage.DNS_PROVIDER_NOT_CONFIGURED),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler(DnsProviderApiException.class)
-    public ResponseEntity<SimpleResponse> handleDnsProviderApiException() {
-        return ResponseBuilder.buildError(
-                messageService.get(ServiceMessage.DNS_PROVIDER_API_ERROR),
                 HttpStatus.BAD_REQUEST
         );
     }

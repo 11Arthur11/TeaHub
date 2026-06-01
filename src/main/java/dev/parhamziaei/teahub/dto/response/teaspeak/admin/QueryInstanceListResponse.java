@@ -9,8 +9,6 @@ public class QueryInstanceListResponse {
 
     private String name;
 
-    private boolean enabled;
-
     private String status;
 
     private Integer maxTeaSpeakInstance;

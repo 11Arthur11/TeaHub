@@ -79,6 +79,8 @@ public class QueryInstanceService {
         QueryInstance queryInstance = queryInstanceRepo.findById(id)
                 .orElseThrow(QueryInstanceNotFoundException::new);
         queryInstance.setStatus(status);
+        if (status == QueryInstanceStatus.DISPATCHED)
+            queryInstance.setActive(true);
         queryInstanceRepo.update(queryInstance);
     }
 

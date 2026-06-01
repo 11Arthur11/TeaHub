@@ -33,6 +33,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         PaymentServiceProperties.class,
         ApplicationSettingProperties.class,
         AudioBotNodeProperties.class,
+        RedisConfigurationProperties.class,
 })
 public class TeaHubApplication {
     public static void main(String[] args) {

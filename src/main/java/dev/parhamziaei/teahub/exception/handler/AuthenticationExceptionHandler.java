@@ -6,6 +6,7 @@ import dev.parhamziaei.teahub.exception.custom.authentication.*;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class AuthenticationExceptionHandler {
@@ -54,7 +56,8 @@ public class AuthenticationExceptionHandler {
     }
 
     @ExceptionHandler(InvalidTwoFactorException.class)
-    public ResponseEntity<SimpleResponse> invalidTwoFactorException() {
+    public ResponseEntity<SimpleResponse> invalidTwoFactorException(InvalidTwoFactorException e) {
+        log.debug("Invalid Two Factor: ", e);
         return ResponseBuilder.buildError(
                 messageService.get(AuthMessage.TWO_FACTOR_INVALID),
                 HttpStatus.BAD_REQUEST

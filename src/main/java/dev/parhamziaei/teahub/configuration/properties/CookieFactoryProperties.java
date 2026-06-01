@@ -9,6 +9,7 @@ public record CookieFactoryProperties(
         String domain,
         Duration twoFactorCookieTtl,
         Duration phoneVerifyCookieTtl,
-        Boolean secureCookie
+        Boolean secureCookie,
+        String sameSiteAttribute
 ) {
 }
