@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.dto.response.resource.teaspeak.user;
 
 import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
 import dev.parhamziaei.teahub.dto.response.resource.teaspeak.TeaSpeakResourceTokenResponse;
+import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +12,7 @@ public class TeaSpeakResourceDetailResponse extends AbstractResourceDetailRespon
 
     private Integer maxClients;
     private Integer port;
-    private String teaSpeakStatus;
+    private TeaSpeakStatus teaSpeakStatus;
     private TeaSpeakResourceTokenResponse privilegeToken;
 
 }

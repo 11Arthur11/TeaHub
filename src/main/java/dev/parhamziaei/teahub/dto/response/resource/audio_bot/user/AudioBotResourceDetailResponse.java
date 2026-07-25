@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.dto.response.resource.audio_bot.user;
 
 import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
+import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,6 +15,6 @@ public class AudioBotResourceDetailResponse extends AbstractResourceDetailRespon
 
     private String serverPassword;
 
-    private String botStatus;
+    private AudioBotStatus botStatus;
 
 }

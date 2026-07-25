@@ -18,12 +18,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
@@ -35,6 +37,19 @@ public class WalletController {
     private final WalletService walletService;
     private final CurrentUser currentUser;
     private final InvoiceService invoiceService;
+
+    @Operation(
+            summary = "User balance",
+            tags = {"Wallet"}
+    )
+    @GetMapping("/balance")
+    public ResponseEntity<DataResponse<BigDecimal>> getBalance() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                walletService.getBalance(currentUser.getId()),
+                HttpStatus.OK
+        );
+    }
 
     @Operation(
             summary = "Redirect user to /v1/invoices/{invoiceToken} - invoice Token will send as data with response",

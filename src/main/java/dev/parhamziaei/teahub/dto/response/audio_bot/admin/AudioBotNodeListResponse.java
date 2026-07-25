@@ -18,7 +18,7 @@ public class AudioBotNodeListResponse {
 
     private String webAddress;
 
-    private String nodeStatus;
+    private NodeStatus nodeStatus;
 
     private Integer maxBotInstance;
 

@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.ticket.user;
 
+import dev.parhamziaei.teahub.enums.user.Roles;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public class TicketMessageResponse {
 
     private String message;
 
-    private String senderRole;
+    private Roles senderRole;
 
     private Set<TicketAttachmentResponse> attachments;
 

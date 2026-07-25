@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(NoSuchEntityException::new);
         T response = modelMapper.map(user, clazz);
-        response.setRole(messageService.get(Roles.fromName(user.getRole().getName())));
+        response.setRole(Roles.fromName(user.getRole().getName()));
         return response;
     }
 

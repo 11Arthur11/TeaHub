@@ -91,19 +91,18 @@ public class TeaSpeakService {
             token.setToken(privilegeAddResponse.getToken());
 
 
-            // ? updating billable resource as it deployed
+            // ? updating billable resource as it deploys
             teaSpeakResource.setPort(instancePort);
             teaSpeakResource.setMaxClients(maxClients);
             teaSpeakResource.setSid(createServerResponse.getSid());
             teaSpeakResource.setResourceStatus(ResourceStatus.ACTIVE);
             teaSpeakResource.setTeaSpeakStatus(TeaSpeakStatus.ONLINE);
-
-            Hibernate.initialize(queryInstance.getInstances());
-            queryInstance.addInstance(teaSpeakResource);
+            teaSpeakResource.setParentQueryInstance(queryInstance);
 
             teaSpeakResourceRepository.save(teaSpeakResource);
 
         } catch (QueryCommandExecutionException e) {
+            log.error(e.getMessage());
             // TODO handle failover reDeployment phase here
         }
     }

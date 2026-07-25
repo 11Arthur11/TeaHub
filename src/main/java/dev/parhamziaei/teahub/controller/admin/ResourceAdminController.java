@@ -28,7 +28,7 @@ public class ResourceAdminController {
             tags = {"Resource (Admin)"}
     )
     @PostMapping
-    public ResponseEntity<DataResponse<PagedModel<ResourceListAdminResponse>>> getAllResources(@RequestBody ResourceFilterRequest filter) {
+    public ResponseEntity<DataResponse<PagedModel<ResourceListAdminResponse>>> getAllResources(@ModelAttribute ResourceFilterRequest filter) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 resourceService.getAllResources(filter),

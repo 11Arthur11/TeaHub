@@ -22,32 +22,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TicketMapper {
 
-    private final MessageService messageService;
     private final ModelMapper modelMapper;
     private final BillableResourceRepository billableResourceRepository;
 
-    public <T extends AbstractTicketResponse> T enrichTicket(Ticket ticket, T dto) {
-        dto.setDepartment(messageService.get(ticket.getDepartment()));
-        dto.setStatus(messageService.get(ticket.getStatus()));
-        return dto;
-    }
-
     public <T extends AbstractTicketResponse> Page<T> mapPage(Page<Ticket> source, Class<T> responseType) {
         List<T> list = new ArrayList<>();
-        source.getContent().forEach(t -> {
-            T dto = enrichTicket(t, modelMapper.map(t, responseType));
-            list.add(dto);
-        });
+        source.getContent().forEach(t -> modelMapper.map(t, responseType));
         return new PageImpl<>(list, source.getPageable(), source.getTotalElements());
-    }
-
-    public <T extends AbstractTicketResponse> T mapTicket(Ticket ticket, Class<T> responseType) {
-        return enrichTicket(ticket, modelMapper.map(ticket, responseType));
     }
 
     public <T extends TicketDetailBaseResponse> T mapTicketDetail(Ticket ticket, Class<T> responseType) {
         List<TicketMessageResponse> messagesDTO = mapMessages(ticket.getMessages());
-        T dto = enrichTicket(ticket, modelMapper.map(ticket, responseType));
+        T dto = modelMapper.map(ticket, responseType);
         dto.setMessages(messagesDTO);
 
         if (ticket.getRelatedResourceId() != null)

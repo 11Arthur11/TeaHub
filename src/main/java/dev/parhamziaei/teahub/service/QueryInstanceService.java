@@ -201,7 +201,6 @@ public class QueryInstanceService {
                 .map(q -> {
                     QueryInstanceListResponse response = modelMapper.map(q, QueryInstanceListResponse.class);
                     response.setUsedInstanceSlot(q.getInstances().size());
-                    response.setStatus(messageService.get(q.getStatus()));
                     return response;
                 })
                 .toList();

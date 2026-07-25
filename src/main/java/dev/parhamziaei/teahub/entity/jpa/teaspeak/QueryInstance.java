@@ -6,6 +6,7 @@ import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,13 +66,6 @@ public class QueryInstance extends BaseEntity<Long> {
         this.initiatedAt = LocalDateTime.now().withNano(0);
         this.lastUsed = LocalDateTime.now().withNano(0);
         this.isFull = instances.size() >= maxTeaSpeakInstance;
-    }
-
-    public void addInstance(TeaSpeakResource instance) {
-        if (this.instances == null)
-            this.instances = new ArrayList<>();
-        instance.setParentQueryInstance(this);
-        instances.add(instance);
     }
 
     public String getAddress() {

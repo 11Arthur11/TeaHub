@@ -28,6 +28,7 @@ public class WalletTransactionSpecification {
     }
 
     public static Specification<WalletTransaction> byRelatedResourceId(Long relatedResourceId) {
+        if (relatedResourceId == null) return null;
         return (root, query, cb) -> cb.equal(root.get("relatedResourceId"), relatedResourceId);
     }
 

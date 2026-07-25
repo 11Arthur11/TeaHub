@@ -53,13 +53,11 @@ public class DnsProviderService {
                 .orElseThrow(DnsProviderNotConfiguredException::new);
 
         LiaraDnsProviderDetailResponse response = modelMapper.map(provider, LiaraDnsProviderDetailResponse.class);
-        response.setStatus(messageService.get(provider.getStatus()));
 
         List<DnsZoneListResponse> dnsZoneListResponse = new ArrayList<>();
 
         provider.getDnsZones().forEach(zone -> {
             DnsZoneListResponse zoneResponse = modelMapper.map(zone, DnsZoneListResponse.class);
-            zoneResponse.setStatus(messageService.get(zone.getStatus()));
             dnsZoneListResponse.add(zoneResponse);
         });
 

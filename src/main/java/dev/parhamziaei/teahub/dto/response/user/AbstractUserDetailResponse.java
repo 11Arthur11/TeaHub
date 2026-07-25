@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.user;
 
+import dev.parhamziaei.teahub.enums.user.Roles;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ public abstract class AbstractUserDetailResponse {
 
     private String email;
 
-    private String role;
+    private Roles role;
 
     private LocalDateTime lastLogin;
 

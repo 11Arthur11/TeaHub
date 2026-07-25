@@ -16,6 +16,6 @@ public class DnsZoneListResponse {
 
     private Boolean active;
 
-    private String status;
+    private ZoneStatus status;
 
 }

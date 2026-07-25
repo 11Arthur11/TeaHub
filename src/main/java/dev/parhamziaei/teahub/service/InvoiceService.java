@@ -55,9 +55,7 @@ public class InvoiceService {
         Invoice invoice = invoiceRepo.findOne(spec)
                 .orElseThrow(NoSuchEntityException::new);
 
-        InvoiceUserResponse response = modelMapper.map(invoice, InvoiceUserResponse.class);
-        response.setStatus(messageService.get(invoice.getStatus()));
-        return response;
+        return modelMapper.map(invoice, InvoiceUserResponse.class);
     }
 
     public String createChargeWalletInvoice(Long userId, BigDecimal amount) {
@@ -109,7 +107,6 @@ public class InvoiceService {
         List<InvoiceAdminResponse> response = invoices.stream()
                 .map(i -> {
                     InvoiceAdminResponse r = modelMapper.map(i, InvoiceAdminResponse.class);
-                    r.setStatus(messageService.get(i.getStatus()));
                     r.setPaymentTransaction(modelMapper.map(i.getPaymentTransaction(), PaymentTransactionDetailResponse.class));
                     return r;
                 })
@@ -134,11 +131,7 @@ public class InvoiceService {
 
         List<InvoiceUserResponse> response = invoiceRepo.findAll(spec, PageRequest.of(filterRequest.getPage(), filterRequest.getSize()))
                 .stream()
-                .map(i -> {
-                    InvoiceUserResponse r = modelMapper.map(i, InvoiceUserResponse.class);
-                    r.setStatus(messageService.get(i.getStatus()));
-                    return r;
-                })
+                .map(i -> modelMapper.map(i, InvoiceUserResponse.class))
                 .sorted(Comparator.comparing(InvoiceUserResponse::getCreatedAt))
                 .toList();
 

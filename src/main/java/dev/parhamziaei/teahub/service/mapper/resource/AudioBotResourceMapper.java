@@ -19,7 +19,6 @@ public class AudioBotResourceMapper implements ResourceMapperHandler {
 
     private final AudioBotService audioBotService;
     private final ModelMapper modelMapper;
-    private final MessageService messageService;
 
     @Override
     public ResourceType getType() {
@@ -29,8 +28,6 @@ public class AudioBotResourceMapper implements ResourceMapperHandler {
     private <T extends AudioBotResourceDetailResponse> T mapInternal(AudioBotResource resource, Class<T> clazz) {
         audioBotService.syncWithNode(resource);
         T resourceDetail = modelMapper.map(resource, clazz);
-        resourceDetail.setBotStatus(messageService.get(resource.getBotStatus()));
-        resourceDetail.setResourceStatus(messageService.get(resource.getResourceStatus()));
         resourceDetail.setProductName(resource.getProduct().getProductName());
 
         ABConnectSettingsResponse instanceConnectSettings = audioBotService.getInstanceSetting(resource).getConnect();

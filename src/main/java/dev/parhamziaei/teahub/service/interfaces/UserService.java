@@ -7,7 +7,6 @@ import dev.parhamziaei.teahub.dto.response.user.admin.RoleListResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.UserEditAdminRequest;
 import dev.parhamziaei.teahub.dto.response.user.admin.UserListResponse;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
-import dev.parhamziaei.teahub.enums.user.Roles;
 import org.springframework.data.web.PagedModel;
 import org.springframework.security.core.userdetails.UserDetailsService;
 

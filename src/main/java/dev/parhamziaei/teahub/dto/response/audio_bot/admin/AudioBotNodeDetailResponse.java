@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.audio_bot.admin;
 
+import dev.parhamziaei.teahub.enums.audio_bot.NodeStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ public class AudioBotNodeDetailResponse {
 
     private String password;
 
-    private String nodeStatus;
+    private NodeStatus nodeStatus;
 
     private LocalDateTime initiatedAt;
 

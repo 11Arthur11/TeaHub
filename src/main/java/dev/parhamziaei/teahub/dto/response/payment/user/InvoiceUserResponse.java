@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.payment.user;
 
+import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.valueobject.Money;
 import lombok.Data;
 
@@ -16,6 +17,6 @@ public class InvoiceUserResponse {
 
     private LocalDateTime paidAt;
 
-    private String status;
+    private InvoiceStatus status;
 
 }

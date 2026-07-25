@@ -67,7 +67,7 @@ public class ResourceService {
         billableResourceRepository.findAll(tsSpec).forEach(resource -> {
             ResourceListResponse dto = modelMapper.map(resource, ResourceListResponse.class);
             dto.setProductName(resource.getProduct().getProductName());
-            dto.setResourceStatus(messageService.get(resource.getResourceStatus()));
+            dto.setResourceType(resource.getResourceType());
             resourcesResponse.add(dto);
         });
         return resourcesResponse;
@@ -90,8 +90,8 @@ public class ResourceService {
                 .map(r -> {
                     ResourceListAdminResponse dto = modelMapper.map(r, ResourceListAdminResponse.class);
                     dto.setProductName(r.getProduct().getProductName());
-                    dto.setResourceStatus(messageService.get(r.getResourceStatus()));
                     dto.setOwnerId(r.getOwner().getId());
+                    dto.setResourceType(r.getResourceType());
                     return dto;
                 }).toList();
         Page<ResourceListAdminResponse> mappedPage = new PageImpl<>(mapped, pageable, resourcesPage.getTotalElements());

@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.teaspeak.admin;
 
+import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
 import lombok.Data;
 
 @Data
@@ -9,7 +10,7 @@ public class QueryInstanceListResponse {
 
     private String name;
 
-    private String status;
+    private QueryInstanceStatus status;
 
     private Integer maxTeaSpeakInstance;
 

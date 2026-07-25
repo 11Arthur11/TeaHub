@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.resource;
 
+import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public abstract class AbstractResourceDetailResponse {
     private String label;
     private String productName;
     private ResourceType resourceType;
-    private String resourceStatus;
+    private ResourceStatus resourceStatus;
     private LocalDateTime orderDate;
     private LocalDateTime expiration;
     private boolean autoProlong;

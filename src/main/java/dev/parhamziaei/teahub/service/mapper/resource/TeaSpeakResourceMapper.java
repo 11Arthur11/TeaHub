@@ -28,8 +28,6 @@ public class TeaSpeakResourceMapper implements ResourceMapperHandler {
     private <T extends TeaSpeakResourceDetailResponse> T mapInternal(TeaSpeakResource resource, Class<T> clazz) {
         teaSpeakService.syncWithQuery(resource);
         T resourceDetail = modelMapper.map(resource, clazz);
-        resourceDetail.setTeaSpeakStatus(messageService.get(resource.getTeaSpeakStatus()));
-        resourceDetail.setResourceStatus(messageService.get(resource.getResourceStatus()));
         resourceDetail.setProductName(resource.getProduct().getProductName());
         resourceDetail.setPrivilegeToken(modelMapper.map(resource.getPrivilegeToken(), TeaSpeakResourceTokenResponse.class));
         return resourceDetail;

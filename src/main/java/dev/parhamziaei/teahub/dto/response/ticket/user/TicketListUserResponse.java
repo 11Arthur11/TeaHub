@@ -1,6 +1,8 @@
 package dev.parhamziaei.teahub.dto.response.ticket.user;
 
 import dev.parhamziaei.teahub.dto.response.ticket.AbstractTicketResponse;
+import dev.parhamziaei.teahub.enums.ticket.TicketDepartment;
+import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,9 +18,9 @@ public class TicketListUserResponse extends AbstractTicketResponse {
 
     private String subject;
 
-    private String status;
+    private TicketStatus status;
 
-    private String department;
+    private TicketDepartment department;
 
     private LocalDateTime createdAt;
 

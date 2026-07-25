@@ -58,9 +58,7 @@ public class AudioBotNodeService {
 
         List<AudioBotNodeListResponse> nodeListResponses = audioBotNodes.stream()
                 .map(audioBotNode -> {
-                    AudioBotNodeListResponse nodeResponse = modelMapper.map(audioBotNode, AudioBotNodeListResponse.class);
-                    nodeResponse.setNodeStatus(messageService.get(audioBotNode.getNodeStatus()));
-                    return nodeResponse;
+                    return modelMapper.map(audioBotNode, AudioBotNodeListResponse.class);
                 }).toList();
 
         if (nodeListResponses.isEmpty())
@@ -78,7 +76,6 @@ public class AudioBotNodeService {
         List<ABInstanceListResponse> instanceList = audioBotGateway.getInstanceList(node);
 
         AudioBotNodeDetailResponse nodeResponse = modelMapper.map(node, AudioBotNodeDetailResponse.class);
-        nodeResponse.setNodeStatus(messageService.get(node.getNodeStatus()));
         nodeResponse.setAllInstanceCount(instanceList.size());
         nodeResponse.setOnlineInstanceCount(
                 instanceList.stream()

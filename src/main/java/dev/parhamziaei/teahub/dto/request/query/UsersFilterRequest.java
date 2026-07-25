@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class UsersFilterRequest extends BasePaginationRequest {
 
+    private String search;
     private Long byRoleId;
     private Boolean byEnabled;
     private Boolean byLocked;

@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.payment.admin;
 
+import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.valueobject.Money;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ public class InvoiceAdminResponse {
 
     private LocalDateTime paidAt;
 
-    private String status;
+    private InvoiceStatus status;
 
     private PaymentTransactionDetailResponse paymentTransaction;
 

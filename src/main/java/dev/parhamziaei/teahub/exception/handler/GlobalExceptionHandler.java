@@ -275,9 +275,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(GatewayNotFoundException.class)
     public ResponseEntity<SimpleResponse> handleGatewayNotFoundException() {
-        return ResponseBuilder.buildError(
-                messageService.get(ServiceMessage.PAYMENT_GATEWAY_NOT_FOUND),
-                HttpStatus.GATEWAY_TIMEOUT
+        return ResponseBuilder.buildSuccess(
+                ResponseType.NO_DATA,
+                messageService.get(ServiceMessage.PAYMENT_GATEWAY_CONFIG_ERROR),
+                HttpStatus.OK
         );
     }
 
