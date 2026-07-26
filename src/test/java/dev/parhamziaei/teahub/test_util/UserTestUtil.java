@@ -11,7 +11,6 @@ import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -43,8 +42,8 @@ public class UserTestUtil {
     @Transactional
     public User persistedDummyAdminUser() {
         Random random = new Random();
-        Role adminRole = roleRepository.findByName(Roles.ADMIN.value())
-                .orElseThrow(() -> new NoSuchRoleException(Roles.ADMIN.value()));
+        Role adminRole = roleRepository.findByName(Roles.ROLE_ADMIN.value())
+                .orElseThrow(() -> new NoSuchRoleException(Roles.ROLE_ADMIN.value()));
         UserSetting userSetting = new UserSetting();
         User adminUser = User.builder()
                 .phone("+989" + String.format("%08d", random.nextInt(100000000)))
@@ -64,8 +63,8 @@ public class UserTestUtil {
     @Transactional
     public User persistedDummyUser() {
         Random random = new Random();
-        Role role = roleRepository.findByName(Roles.USER.value())
-                .orElseThrow(() -> new NoSuchRoleException(Roles.USER.value()));
+        Role role = roleRepository.findByName(Roles.ROLE_USER.value())
+                .orElseThrow(() -> new NoSuchRoleException(Roles.ROLE_USER.value()));
         UserSetting userSetting = new UserSetting();
         User user = User.builder()
                 .email("persisted.dummy@gmail.top")
@@ -94,7 +93,7 @@ public class UserTestUtil {
     }
 
     public static User dummyUser() {
-        Role role = new Role(Roles.USER.name(), Roles.USER.hierarchy());
+        Role role = new Role(Roles.ROLE_USER.name(), Roles.ROLE_USER.hierarchy());
         User user = User.builder()
                 .phone("+989113783112")
                 .email("john.doe@gmail.com")

@@ -1,15 +1,22 @@
 package dev.parhamziaei.teahub.service;
 
+import dev.parhamziaei.teahub.dto.internal.shop.Renewal;
 import dev.parhamziaei.teahub.dto.request.query.WalletTransactionFilterRequest;
 import dev.parhamziaei.teahub.dto.response.user.WalletTransactionResponse;
+import dev.parhamziaei.teahub.dto.response.user.user.WalletOverviewResponse;
 import dev.parhamziaei.teahub.entity.jpa.payment.WalletTransaction;
+import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
+import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
+import dev.parhamziaei.teahub.enums.payment.TransactionType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
+import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletTransactionRepository;
+import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpecification;
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletSpecification;
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletTransactionSpecification;
 import dev.parhamziaei.teahub.valueobject.Money;
@@ -23,8 +30,11 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 
 import static dev.parhamziaei.teahub.enums.payment.TransactionType.CREDIT;
 import static dev.parhamziaei.teahub.enums.payment.TransactionType.DEBIT;
@@ -38,6 +48,7 @@ public class WalletService {
     private final WalletTransactionRepository walletTransactionRepo;
     private final ModelMapper modelMapper;
     private final MessageService messageService;
+    private final BillableResourceRepository billableResourceRepository;
 
     public void assertSufficientBalance(Long userId, BigDecimal amount) {
         Wallet wallet = walletRepo.findOne(WalletSpecification.forUserId(userId))
@@ -54,6 +65,89 @@ public class WalletService {
         return walletRepo.findOne(WalletSpecification.forUserId(userId))
                 .orElseThrow(NoSuchEntityException::new)
                 .getBalance().getAmount();
+    }
+
+    public WalletOverviewResponse getOverview(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+
+        Wallet wallet = walletRepo.findOne(WalletSpecification.forUserId(userId))
+                .orElseThrow(NoSuchEntityException::new);
+
+        Specification<WalletTransaction> spec = WalletTransactionSpecification.forWallet(wallet.getId())
+                .and(WalletTransactionSpecification.betweenTime(now.minus(Duration.ofDays(30)), now))
+                .and(WalletTransactionSpecification.byTransactionType(DEBIT));
+
+        List<WalletTransaction> transactions = walletTransactionRepo.findAll(spec);
+
+        BigDecimal spentLastMonth = sumTransactions(transactions);
+
+        BigDecimal spentLastWeek = sumTransactions(
+                transactions.stream()
+                        .filter(t -> t.getCreatedAt().isAfter(now.minusDays(7)))
+                        .toList()
+        );
+
+        BigDecimal spentLastDay = sumTransactions(
+                transactions.stream()
+                        .filter(t -> t.getCreatedAt().isAfter(now.minusDays(1)))
+                        .toList()
+        );
+
+        return WalletOverviewResponse.builder()
+                .autoRenewalCoverageUntil(calculateAutoRenewalCoverage(wallet))
+                .balance(wallet.getBalance())
+                .spentLast30days(new Money(spentLastMonth))
+                .spentLast7days(new Money(spentLastWeek))
+                .spentLastDay(new Money(spentLastDay))
+                .build();
+    }
+
+    private BigDecimal sumTransactions(List<WalletTransaction> transactions) {
+        return transactions.stream()
+                .map(WalletTransaction::getAmount)
+                .map(Money::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    protected LocalDateTime calculateAutoRenewalCoverage(Wallet wallet) {
+        Specification<BillableResource> spec = BillableResourceSpecification.byUserId(wallet.getOwner().getId());
+        List<Renewal> resources = billableResourceRepository.findAll(spec)
+                .stream()
+                .filter(BillableResource::isAutoProlong)
+                .map(r ->
+                        new Renewal(
+                                r.getExpiration(),
+                                r.getProduct().getPeriod().duration(),
+                                r.getProduct().getPrice().getAmount()
+                        )
+                )
+                .toList();
+
+        PriorityQueue<Renewal> queue =
+                new PriorityQueue<>(Comparator.comparing(Renewal::expiration));
+
+        queue.addAll(resources);
+
+        BigDecimal currentBalance = wallet.getBalance().getAmount();
+        while (true) {
+            Renewal renewal = queue.poll();
+
+            if (renewal == null) {
+                return null;
+            }
+
+            if (currentBalance.compareTo(renewal.price()) < 0) {
+                return renewal.expiration();
+            }
+
+            currentBalance = currentBalance.subtract(renewal.price());
+
+            queue.add(new Renewal(
+                    renewal.expiration().plus(renewal.period()),
+                    renewal.period(),
+                    renewal.price()
+            ));
+        }
     }
 
     public PagedModel<WalletTransactionResponse> getWalletTransactions(Long walletId, WalletTransactionFilterRequest filter) {

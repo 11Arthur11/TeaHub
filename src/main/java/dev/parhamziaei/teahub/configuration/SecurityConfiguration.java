@@ -4,7 +4,6 @@ import dev.parhamziaei.teahub.component.filter.AlreadyLoggedInFilter;
 import dev.parhamziaei.teahub.component.filter.JwtAuthFilter;
 import dev.parhamziaei.teahub.enums.user.Roles;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -57,8 +54,8 @@ public class SecurityConfiguration {
     @Bean
     public static RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.withDefaultRolePrefix()
-                .role(Roles.ADMIN.nameWithoutPrefix()).implies(Roles.SUPPORT.nameWithoutPrefix())
-                .role(Roles.SUPPORT.nameWithoutPrefix()).implies(Roles.USER.nameWithoutPrefix())
+                .role(Roles.ROLE_ADMIN.nameWithoutPrefix()).implies(Roles.ROLE_SUPPORT.nameWithoutPrefix())
+                .role(Roles.ROLE_SUPPORT.nameWithoutPrefix()).implies(Roles.ROLE_USER.nameWithoutPrefix())
                 .build();
     }
 
@@ -82,8 +79,8 @@ public class SecurityConfiguration {
                         authorize -> authorize
                         .requestMatchers("/v1/auth/**", "/v1/payments/gateway/**").permitAll()
                         .requestMatchers("/docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers("/v1/admin/tickets/**").hasRole(Roles.SUPPORT.nameWithoutPrefix())
-                        .requestMatchers("/v1/admin/**").hasRole(Roles.ADMIN.nameWithoutPrefix())
+                        .requestMatchers("/v1/admin/tickets/**").hasRole(Roles.ROLE_SUPPORT.nameWithoutPrefix())
+                        .requestMatchers("/v1/admin/**").hasRole(Roles.ROLE_ADMIN.nameWithoutPrefix())
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

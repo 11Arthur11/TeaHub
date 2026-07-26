@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.resource;
 
+import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import lombok.Data;
@@ -15,5 +16,6 @@ public class ResourceListResponse {
     private ResourceStatus resourceStatus;
     private ResourceType resourceType;
     private LocalDateTime expiration;
+    private ProductPeriod period;
 
 }

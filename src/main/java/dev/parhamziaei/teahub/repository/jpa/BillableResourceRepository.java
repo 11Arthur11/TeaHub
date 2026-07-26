@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
+import dev.parhamziaei.teahub.dto.response.dashboard.user.ResourceOverviewResponse;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,5 +21,16 @@ public interface BillableResourceRepository extends JpaSpecificationExecutor<Bil
         else
             return findOneByOwnerId(user.getId(), resourceId);
     }
+
+    @Query("""
+        SELECT new dev.parhamziaei.teahub.dto.response.dashboard.user.ResourceMetricResponse(
+            COUNT(r),
+            SUM(CASE WHEN r.resourceStatus = 'ACTIVE' THEN 1 ELSE 0 END),
+            SUM(CASE WHEN r.resourceStatus = 'PENDING_PROLONG' THEN 1 ELSE 0 END)
+        )
+        FROM BillableResource r
+        WHERE r.owner.id = :userId
+    """)
+    ResourceOverviewResponse getOverview(@Param("userId") Long userId);
 
 }

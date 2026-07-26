@@ -27,5 +27,6 @@ public interface TicketService {
     void submit(Long userId, TicketAdminRequest ticketRequest);
     <T extends AbstractTicketResponse> PagedModel<T> getUserTickets(TicketFilterRequest filterRequest, Long userId, Class<T> responseType);
     ImageInternal getTicketAttachment(String attachmentIdentifier, Long senderId);
+    Long countOpenTickets(Long userId);
 
 }

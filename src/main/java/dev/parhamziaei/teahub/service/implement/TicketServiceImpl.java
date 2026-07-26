@@ -22,6 +22,7 @@ import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmentReachedException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
 import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
+import dev.parhamziaei.teahub.repository.jpa.TicketAttachmentRepository;
 import dev.parhamziaei.teahub.repository.jpa.TicketRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.TicketSpecification;
@@ -60,6 +61,8 @@ public class TicketServiceImpl implements TicketService {
     private final BillableResourceRepository billableResourceRepository;
     private final TicketMapStruct ticketMapStruct;
     private final TicketMapper ticketMapper;
+    private final TicketAttachmentRepository ticketAttachmentRepository;
+    private final TicketRepository ticketRepository;
 
     protected BiPredicate<User, TicketMessageAttachment> hasAccessToAttachment = (user, attachment) -> {
         if (user.isStaff())
@@ -181,6 +184,7 @@ public class TicketServiceImpl implements TicketService {
                     .ticketMessage(loadedTicketMessage)
                     .build();
 
+            ticketAttachmentRepository.save(attachment);
             loadedTicketMessage.addAttachment(attachment);
         }));
     }
@@ -334,5 +338,9 @@ public class TicketServiceImpl implements TicketService {
         }
         log.warn("Ticket attachment not found or permission missing, user: {}, fileName: {}", user.getPhone(), attachmentIdentifier);
         throw new TicketServiceException("Attachment not found or permission denied.");
+    }
+
+    public Long countOpenTickets(Long userId) {
+        return ticketRepository.countTicketsByStatus(userId, TicketStatus.PENDING);
     }
 }

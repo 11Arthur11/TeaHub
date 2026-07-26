@@ -4,9 +4,9 @@ import java.util.Set;
 
 public enum Roles {
 
-    USER(0, "ROLE_USER", "authority.user"),
-    SUPPORT(1, "ROLE_SUPPORT", "authority.support"),
-    ADMIN(2, "ROLE_ADMIN",  "authority.admin"),;
+    ROLE_USER(0, "ROLE_USER", "authority.user"),
+    ROLE_SUPPORT(1, "ROLE_SUPPORT", "authority.support"),
+    ROLE_ADMIN(2, "ROLE_ADMIN",  "authority.admin"),;
 
     private final int hierarchy;
     private final String value;
@@ -31,7 +31,7 @@ public enum Roles {
     }
 
     public static Roles fromName(String name) {
-        return Roles.valueOf(name.replaceFirst("ROLE_", ""));
+        return Roles.valueOf(name);
     }
     
     public int hierarchy() {
@@ -39,6 +39,6 @@ public enum Roles {
     }
 
     public static Set<Roles> staffRoles() {
-        return Set.of(ADMIN, SUPPORT);
+        return Set.of(ROLE_ADMIN, ROLE_SUPPORT);
     }
 }

@@ -76,8 +76,8 @@ public class UserServiceImpl implements UserService {
             throw new PhoneNumberAlreadyTakenException();
         }
 
-        Role loadedRole = roleRepository.findByName(Roles.USER.value())
-                .orElseThrow(() -> new NoSuchRoleException(Roles.USER.value()));
+        Role loadedRole = roleRepository.findByName(Roles.ROLE_USER.value())
+                .orElseThrow(() -> new NoSuchRoleException(Roles.ROLE_USER.value()));
         UserSetting userSetting = new UserSetting();
         Wallet wallet = new Wallet();
 

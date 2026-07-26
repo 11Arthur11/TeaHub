@@ -141,10 +141,12 @@ public class TicketAdminController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     public ResponseEntity<SimpleResponse> submitTicket(
+            @ModelAttribute Long targetUserId,
             @RequestPart("ticket") String ticketString,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) throws JsonProcessingException {
         TicketAdminRequest ticketRequest = objectMapper.readValue(ticketString, TicketAdminRequest.class);
+        ticketRequest.setTargetUserId(targetUserId);
         ticketRequest.getMessage().setFiles(files);
         ticketService.submit(currentUser.getId(), ticketRequest);
         return ResponseBuilder.buildSuccess(

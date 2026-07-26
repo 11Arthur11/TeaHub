@@ -107,7 +107,8 @@ public class InvoiceService {
         List<InvoiceAdminResponse> response = invoices.stream()
                 .map(i -> {
                     InvoiceAdminResponse r = modelMapper.map(i, InvoiceAdminResponse.class);
-                    r.setPaymentTransaction(modelMapper.map(i.getPaymentTransaction(), PaymentTransactionDetailResponse.class));
+                    if (i.getPaymentTransaction() != null)
+                        r.setPaymentTransaction(modelMapper.map(i.getPaymentTransaction(), PaymentTransactionDetailResponse.class));
                     return r;
                 })
                 .sorted(Comparator.comparing(InvoiceAdminResponse::getCreatedAt))

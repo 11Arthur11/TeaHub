@@ -14,5 +14,6 @@ public class TeaSpeakResourceDetailResponse extends AbstractResourceDetailRespon
     private Integer port;
     private TeaSpeakStatus teaSpeakStatus;
     private TeaSpeakResourceTokenResponse privilegeToken;
+    private String address;
 
 }

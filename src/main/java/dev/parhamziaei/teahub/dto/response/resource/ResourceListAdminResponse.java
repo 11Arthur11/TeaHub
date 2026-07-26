@@ -12,5 +12,6 @@ import lombok.EqualsAndHashCode;
 public class ResourceListAdminResponse extends ResourceListResponse {
 
     private Long ownerId;
+    private Long nodeId;
 
 }

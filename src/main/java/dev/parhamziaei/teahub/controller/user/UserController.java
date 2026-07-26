@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/v1/users")
 @RequiredArgsConstructor
@@ -30,6 +33,24 @@ public class UserController {
                 HttpStatus.OK
         );
     }
+
+    @GetMapping("/identity")
+    public ResponseEntity<DataResponse<Map<String, String>>> getIdentity() {
+
+        Map<String, String> map = new HashMap<>();
+        map.put("roleIdentifier", userService.getProfile(
+                currentUser.getId(),
+                UserDetailResponse.class
+        ).getRole().nameWithoutPrefix());
+        map.put("id", currentUser.getId().toString());
+
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                map,
+                HttpStatus.OK
+        );
+    }
+
 
 
 }

@@ -7,6 +7,7 @@ import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.DetailedDataResponse;
 import dev.parhamziaei.teahub.dto.response.user.WalletTransactionResponse;
+import dev.parhamziaei.teahub.dto.response.user.user.WalletOverviewResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.InvoiceService;
@@ -39,14 +40,14 @@ public class WalletController {
     private final InvoiceService invoiceService;
 
     @Operation(
-            summary = "User balance",
+            summary = "User wallet overview",
             tags = {"Wallet"}
     )
-    @GetMapping("/balance")
-    public ResponseEntity<DataResponse<BigDecimal>> getBalance() {
+    @GetMapping("/overview")
+    public ResponseEntity<DataResponse<WalletOverviewResponse>> getBalance() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
-                walletService.getBalance(currentUser.getId()),
+                walletService.getOverview(currentUser.getId()),
                 HttpStatus.OK
         );
     }

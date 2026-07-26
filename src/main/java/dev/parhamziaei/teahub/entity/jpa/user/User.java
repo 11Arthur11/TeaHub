@@ -101,8 +101,8 @@ public class User extends BaseEntity<Long> implements UserDetails {
     }
     
     public boolean isAdmin() {
-        System.out.println("user " + this.getUsername() + " role " + this.getRole().getName() + " isAdmin?" + this.role.getName().equals(Roles.ADMIN.name())                    );
-        return this.role.getName().equals(Roles.ADMIN.name());
+        System.out.println("user " + this.getUsername() + " role " + this.getRole().getName() + " isAdmin?" + this.role.getName().equals(Roles.ROLE_ADMIN.name())                    );
+        return this.role.getName().equals(Roles.ROLE_ADMIN.name());
     }
 
     public boolean isStaff() {

@@ -3,6 +3,7 @@ package dev.parhamziaei.teahub.service;
 import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
 import dev.parhamziaei.teahub.dto.request.resource.user.BillableResourceEditRequest;
+import dev.parhamziaei.teahub.dto.response.dashboard.user.ResourceOverviewResponse;
 import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
 import dev.parhamziaei.teahub.dto.response.resource.ResourceListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.resource.ResourceListResponse;
@@ -42,7 +43,6 @@ public class ResourceService {
     private final WalletService walletService;
     private final BillableProductRepository billableProductRepo;
     private final ModelMapper modelMapper;
-    private final MessageService messageService;
     private final BillableResourceRepository billableResourceRepository;
     private final ResourceMapperFactory mapperFactory;
     private final BillableResourceMapStruct billableResourceMapStruct;
@@ -68,6 +68,7 @@ public class ResourceService {
             ResourceListResponse dto = modelMapper.map(resource, ResourceListResponse.class);
             dto.setProductName(resource.getProduct().getProductName());
             dto.setResourceType(resource.getResourceType());
+            dto.setPeriod(resource.getProduct().getPeriod());
             resourcesResponse.add(dto);
         });
         return resourcesResponse;
@@ -92,6 +93,7 @@ public class ResourceService {
                     dto.setProductName(r.getProduct().getProductName());
                     dto.setOwnerId(r.getOwner().getId());
                     dto.setResourceType(r.getResourceType());
+                    dto.setPeriod(r.getProduct().getPeriod());
                     return dto;
                 }).toList();
         Page<ResourceListAdminResponse> mappedPage = new PageImpl<>(mapped, pageable, resourcesPage.getTotalElements());
@@ -196,6 +198,10 @@ public class ResourceService {
 
         billableResourceMapStruct.toEntity(editRequest, resource);
         billableResourceRepository.save(resource);
+    }
+
+    public ResourceOverviewResponse getResourceOverview(Long userId) {
+        return billableResourceRepository.getOverview(userId);
     }
 
     @Transactional

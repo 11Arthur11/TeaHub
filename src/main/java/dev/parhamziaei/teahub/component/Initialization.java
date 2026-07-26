@@ -100,8 +100,8 @@ public class Initialization implements CommandLineRunner {
     }
 
     private void initAdmin() {
-        Role adminRole = roleRepository.findByName(Roles.ADMIN.value())
-                .orElseThrow(() -> new NoSuchRoleException(Roles.ADMIN.value()));
+        Role adminRole = roleRepository.findByName(Roles.ROLE_ADMIN.value())
+                .orElseThrow(() -> new NoSuchRoleException(Roles.ROLE_ADMIN.value()));
         UserSetting userSetting = new UserSetting();
         User adminUser = User.builder()
                 .email(initProperties.adminEmail())

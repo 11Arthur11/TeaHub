@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 public class TeaSpeakResourceMapper implements ResourceMapperHandler {
 
     private final ModelMapper modelMapper;
-    private final MessageService messageService;
     private final TeaSpeakService teaSpeakService;
 
     @Override
@@ -28,6 +27,8 @@ public class TeaSpeakResourceMapper implements ResourceMapperHandler {
     private <T extends TeaSpeakResourceDetailResponse> T mapInternal(TeaSpeakResource resource, Class<T> clazz) {
         teaSpeakService.syncWithQuery(resource);
         T resourceDetail = modelMapper.map(resource, clazz);
+        resourceDetail.setAddress(resource.getParentQueryInstance().getAddress());
+        resourceDetail.setPeriod(resource.getProduct().getPeriod());
         resourceDetail.setProductName(resource.getProduct().getProductName());
         resourceDetail.setPrivilegeToken(modelMapper.map(resource.getPrivilegeToken(), TeaSpeakResourceTokenResponse.class));
         return resourceDetail;

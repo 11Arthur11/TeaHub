@@ -3,11 +3,13 @@ package dev.parhamziaei.teahub.repository.jpa;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.ticket.Ticket;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
+import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 public interface TicketRepository extends JpaSpecificationExecutor<Ticket> , JpaRepository<Ticket, Long> , TicketCustomRepository {
@@ -22,4 +24,6 @@ public interface TicketRepository extends JpaSpecificationExecutor<Ticket> , Jpa
             return findOneByOwnerId(user.getId(), ticketId);
     }
 
+    @Query("SELECT COUNT(t) FROM Ticket t WHERE t.owner.id =: owmnerId AND t.status =: status")
+    Long countTicketsByStatus(@Param("ownerId") Long userId, @Param("status") TicketStatus ticketStatus);
 }

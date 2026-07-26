@@ -26,9 +26,7 @@ public class TicketMapper {
     private final BillableResourceRepository billableResourceRepository;
 
     public <T extends AbstractTicketResponse> Page<T> mapPage(Page<Ticket> source, Class<T> responseType) {
-        List<T> list = new ArrayList<>();
-        source.getContent().forEach(t -> modelMapper.map(t, responseType));
-        return new PageImpl<>(list, source.getPageable(), source.getTotalElements());
+        return source.map(t -> modelMapper.map(t, responseType));
     }
 
     public <T extends TicketDetailBaseResponse> T mapTicketDetail(Ticket ticket, Class<T> responseType) {

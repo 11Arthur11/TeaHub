@@ -34,6 +34,7 @@ public class AudioBotResourceMapper implements ResourceMapperHandler {
         resourceDetail.setBotNickname(instanceConnectSettings.getName());
         resourceDetail.setServerAddress(instanceConnectSettings.getAddress());
         resourceDetail.setServerPassword(instanceConnectSettings.getServerPassword().getPassword());
+        resourceDetail.setPeriod(resource.getProduct().getPeriod());
         return resourceDetail;
     }
 
