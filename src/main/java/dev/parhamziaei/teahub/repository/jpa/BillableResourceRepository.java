@@ -23,7 +23,7 @@ public interface BillableResourceRepository extends JpaSpecificationExecutor<Bil
     }
 
     @Query("""
-        SELECT new dev.parhamziaei.teahub.dto.response.dashboard.user.ResourceMetricResponse(
+        SELECT new dev.parhamziaei.teahub.dto.response.dashboard.user.ResourceOverviewResponse(
             COUNT(r),
             SUM(CASE WHEN r.resourceStatus = 'ACTIVE' THEN 1 ELSE 0 END),
             SUM(CASE WHEN r.resourceStatus = 'PENDING_PROLONG' THEN 1 ELSE 0 END)
