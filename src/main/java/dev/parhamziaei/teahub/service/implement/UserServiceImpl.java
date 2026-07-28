@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.service.implement;
 
 import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
 import dev.parhamziaei.teahub.dto.request.query.UsersFilterRequest;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
 import dev.parhamziaei.teahub.dto.response.user.AbstractUserDetailResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.RoleListResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.UserEditAdminRequest;
@@ -17,10 +18,13 @@ import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.repository.jpa.RoleRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
+import dev.parhamziaei.teahub.repository.jpa.aggregate.UserRegistersMetricAggregate;
 import dev.parhamziaei.teahub.repository.jpa.specification.UserSpecification;
+import dev.parhamziaei.teahub.repository.redis.OnlineUserRedisRepo;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
 import dev.parhamziaei.teahub.service.mapper.UserMapStruct;
+import dev.parhamziaei.teahub.utils.PersianPeriod;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -46,6 +50,7 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final MessageService messageService;
     private final UserMapStruct userMapper;
+    private final OnlineUserRedisRepo onlineUserRedisRepo;
 
     @Override
     public boolean isPhoneNumberValid(String phoneNumber) {
@@ -149,6 +154,7 @@ public class UserServiceImpl implements UserService {
                     UserListResponse res = modelMapper.map(u, UserListResponse.class);
                     res.setRole(messageService.get(Roles.fromName(u.getRole().getName())));
                     res.setFullName(u.getFullName());
+                    res.setOnline(onlineUserRedisRepo.isOnline(u.getId()));
                     return res;
                 })
                 .toList();
@@ -167,8 +173,48 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(NoSuchEntityException::new);
         T response = modelMapper.map(user, clazz);
+        response.setOnline(onlineUserRedisRepo.isOnline(user.getId()));
         response.setRole(Roles.fromName(user.getRole().getName()));
         return response;
+    }
+
+    @Override
+    public AdminMetric.UserMetric userMetric() {
+        PersianPeriod.TimeRange today = PersianPeriod.today();
+        PersianPeriod.TimeRange yesterday = PersianPeriod.yesterday();
+        PersianPeriod.TimeRange thisMonth = PersianPeriod.thisMonth();
+        PersianPeriod.TimeRange lastMonth = PersianPeriod.lastMonth();
+        PersianPeriod.TimeRange thisWeek = PersianPeriod.thisWeek();
+        PersianPeriod.TimeRange lastWeek = PersianPeriod.lastWeek();
+
+        UserRegistersMetricAggregate current = userRepository.aggregateUserRegisters(
+                today.start(),
+                today.end(),
+
+                thisWeek.start(),
+                thisWeek.end(),
+
+                thisMonth.start(),
+                thisMonth.end()
+        );
+
+        UserRegistersMetricAggregate previous = userRepository.aggregateUserRegisters(
+                yesterday.start(),
+                yesterday.end(),
+
+                lastWeek.start(),
+                lastWeek.end(),
+
+                lastMonth.start(),
+                lastMonth.end()
+        );
+
+        return new AdminMetric.UserMetric(
+                onlineUserRedisRepo.countAll(),
+                new AdminMetric.PeriodComparison<>(current.daily().longValue(), previous.daily().longValue()),
+                new AdminMetric.PeriodComparison<>(current.daily().longValue(), previous.daily().longValue()),
+                new AdminMetric.PeriodComparison<>(current.daily().longValue(), previous.daily().longValue())
+        );
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface WalletRepository extends JpaSpecificationExecutor<Wallet>, JpaRepository<Wallet, Long> {
@@ -14,5 +15,12 @@ public interface WalletRepository extends JpaSpecificationExecutor<Wallet>, JpaR
     @Query("SELECT w FROM Wallet w WHERE w.id = :id")
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Wallet findByIdAndLock(Long id);
+
+
+    @Query("""
+    SELECT COALESCE(SUM(w.balance.amount), 0)
+    FROM Wallet w
+    """)
+    BigDecimal sumAllWalletBalances();
 
 }

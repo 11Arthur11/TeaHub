@@ -70,6 +70,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
                 .teaSpeakStatus(TeaSpeakStatus.OFFLINE)
                 .maxClients(product.getMaxClients())
                 .build();
+
         TeaSpeakResourceToken token = new TeaSpeakResourceToken();
         resource.setPrivilegeToken(token);
 

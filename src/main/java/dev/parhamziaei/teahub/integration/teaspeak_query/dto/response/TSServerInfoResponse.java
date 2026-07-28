@@ -20,4 +20,14 @@ public class TSServerInfoResponse extends BaseQueryResponse {
     private String virtualserver_port;
     private String virtualserver_status;
 
+
+    public Long getOnlineUsers() {
+        try {
+            // note: we're reducing one because teaspeak counts backend as online user :/
+            return Long.parseLong(virtualserver_clientsonline) - 1;
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
+    }
+
 }

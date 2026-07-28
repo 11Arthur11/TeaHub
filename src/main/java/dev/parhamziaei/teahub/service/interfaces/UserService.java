@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.service.interfaces;
 
 import dev.parhamziaei.teahub.dto.request.authentication.RegisterRequest;
 import dev.parhamziaei.teahub.dto.request.query.UsersFilterRequest;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
 import dev.parhamziaei.teahub.dto.response.user.AbstractUserDetailResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.RoleListResponse;
 import dev.parhamziaei.teahub.dto.response.user.admin.UserEditAdminRequest;
@@ -26,4 +27,5 @@ public interface UserService extends UserDetailsService {
     PagedModel<UserListResponse> getAllUsers(UsersFilterRequest filter);
     <T extends AbstractUserDetailResponse> T getProfile(Long userId, Class<T> clazz);
 
+    AdminMetric.UserMetric userMetric();
 }

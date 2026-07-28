@@ -2,23 +2,24 @@ package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.internal.shop.Renewal;
 import dev.parhamziaei.teahub.dto.request.query.WalletTransactionFilterRequest;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
 import dev.parhamziaei.teahub.dto.response.user.WalletTransactionResponse;
 import dev.parhamziaei.teahub.dto.response.user.user.WalletOverviewResponse;
 import dev.parhamziaei.teahub.entity.jpa.payment.WalletTransaction;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
-import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
-import dev.parhamziaei.teahub.enums.payment.TransactionType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
 import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletTransactionRepository;
+import dev.parhamziaei.teahub.repository.jpa.aggregate.FinanceFlowAggregate;
 import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpecification;
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletSpecification;
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletTransactionSpecification;
+import dev.parhamziaei.teahub.utils.PersianPeriod;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -177,6 +178,63 @@ public class WalletService {
                         mapped,
                         page.getPageable(),
                         page.getTotalElements()
+                )
+        );
+    }
+
+    public Money totalBalance() {
+        return new Money(walletRepo.sumAllWalletBalances());
+    }
+
+    public AdminMetric.FinanceFlowComparison totalSpendingComparison() {
+        PersianPeriod.TimeRange today = PersianPeriod.today();
+        PersianPeriod.TimeRange yesterday = PersianPeriod.yesterday();
+
+        PersianPeriod.TimeRange thisMonth = PersianPeriod.thisMonth();
+        PersianPeriod.TimeRange lastMonth = PersianPeriod.lastMonth();
+
+        PersianPeriod.TimeRange thisWeek = PersianPeriod.thisWeek();
+        PersianPeriod.TimeRange lastWeek = PersianPeriod.lastWeek();
+
+        FinanceFlowAggregate current = walletTransactionRepo.aggregate(
+                DEBIT,
+
+                today.start(),
+                today.end(),
+
+                thisWeek.start(),
+                thisWeek.end(),
+
+                thisMonth.start(),
+                thisMonth.end()
+        );
+
+        FinanceFlowAggregate previous = walletTransactionRepo.aggregate(
+                DEBIT,
+
+                yesterday.start(),
+                yesterday.end(),
+
+                lastWeek.start(),
+                lastWeek.end(),
+
+                lastMonth.start(),
+                lastMonth.end()
+        );
+
+
+        return new AdminMetric.FinanceFlowComparison(
+                new AdminMetric.PeriodComparison<>(
+                        BigDecimal.valueOf(current.daily().longValue()),
+                        BigDecimal.valueOf(previous.daily().longValue())
+                ),
+                new AdminMetric.PeriodComparison<>(
+                        BigDecimal.valueOf(current.weekly().longValue()),
+                        BigDecimal.valueOf(previous.weekly().longValue())
+                ),
+                new AdminMetric.PeriodComparison<>(
+                        BigDecimal.valueOf(current.monthly().longValue()),
+                        BigDecimal.valueOf(previous.monthly().longValue())
                 )
         );
     }

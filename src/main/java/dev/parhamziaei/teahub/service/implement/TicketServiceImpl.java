@@ -7,6 +7,8 @@ import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketAdminRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketEditAdminRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketMessageRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketUserRequest;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.TicketMetric;
 import dev.parhamziaei.teahub.dto.response.ticket.AbstractTicketResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.user.TicketDetailBaseResponse;
@@ -342,5 +344,10 @@ public class TicketServiceImpl implements TicketService {
 
     public Long countOpenTickets(Long userId) {
         return ticketRepository.countTicketsByStatus(userId, TicketStatus.PENDING);
+    }
+
+    @Override
+    public TicketMetric ticketMetric() {
+        return ticketRepository.ticketMetric();
     }
 }

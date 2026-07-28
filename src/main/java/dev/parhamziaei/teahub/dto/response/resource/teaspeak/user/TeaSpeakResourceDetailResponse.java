@@ -15,5 +15,6 @@ public class TeaSpeakResourceDetailResponse extends AbstractResourceDetailRespon
     private TeaSpeakStatus teaSpeakStatus;
     private TeaSpeakResourceTokenResponse privilegeToken;
     private String address;
+    private Long onlineUsers;
 
 }

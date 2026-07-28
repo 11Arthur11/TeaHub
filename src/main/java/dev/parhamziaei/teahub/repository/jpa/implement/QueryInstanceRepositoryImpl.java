@@ -1,5 +1,7 @@
 package dev.parhamziaei.teahub.repository.jpa.implement;
 
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.CountSummary;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
 import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
@@ -33,6 +35,24 @@ public class QueryInstanceRepositoryImpl implements QueryInstanceRepository {
                 .getResultList()
                 .stream()
                 .findFirst();
+    }
+
+    public CountSummary countSummary() {
+        return em.createQuery("""
+        SELECT new dev.parhamziaei.teahub.dto.response.dashboard.admin.CountSummary(
+            COUNT(qi),
+            COALESCE(SUM(
+                CASE
+                    WHEN qi.active = true AND qi.status = :status
+                    THEN 1
+                    ELSE 0
+                END
+            ), 0L)
+        )
+        FROM QueryInstance qi
+    """, CountSummary.class)
+                .setParameter("status", QueryInstanceStatus.DISPATCHED)
+                .getSingleResult();
     }
 
     @Override

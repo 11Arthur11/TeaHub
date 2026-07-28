@@ -1,5 +1,7 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.ResourceMetric;
 import dev.parhamziaei.teahub.dto.response.dashboard.user.ResourceOverviewResponse;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -32,5 +34,16 @@ public interface BillableResourceRepository extends JpaSpecificationExecutor<Bil
         WHERE r.owner.id = :userId
     """)
     ResourceOverviewResponse getOverview(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT new dev.parhamziaei.teahub.dto.response.dashboard.admin.ResourceMetric(
+            COUNT(r),
+            SUM(CASE WHEN r.resourceStatus = 'ACTIVE' THEN 1 ELSE 0 END),
+            SUM(CASE WHEN r.resourceStatus = 'PENDING_PROLONG' THEN 1 ELSE 0 END),
+            SUM(CASE WHEN r.resourceStatus = 'DEPLOYING' THEN 1 ELSE 0 END)
+        )
+        FROM BillableResource r
+    """)
+    ResourceMetric getResourceMetric();
 
 }

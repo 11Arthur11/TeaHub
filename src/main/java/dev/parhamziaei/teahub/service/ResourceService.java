@@ -3,11 +3,15 @@ package dev.parhamziaei.teahub.service;
 import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
 import dev.parhamziaei.teahub.dto.request.resource.user.BillableResourceEditRequest;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.ResourceMetric;
 import dev.parhamziaei.teahub.dto.response.dashboard.user.ResourceOverviewResponse;
 import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
 import dev.parhamziaei.teahub.dto.response.resource.ResourceListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.resource.ResourceListResponse;
+import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
+import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
@@ -46,6 +50,7 @@ public class ResourceService {
     private final BillableResourceRepository billableResourceRepository;
     private final ResourceMapperFactory mapperFactory;
     private final BillableResourceMapStruct billableResourceMapStruct;
+    private final TeaSpeakService teaSpeakService;
 
     @Transactional
     public void newBillableResource(Long userId, AbstractNewResourceRequest request) {
@@ -74,6 +79,10 @@ public class ResourceService {
         return resourcesResponse;
     }
 
+    public ResourceMetric getResourceMetric() {
+        return billableResourceRepository.getResourceMetric();
+    }
+
     @Transactional
     public PagedModel<ResourceListAdminResponse> getAllResources(ResourceFilterRequest filter) {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
@@ -94,6 +103,16 @@ public class ResourceService {
                     dto.setOwnerId(r.getOwner().getId());
                     dto.setResourceType(r.getResourceType());
                     dto.setPeriod(r.getProduct().getPeriod());
+                    switch (r.getResourceType()) {
+                        case TEASPEAK -> {
+                            TeaSpeakResource teaSpeakService = (TeaSpeakResource) r;
+                            dto.setNodeId(teaSpeakService.getParentQueryInstance().getId());
+                        }
+                        case AUDIO_BOT -> {
+                            AudioBotResource audioBotService = (AudioBotResource) r;
+                            dto.setNodeId(audioBotService.getParentNode().getId());
+                        }
+                    }
                     return dto;
                 }).toList();
         Page<ResourceListAdminResponse> mappedPage = new PageImpl<>(mapped, pageable, resourcesPage.getTotalElements());

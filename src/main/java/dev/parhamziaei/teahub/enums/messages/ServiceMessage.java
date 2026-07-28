@@ -61,6 +61,7 @@ public enum ServiceMessage {
     QUERY_INSTANCE_PORT_RANGE_INVALID("error.service.query-instance.port-range-invalid"),
     QUERY_INSTANCE_NOT_FOUND("error.service.query-instance.not-found"),
     QUERY_INSTANCE_ERROR("error.service.query-instance"),
+    QUERY_INSTANCE_SYNCING_FAILED("error.service.query-instance.syncing-failed"),
 
     // ? audio bot node management messages
     AUDIO_BOT_NODE_INITIATED("success.service.audio-bot-node.initiated"),
@@ -68,6 +69,8 @@ public enum ServiceMessage {
     AUDIO_BOT_NODE_WEB_ADDRESS_ALREADY_INITIATED("success.audio-bot-node.already-initiated"),
     AUDIO_BOT_NODE_HAS_ACTIVE_INSTANCE("success.audio-bot-node.has-active-instance"),
     AUDIO_BOT_MUST_BE_CONNECTED("error.audio-bot-instance.must-be-connected"),
+
+    PROVISIONING_STRATEGY_CHANGED("success.service.provisioning-strategy-changed"),
 
     DNS_PROVIDER_NOT_CONFIGURED("error.service.dns-provider.not-configured"),
     DNS_PROVIDER_API_ERROR("error.service.dns-provider.api-error"),;

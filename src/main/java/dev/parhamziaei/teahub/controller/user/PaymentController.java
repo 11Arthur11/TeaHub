@@ -98,7 +98,7 @@ public class PaymentController {
     ) {
         paymentService.verifyAPCallback(callbackRequest);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create(paymentServiceProperties.paymentSuccessRedirectUri()));
+        headers.setLocation(URI.create(paymentServiceProperties.paymentSuccessRedirectUri().replace("{invoice_id}",  callbackRequest.getInvoiceId())));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 }

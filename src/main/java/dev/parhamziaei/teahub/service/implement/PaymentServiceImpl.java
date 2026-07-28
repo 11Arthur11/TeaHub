@@ -1,33 +1,28 @@
 package dev.parhamziaei.teahub.service.implement;
 
-import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
 import dev.parhamziaei.teahub.entity.jpa.payment.Gateway;
 import dev.parhamziaei.teahub.entity.jpa.payment.invoice.Invoice;
 import dev.parhamziaei.teahub.entity.jpa.payment.invoice.PaymentTransaction;
-import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.enums.payment.PaymentGatewayType;
-import dev.parhamziaei.teahub.enums.messages.Text;
-import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.InvoiceException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.GatewayNotFoundException;
-import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
 import dev.parhamziaei.teahub.integration.payment_gateway.aqaye_pardakht.dto.request.APCallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.dto.CallbackRequest;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayFactory;
 import dev.parhamziaei.teahub.integration.payment_gateway.handler.PaymentGatewayHandler;
 import dev.parhamziaei.teahub.repository.jpa.*;
+import dev.parhamziaei.teahub.repository.jpa.aggregate.FinanceFlowAggregate;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
-import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.WalletService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
 import dev.parhamziaei.teahub.service.payment.PostPaymentRegistryFactory;
-import dev.parhamziaei.teahub.valueobject.Money;
+import dev.parhamziaei.teahub.utils.PersianPeriod;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -62,6 +57,63 @@ public class PaymentServiceImpl implements PaymentService {
 
         PaymentGatewayHandler paymentHandler = paymentGatewayFactory.getGateway(gatewayEntity.getType());
         return paymentHandler.createPaymentGateway(invoice);
+    }
+
+    public AdminMetric.FinanceMetric financeMetric() {
+        return AdminMetric.FinanceMetric.builder()
+                .totalBalance(walletService.totalBalance())
+                .spending(walletService.totalSpendingComparison())
+                .income(totalIncomeComparison())
+                .build();
+    }
+
+    private AdminMetric.FinanceFlowComparison totalIncomeComparison() {
+        PersianPeriod.TimeRange today = PersianPeriod.today();
+        PersianPeriod.TimeRange yesterday = PersianPeriod.yesterday();
+
+        PersianPeriod.TimeRange thisMonth = PersianPeriod.thisMonth();
+        PersianPeriod.TimeRange lastMonth = PersianPeriod.lastMonth();
+
+        PersianPeriod.TimeRange thisWeek = PersianPeriod.thisWeek();
+        PersianPeriod.TimeRange lastWeek = PersianPeriod.lastWeek();
+
+        FinanceFlowAggregate current = paymentTransactionRepository.aggregate(
+                today.start(),
+                today.end(),
+
+                thisWeek.start(),
+                thisWeek.end(),
+
+                thisMonth.start(),
+                thisMonth.end()
+        );
+
+        FinanceFlowAggregate previous = paymentTransactionRepository.aggregate(
+                yesterday.start(),
+                yesterday.end(),
+
+                lastWeek.start(),
+                lastWeek.end(),
+
+                lastMonth.start(),
+                lastMonth.end()
+        );
+
+
+        return new AdminMetric.FinanceFlowComparison(
+                new AdminMetric.PeriodComparison<>(
+                        BigDecimal.valueOf(current.daily().longValue()),
+                        BigDecimal.valueOf(previous.daily().longValue())
+                ),
+                new AdminMetric.PeriodComparison<>(
+                        BigDecimal.valueOf(current.weekly().longValue()),
+                        BigDecimal.valueOf(previous.weekly().longValue())
+                ),
+                new AdminMetric.PeriodComparison<>(
+                        BigDecimal.valueOf(current.monthly().longValue()),
+                        BigDecimal.valueOf(previous.monthly().longValue())
+                )
+        );
     }
 
     @Override

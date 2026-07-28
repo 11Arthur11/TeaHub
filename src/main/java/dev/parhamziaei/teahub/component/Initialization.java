@@ -4,6 +4,7 @@ import dev.parhamziaei.teahub.configuration.properties.InitializeProperties;
 import dev.parhamziaei.teahub.dto.request.shop.admin.CategoryAdminRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.TeaSpeakProductInitRequest;
 import dev.parhamziaei.teahub.entity.jpa.ApplicationSettings;
+import dev.parhamziaei.teahub.entity.jpa.ResourceProvisioningStrategy;
 import dev.parhamziaei.teahub.entity.jpa.user.Role;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.UserSetting;
@@ -13,6 +14,7 @@ import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.enums.user.Roles;
 import dev.parhamziaei.teahub.exception.custom.authorization.NoSuchRoleException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
+import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy;
 import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.service.CategoryService;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;
@@ -38,6 +40,7 @@ public class Initialization implements CommandLineRunner {
     private final ApplicationSettingRepository applicationSettingRepository;
     private final ProductService productService;
     private final TeaSpeakResourceRepository teaSpeakResourceRepository;
+    private final ResourceProvisioningStrategyRepository resourceProvisioningStrategyRepository;
 
     @Override
     @Transactional
@@ -54,6 +57,7 @@ public class Initialization implements CommandLineRunner {
         }
 //        ipPanelService.sendTwoFactorSMS("0000", PhoneNumbers.formatedOf(initProperties.adminPhoneNumber()));
         initApplicationSetting();
+
         log.info("Initialization-Operation -> Application settings initialized");
         initRoles();
         if (!userRepository.existsByPhoneNumber(initProperties.adminPhoneNumber()))

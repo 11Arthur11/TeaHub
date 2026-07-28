@@ -32,7 +32,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         QueryInstanceProperties.class,
         PaymentServiceProperties.class,
         ApplicationSettingProperties.class,
-        AudioBotNodeProperties.class,
         RedisConfigurationProperties.class,
 })
 public class TeaHubApplication {

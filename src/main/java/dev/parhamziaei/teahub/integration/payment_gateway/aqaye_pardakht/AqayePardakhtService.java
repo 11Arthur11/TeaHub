@@ -39,7 +39,6 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
     private final RestClient restClient;
     private final AqayePardakhtGatewayRepository apRepo;
     private final AqayePardakhtGatewayMapStruct mapStruct;
-    private String apPinCode;
     private final static String AP_PAYMENT_URL = "https://panel.aqayepardakht.ir/startpay/sandbox/";
     private final String callbackUrl;
     private final PaymentServiceProperties paymentProperties;
@@ -53,7 +52,7 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
     ) {
         this.paymentProperties = paymentProperties;
         this.invoiceRepo = invoiceRepo;
-        this.callbackUrl = appSetting.backendDomain() + "/v1/payments/gateway/callback/ap"; //appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
+        this.callbackUrl = appSetting.frontEndDomain() + "/v1/payments/gateway/callback/ap"; //appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
         this.restClient = RestClient.builder()
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -70,14 +69,15 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
         AqayePardakhtPersistRequest request = (AqayePardakhtPersistRequest) persistRequest;
         AqayePardakhtGateway gateway = apRepo.find()
                 .orElse(mapStruct.toEntity(request, new AqayePardakhtGateway()));
-        apPinCode = gateway.getMerchantId();
         apRepo.save(gateway);
     }
 
     @Override
     public boolean testGateway() {
+        AqayePardakhtGateway gateway = apRepo.find()
+                .orElseThrow(() -> new GatewayException("failed to receive gateway information"));
         APTransactionRequest request = APTransactionRequest.builder()
-                .pin(apPinCode)
+                .pin(gateway.getMerchantId())
                 .amount("10000")
                 .callback("callbackUrl")
                 .invoice_id("test")
@@ -115,11 +115,13 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
 
     @Override
     public String createPaymentGateway(Invoice invoice) {
+        AqayePardakhtGateway gateway = apRepo.find()
+                .orElseThrow(() -> new GatewayException("failed to receive gateway information"));
         int invoiceAmount = invoice.getMoney().getAmount().intValue();
         int finalAmount = (invoiceAmount + invoiceAmount * (paymentProperties.taxPercentage() / 100));
 
         APTransactionRequest request = APTransactionRequest.builder()
-                .pin(apPinCode)
+                .pin(gateway.getMerchantId())
                 .amount(String.valueOf(finalAmount))
                 .callback(callbackUrl)
                 .invoice_id(invoice.getInvoiceToken())
@@ -148,8 +150,11 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
                 )
         ).orElseThrow(NoSuchEntityException::new);
 
+        AqayePardakhtGateway gateway = apRepo.find()
+                .orElseThrow(() -> new GatewayException("failed to receive gateway information"));
+
         APVerifyRequest verifyRequest = APVerifyRequest.builder()
-                .pin(apPinCode)
+                .pin(gateway.getMerchantId())
                 .transid(callbackRequest.getTransid())
                 .amount(invoice.getMoney().getAmount().intValue())
                 .build();

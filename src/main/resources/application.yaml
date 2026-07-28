@@ -38,8 +38,7 @@ logging:
 
 app:
   settings:
-    backend-domain: 'dev.xperia.top'
-    frontend-domain: 'xperia.top'
+    front-end-domain: 'localhost:8080'
   components:
     telnet:
       default-timeout-millis: 10000
@@ -50,6 +49,8 @@ app:
     payment:
       tax-percentage: 9
       minimum-wallet-charge-amount-irt: 50000
+      payment-success-redirect-uri: 'http://localhost:4173/panel/invoices/{invoice_id}?result=true'
+      payment-failed-redirect-uri: 'http://localhost:4173/panel/invoices/{invoice_id}?result=false'
     media-storage:
       allowed-media-extension:
         - jpg
@@ -73,7 +74,6 @@ app:
 
   integration:
     teaspeak-query:
-      provision-strategy: balanced
       port-step: 5
     ip-panel:
       base-url: https://edge.ippanel.com/v1
@@ -81,8 +81,6 @@ app:
       # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
       two-facto-message-pattern-code: gaibs13nb08a8ku
       from-number: 100016949
-    audio-bot:
-      provision-strategy: balanced
 
   cookie-factory:
     secure-cookie: false #TODO make this true in production

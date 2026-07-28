@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.component.CurrentUser;
+import dev.parhamziaei.teahub.dto.request.resource.admin.ChangeProvisioningStrategyRequest;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceEditRequest;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
@@ -8,6 +9,7 @@ import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.dto.response.teaspeak.admin.QueryInstanceListResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
+import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.QueryInstanceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
@@ -38,6 +40,35 @@ public class QueryInstanceController {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 queryInstanceService.getAllQueryInstance(),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "Provisioning strategy",
+            description = "Changing resource distribution on query instance nodes",
+            tags = {"Query Instance"}
+    )
+    @PatchMapping("/provisioning")
+    public ResponseEntity<SimpleResponse> changeProvisioningStrategy(@RequestBody ChangeProvisioningStrategyRequest request) {
+        queryInstanceService.changeProvisioningStrategy(request.getProvisionStrategy());
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.PROVISIONING_STRATEGY_CHANGED),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "Current Provisioning strategy",
+            description = "returns current resource distribution on query instance nodes",
+            tags = {"Query Instance"}
+    )
+    @GetMapping("/provisioning")
+    public ResponseEntity<DataResponse<ProvisionStrategy>> getProvisioningStrategy() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                queryInstanceService.getProvisioningStrategy(),
                 HttpStatus.OK
         );
     }

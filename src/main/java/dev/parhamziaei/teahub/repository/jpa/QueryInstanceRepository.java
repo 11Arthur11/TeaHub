@@ -1,5 +1,7 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.CountSummary;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
 
@@ -24,5 +26,6 @@ public interface QueryInstanceRepository {
     default boolean isAnyProvisionCandidateAvailable() {
         return !findProvisionCandidates().isEmpty();
     }
+    CountSummary countSummary();
 
 }

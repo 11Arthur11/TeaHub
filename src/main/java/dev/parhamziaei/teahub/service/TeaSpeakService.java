@@ -35,7 +35,6 @@ public class TeaSpeakService {
     private final QueryCLI queryCLI;
     private final QueryInstanceService queryInstanceService;
     private final TeaSpeakResourceRepository teaSpeakResourceRepository;
-    private final TeaSpeakResourceTokenRepository teaSpeakResourceTokenRepo;
     private final UserRepository userRepo;
 
     @Transactional
@@ -66,6 +65,9 @@ public class TeaSpeakService {
         final Integer instancePort = lastInstance.map(r -> r.getPort() + queryProperties.portStep())
                 .orElseGet(queryInstance::getStartPort);
 
+        teaSpeakResource.setPort(instancePort);
+        teaSpeakResource.setMaxClients(maxClients);
+
         // ? creating TSCreate command object with teaSpeak product details
         TSCreateQueryRequest createRequest = TSCreateQueryRequest.builder()
                 .maxClients(String.valueOf(maxClients))
@@ -89,30 +91,26 @@ public class TeaSpeakService {
             TeaSpeakResourceToken token = teaSpeakResource.getPrivilegeToken();
             token.setQueryId(Long.parseLong(privilegeAddResponse.getToken_id()));
             token.setToken(privilegeAddResponse.getToken());
-
-
-            // ? updating billable resource as it deploys
-            teaSpeakResource.setPort(instancePort);
-            teaSpeakResource.setMaxClients(maxClients);
             teaSpeakResource.setSid(createServerResponse.getSid());
             teaSpeakResource.setResourceStatus(ResourceStatus.ACTIVE);
             teaSpeakResource.setTeaSpeakStatus(TeaSpeakStatus.ONLINE);
             teaSpeakResource.setParentQueryInstance(queryInstance);
 
-            teaSpeakResourceRepository.save(teaSpeakResource);
-
         } catch (QueryCommandExecutionException e) {
             log.error(e.getMessage());
             // TODO handle failover reDeployment phase here
         }
+
+        teaSpeakResourceRepository.save(teaSpeakResource);
     }
 
     @Transactional
-    public void syncWithQuery(TeaSpeakResource teaSpeakResource) {
+    public TSServerInfoResponse syncWithQuery(TeaSpeakResource teaSpeakResource) {
         QueryInstance queryInstance = teaSpeakResource.getParentQueryInstance();
 
         TSServerInfoResponse info = queryCLI.getServerInfo(queryInstance.getCredentials(), teaSpeakResource.getSid());
         teaSpeakResource.setTeaSpeakStatus(TeaSpeakStatus.fromValue(info.getVirtualserver_status()));
+        return info;
     }
 
     @Transactional

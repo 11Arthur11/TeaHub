@@ -24,4 +24,6 @@ public abstract class AbstractUserDetailResponse {
 
     private boolean emailVerified;
 
+    private boolean online;
+
 }

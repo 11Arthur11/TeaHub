@@ -23,4 +23,6 @@ public class UserListResponse {
 
     private LocalDateTime lastLogin;
 
+    private boolean online;
+
 }

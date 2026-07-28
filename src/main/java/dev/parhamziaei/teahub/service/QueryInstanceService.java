@@ -3,28 +3,35 @@ package dev.parhamziaei.teahub.service;
 import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceEditRequest;
 import dev.parhamziaei.teahub.dto.request.teaspeak.admin.QueryInstanceInitRequest;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
 import dev.parhamziaei.teahub.dto.response.teaspeak.admin.QueryInstanceListResponse;
+import dev.parhamziaei.teahub.entity.jpa.ResourceProvisioningStrategy;
 import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.InstancePortRangeNotValidException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceAlreadyInitiatedException;
+import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceException;
 import dev.parhamziaei.teahub.exception.custom.service.teaspeak.QueryInstanceNotFoundException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.TelnetConnectionPool;
 import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
+import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy;
+import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryConnectionPoolingException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.TeaSpeakProvisionStrategyFactory;
 import dev.parhamziaei.teahub.integration.teaspeak_query.internal_service.TeaSpeakProvisionStrategyHandler;
 import dev.parhamziaei.teahub.integration.teaspeak_query.model.ServerQueryCredentials;
 import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
+import dev.parhamziaei.teahub.repository.jpa.ResourceProvisioningStrategyRepository;
 import dev.parhamziaei.teahub.service.mapper.QueryInstanceMapStruct;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +47,8 @@ public class QueryInstanceService {
     private final QueryInstanceProperties queryInstanceProperties;
     private final TeaSpeakProvisionStrategyHandler strategyHandler;
     private final ModelMapper modelMapper;
-    private final MessageService messageService;
     private final QueryInstanceMapStruct mapStruct;
+    private final ResourceProvisioningStrategyRepository provisioningStrategyRepo;
 
     public QueryInstanceService(
             QueryInstanceRepository queryInstanceRepo,
@@ -49,21 +56,35 @@ public class QueryInstanceService {
             QueryInstanceProperties queryInstanceProperties,
             TeaSpeakProvisionStrategyFactory teaSpeakProvisionStrategyFactory,
             ModelMapper modelMapper,
-            MessageService messageService,
-            QueryInstanceMapStruct mapStruct
-    ) {
+            QueryInstanceMapStruct mapStruct,
+            ResourceProvisioningStrategyRepository provisioningStrategyRepo) {
         this.queryInstanceRepo = queryInstanceRepo;
         this.connectionPool = connectionPool;
         this.queryInstanceProperties = queryInstanceProperties;
         this.strategyHandler = teaSpeakProvisionStrategyFactory.getStrategy();
         this.modelMapper = modelMapper;
-        this.messageService = messageService;
         this.mapStruct = mapStruct;
+        this.provisioningStrategyRepo = provisioningStrategyRepo;
     }
 
     public QueryInstance loadQueryInstance(Long id) {
         return queryInstanceRepo.findById(id)
                 .orElseThrow(QueryInstanceNotFoundException::new);
+    }
+
+    public void changeProvisioningStrategy(ProvisionStrategy newStrategy) {
+        provisioningStrategyRepo.save(new ResourceProvisioningStrategy(ResourceType.TEASPEAK, newStrategy));
+    }
+
+    public ProvisionStrategy getProvisioningStrategy() {
+        return provisioningStrategyRepo.getTeaspeakStrategy();
+    }
+
+    public AdminMetric.NodeMetric getNodeMetric() {
+        return new AdminMetric.NodeMetric(
+                queryInstanceRepo.countSummary(),
+                provisioningStrategyRepo.getTeaspeakStrategy()
+        );
     }
 
     private boolean isPortRangeMatchSlots(QueryInstanceInitRequest request) {
@@ -154,14 +175,35 @@ public class QueryInstanceService {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    public void initializeRuntimePooling() {
-        // note: getting dispatched instances in case of ungraceful shutdown.
+    @Transactional
+    protected void initializeRuntimePooling() {
         queryInstanceRepo.findAll()
                 .stream().filter(q -> q.getStatus() == QueryInstanceStatus.DISPATCHED || q.getStatus() == QueryInstanceStatus.INITIATED)
                 .forEach(queryInstance -> {
-                    log.info("Initialization-Operation -> Initializing ({} with address: {}) query instance...",
-                            queryInstance.getName(),  queryInstance.getAddress());
-                    dispatchQueryInstance(queryInstance);
+                    try {
+                        log.info("Initialization-Operation -> Initializing ({} with address: {}) query instance...",
+                                queryInstance.getName(),  queryInstance.getAddress());
+                        dispatchQueryInstance(queryInstance);
+                    } catch (QueryConnectionPoolingException e) {
+                        log.error(e.getMessage());
+                        changeQueryInstanceStatus(queryInstance.getId(), QueryInstanceStatus.UNREACHABLE);
+                        queryInstanceRepo.save(queryInstance);
+                    }
+                });
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    protected void retryPollingUnreachableInstances() {
+        queryInstanceRepo.findAll()
+                .stream().filter(q -> q.getStatus() == QueryInstanceStatus.UNREACHABLE)
+                .forEach(queryInstance -> {
+                    try {
+                        log.info("Retrying-Operation -> Retrying to pool ({} with address: {}) query instance...",
+                                queryInstance.getName(),  queryInstance.getAddress());
+                        dispatchQueryInstance(queryInstance);
+                    } catch (QueryConnectionPoolingException e) {
+                        log.error(e.getMessage());
+                    }
                 });
     }
 

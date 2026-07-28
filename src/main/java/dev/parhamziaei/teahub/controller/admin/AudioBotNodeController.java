@@ -2,12 +2,14 @@ package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeEditRequest;
 import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeInitRequest;
+import dev.parhamziaei.teahub.dto.request.resource.admin.ChangeProvisioningStrategyRequest;
 import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeDetailResponse;
 import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeListResponse;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
+import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy;
 import dev.parhamziaei.teahub.service.AudioBotNodeService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
@@ -39,6 +41,35 @@ public class AudioBotNodeController {
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
                 messageService.get(ServiceMessage.AUDIO_BOT_NODE_INITIATED),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "Change Provisioning strategy",
+            description = "Changing resource distribution on audio bot nodes",
+            tags = {"Audio Bot Node (Admin)"}
+    )
+    @PatchMapping("/provisioning")
+    public ResponseEntity<SimpleResponse> changeProvisioningStrategy(@RequestBody ChangeProvisioningStrategyRequest request) {
+        audioBotNodeService.changeProvisioningStrategy(request.getProvisionStrategy());
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.PROVISIONING_STRATEGY_CHANGED),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            summary = "Current Provisioning strategy",
+            description = "returns current resource distribution on audio bot nodes",
+            tags = {"Audio Bot Node (Admin)"}
+    )
+    @GetMapping
+    public ResponseEntity<DataResponse<ProvisionStrategy>> getProvisioningStrategy() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                audioBotNodeService.getProvisionStrategy(),
                 HttpStatus.OK
         );
     }

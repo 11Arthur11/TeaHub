@@ -1,5 +1,7 @@
 package dev.parhamziaei.teahub.repository.jpa;
 
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.TicketMetric;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.entity.jpa.ticket.Ticket;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -24,6 +26,40 @@ public interface TicketRepository extends JpaSpecificationExecutor<Ticket> , Jpa
             return findOneByOwnerId(user.getId(), ticketId);
     }
 
-    @Query("SELECT COUNT(t) FROM Ticket t WHERE t.owner.id =: owmnerId AND t.status =: status")
+    @Query("SELECT COUNT(t) FROM Ticket t WHERE t.owner.id = :ownerId AND t.status = :status")
     Long countTicketsByStatus(@Param("ownerId") Long userId, @Param("status") TicketStatus ticketStatus);
+
+    @Query("""
+        SELECT new dev.parhamziaei.teahub.dto.response.dashboard.admin.TicketMetric(
+            COALESCE(SUM(
+                        CASE
+                            WHEN t.status = 'PENDING'
+                            THEN 1
+                            ELSE 0
+                        END
+                    ), 0L),
+            COALESCE(SUM(
+                        CASE
+                            WHEN t.status = 'WAITING'
+                            THEN 1
+                            ELSE 0
+                        END
+                    ), 0L),
+            COALESCE(SUM(
+                        CASE
+                            WHEN t.status = 'CLOSED'
+                            THEN 1
+                            ELSE 0
+                        END
+                    ), 0L),
+            COALESCE(SUM(
+                        CASE
+                            WHEN t.status = 'RESPONDED'
+                            THEN 1
+                            ELSE 0
+                        END
+                    ), 0L)
+        ) FROM Ticket t
+    """)
+    TicketMetric ticketMetric();
 }

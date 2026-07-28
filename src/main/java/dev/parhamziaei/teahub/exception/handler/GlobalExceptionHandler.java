@@ -23,6 +23,7 @@ import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmen
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
 import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
+import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandExecutionException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import jakarta.servlet.http.HttpServletRequest;
@@ -180,6 +181,14 @@ public class GlobalExceptionHandler {
         return ResponseBuilder.buildError(
                 messageService.get(ServiceMessage.QUERY_INSTANCE_ALREADY_EXIST),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(QueryCommandExecutionException.class)
+    public ResponseEntity<SimpleResponse> handleQueryCommandExecutionException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.QUERY_INSTANCE_SYNCING_FAILED),
+                HttpStatus.SERVICE_UNAVAILABLE
         );
     }
 

@@ -9,6 +9,12 @@ public record PaymentServiceProperties(
         BigDecimal minimumWalletChargeAmountIrt,
         Integer taxPercentage,
         String paymentSuccessRedirectUri,
-        String paymentFailedRedirectUri
+        String paymentFailedRedirectUri,
+        GatewayApiEndpoint gateways
 ) {
+
+    public static record GatewayApiEndpoint(
+            String aqayePardakht
+    ) {}
+
 }

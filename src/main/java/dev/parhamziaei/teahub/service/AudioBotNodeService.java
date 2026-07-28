@@ -4,8 +4,12 @@ import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeEditReques
 import dev.parhamziaei.teahub.dto.request.audio_bot.admin.AudioBotNodeInitRequest;
 import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeDetailResponse;
 import dev.parhamziaei.teahub.dto.response.audio_bot.admin.AudioBotNodeListResponse;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
+import dev.parhamziaei.teahub.dto.response.dashboard.admin.CountSummary;
+import dev.parhamziaei.teahub.entity.jpa.ResourceProvisioningStrategy;
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
+import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotAlreadyInitiatedException;
@@ -13,7 +17,9 @@ import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotNodeHas
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotGateway;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotNodeManager;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceListResponse;
+import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
+import dev.parhamziaei.teahub.repository.jpa.ResourceProvisioningStrategyRepository;
 import dev.parhamziaei.teahub.service.mapper.AudioBotMapStruct;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -28,10 +34,10 @@ public class AudioBotNodeService {
 
     private final AudioBotNodeRepository audioBotNodeRepository;
     private final ModelMapper modelMapper;
-    private final MessageService messageService;
     private final AudioBotGateway audioBotGateway;
     private final AudioBotNodeManager audioBotNodeManager;
     private final AudioBotMapStruct audioBotMapStruct;
+    private final ResourceProvisioningStrategyRepository provisioningStrategyRepo;
 
     public void initiateNode(AudioBotNodeInitRequest nodeInitRequest) {
         if (audioBotNodeRepository.existsByWebAddress(nodeInitRequest.getWebAddress()))
@@ -50,6 +56,24 @@ public class AudioBotNodeService {
         audioBotNodeRepository.save(audioBotNode);
     }
 
+    public void changeProvisioningStrategy(ProvisionStrategy newStrategy) {
+        provisioningStrategyRepo.save(new ResourceProvisioningStrategy(ResourceType.AUDIO_BOT, newStrategy));
+    }
+
+    public AdminMetric.NodeMetric getNodeMetric() {
+        return new AdminMetric.NodeMetric(
+                new CountSummary(
+                        audioBotNodeRepository.count(),
+                        audioBotNodeRepository.countByEnabled(true)
+                ),
+                provisioningStrategyRepo.getAudioBotStrategy()
+        );
+    }
+
+    public ProvisionStrategy getProvisionStrategy() {
+        return provisioningStrategyRepo.getAudioBotStrategy();
+    }
+
     public List<AudioBotNodeListResponse> getNodeList() {
         List<AudioBotNode> audioBotNodes = audioBotNodeRepository.findAll()
                 .stream()
@@ -57,9 +81,8 @@ public class AudioBotNodeService {
                 .toList();
 
         List<AudioBotNodeListResponse> nodeListResponses = audioBotNodes.stream()
-                .map(audioBotNode -> {
-                    return modelMapper.map(audioBotNode, AudioBotNodeListResponse.class);
-                }).toList();
+                .map(audioBotNode -> modelMapper.map(audioBotNode, AudioBotNodeListResponse.class))
+                .toList();
 
         if (nodeListResponses.isEmpty())
             throw new NoSuchDataException();

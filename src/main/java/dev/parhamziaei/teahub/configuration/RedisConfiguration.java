@@ -32,6 +32,14 @@ public class RedisConfiguration {
     }
 
     @Bean
+    public RedisTemplate<String, Long> onlineUserRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Long> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Long.class));
+        return redisTemplate;
+    }
+
+    @Bean
     public RedisTemplate<String, PhoneVerifySession> forgotPasswordRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, PhoneVerifySession> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);

@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.integration.teaspeak_query.internal_service;
 
 import dev.parhamziaei.teahub.configuration.properties.QueryInstanceProperties;
 import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy;
+import dev.parhamziaei.teahub.repository.jpa.ResourceProvisioningStrategyRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,19 +13,19 @@ import java.util.stream.Collectors;
 public class TeaSpeakProvisionStrategyFactory {
 
     private final Map<ProvisionStrategy, TeaSpeakProvisionStrategyHandler> strategies;
-    private final QueryInstanceProperties queryInstanceProperties;
+    private final ResourceProvisioningStrategyRepository provisioningStrategyRepo;
 
     public TeaSpeakProvisionStrategyFactory(
             List<TeaSpeakProvisionStrategyHandler> handlers,
-            QueryInstanceProperties queryInstanceProperties
+            ResourceProvisioningStrategyRepository provisioningStrategyRepo
     ) {
         this.strategies = handlers.stream()
                 .collect(Collectors.toMap(TeaSpeakProvisionStrategyHandler::getType, h -> h));
-        this.queryInstanceProperties = queryInstanceProperties;
+        this.provisioningStrategyRepo = provisioningStrategyRepo;
     }
 
     public TeaSpeakProvisionStrategyHandler getStrategy() {
-        return strategies.get(queryInstanceProperties.provisionStrategy());
+        return strategies.get(provisioningStrategyRepo.getTeaspeakStrategy());
     }
 
 }

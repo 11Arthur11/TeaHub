@@ -61,6 +61,7 @@ app:
         - image/webp
       maximum-media-size-mb: 10
       ticket-attachments-path: /home/arthur/spring-boot/uploads/ticket-attachments
+
     ticket:
       max-attachment-per-message: 5
 
@@ -88,6 +89,7 @@ app:
     two-factor-cookie-ttl: 300s
     phone-verify-cookie-ttl: 300s
     same-site-attribute: "Strict"
+    domain: ""
 
   jason-web-token:
     base64-secret: f633915d212d5159e506d6d69f6d1adcad3aff7396b05545df48183e1331d537 #Change this value on production phase, this is the whole authentication layer key , keep it secret ;)
@@ -107,3 +109,4 @@ springdoc:
 
 server:
   forward-headers-strategy: framework
+
