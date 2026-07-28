@@ -65,7 +65,7 @@ public class AudioBotNodeController {
             description = "returns current resource distribution on audio bot nodes",
             tags = {"Audio Bot Node (Admin)"}
     )
-    @GetMapping
+    @GetMapping("/provisioning")
     public ResponseEntity<DataResponse<ProvisionStrategy>> getProvisioningStrategy() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.SUCCESS,
