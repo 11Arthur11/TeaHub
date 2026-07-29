@@ -5,12 +5,14 @@ import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
 import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
 import dev.parhamziaei.teahub.enums.shop.ProductType;
 import dev.parhamziaei.teahub.valueobject.Money;
+import dev.parhamziaei.teahub.valueobject.ProductPresentation;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.Hibernate;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,8 @@ public class BillableProduct extends BaseEntity<Long> {
 
     @OneToMany(mappedBy ="product", fetch = FetchType.LAZY)
     private List<BillableResource> UserResources;
+
+    private ProductPresentation presentation;
 
     @Embedded
     @AttributeOverrides({

@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.component.filter;
 
+import dev.parhamziaei.teahub.component.AuthenticationFactory;
 import dev.parhamziaei.teahub.component.CookieFactory;
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
@@ -41,12 +42,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserService userService;
     private final CookieFactory cookieFactory;
     private final ObjectFactory<CurrentUser> currentUserObjectFactory;
+    private final AuthenticationFactory authFactory;
 
     public final static List<String> SKIP_URLs = Arrays.asList(
             "/v1/payments/gateway/callback/**",
             "/v1/auth/**",
             "/docs/**",
-            "/swagger-ui/**"
+            "/swagger-ui/**",
+            "/v1/global/**"
     );
 
     @Override
@@ -81,11 +84,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-
         if (currentAuth == null || currentAuth instanceof AnonymousAuthenticationToken) {
             User user = userService.loadUserByPhoneNumber(phoneNumber);
             if (jwtService.isTokenValid(accessToken, JwtType.ACCESS_TOKEN)) {
-                buildAuthentication(user, request);
+                authFactory.buildAuthentication(user, request);
                 buildCurrentUserContext(user, request);
                 log.debug("JWT Token is valid, access granted for phone number: {} to URI: {}", phoneNumber, requestURI);
             } else if (refreshToken.isPresent() && jwtService.isTokenValid(refreshToken.get(), JwtType.REFRESH_TOKEN)) {
@@ -100,7 +102,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 response.addCookie(accessTokenCookie);
                 response.addCookie(refreshTokenCookie);
-                buildAuthentication(user, request);
+                authFactory.buildAuthentication(user, request);
                 buildCurrentUserContext(user, request);
 
                 log.debug("User {} refreshed access token success", user.getUsername());
@@ -139,15 +141,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         return false;
     }
 
-    public void buildAuthentication(UserDetails userDetails, HttpServletRequest request) {
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-    }
+//    public void buildAuthentication(UserDetails userDetails, HttpServletRequest request) {
+//        UsernamePasswordAuthenticationToken authToken =
+//                new UsernamePasswordAuthenticationToken(
+//                        userDetails,
+//                        null,
+//                        userDetails.getAuthorities()
+//                );
+//        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//        SecurityContextHolder.getContext().setAuthentication(authToken);
+//    }
 
 }

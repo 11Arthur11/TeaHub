@@ -2,9 +2,12 @@ package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
+import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
 import dev.parhamziaei.teahub.dto.response.resource.ResourceListAdminResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
+import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
+import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.ResourceService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class ResourceAdminController {
 
     private final ResourceService resourceService;
+    private final MessageService messageService;
 
     @Operation(
             summary = "Get all resources for admin",
@@ -27,7 +31,7 @@ public class ResourceAdminController {
                     "You can apply filters via query parameters in ResourceFilterRequest.",
             tags = {"Resource (Admin)"}
     )
-    @PostMapping
+    @GetMapping
     public ResponseEntity<DataResponse<PagedModel<ResourceListAdminResponse>>> getAllResources(@ModelAttribute ResourceFilterRequest filter) {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
@@ -46,6 +50,31 @@ public class ResourceAdminController {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 resourceService.findResource(resourceId),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            tags = {"Resource (Admin)"}
+    )
+    @DeleteMapping("/{resourceId}")
+    public ResponseEntity<SimpleResponse> deleteResource(@PathVariable Long resourceId) {
+        resourceService.deleteResource(resourceId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                messageService.get(ServiceMessage.DEFAULT_DELETED),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            tags = {"Resource (Admin)"}
+    )
+    @PatchMapping("/{resourceId}/force-prolong")
+    public ResponseEntity<SimpleResponse> forceProlongResource(@PathVariable Long resourceId) {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
                 HttpStatus.OK
         );
     }

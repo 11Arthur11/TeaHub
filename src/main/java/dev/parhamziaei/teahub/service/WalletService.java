@@ -20,6 +20,7 @@ import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpeci
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletSpecification;
 import dev.parhamziaei.teahub.repository.jpa.specification.WalletTransactionSpecification;
 import dev.parhamziaei.teahub.utils.PersianPeriod;
+import dev.parhamziaei.teahub.valueobject.TimeRange;
 import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -187,14 +188,14 @@ public class WalletService {
     }
 
     public AdminMetric.FinanceFlowComparison totalSpendingComparison() {
-        PersianPeriod.TimeRange today = PersianPeriod.today();
-        PersianPeriod.TimeRange yesterday = PersianPeriod.yesterday();
+        TimeRange today = PersianPeriod.today();
+        TimeRange yesterday = PersianPeriod.yesterday();
 
-        PersianPeriod.TimeRange thisMonth = PersianPeriod.thisMonth();
-        PersianPeriod.TimeRange lastMonth = PersianPeriod.lastMonth();
+        TimeRange thisMonth = PersianPeriod.thisMonth();
+        TimeRange lastMonth = PersianPeriod.lastMonth();
 
-        PersianPeriod.TimeRange thisWeek = PersianPeriod.thisWeek();
-        PersianPeriod.TimeRange lastWeek = PersianPeriod.lastWeek();
+        TimeRange thisWeek = PersianPeriod.thisWeek();
+        TimeRange lastWeek = PersianPeriod.lastWeek();
 
         FinanceFlowAggregate current = walletTransactionRepo.aggregate(
                 DEBIT,

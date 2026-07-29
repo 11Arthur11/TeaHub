@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
 import dev.parhamziaei.teahub.enums.shop.ProductType;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
+import dev.parhamziaei.teahub.valueobject.ProductPresentation;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -33,5 +34,7 @@ public abstract class AbstractProductInitRequest {
     private boolean enabled;
 
     private ProductPeriod productPeriod;
+
+    private ProductPresentation presentation;
 
 }

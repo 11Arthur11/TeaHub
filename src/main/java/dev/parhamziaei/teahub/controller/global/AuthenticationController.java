@@ -32,10 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +52,18 @@ public class AuthenticationController {
     private final AuthenticationFactory authFactory;
     private final TwoFactorRepo twoFactorRepo;
     private final PhoneVerifyRepo phoneVerifyRepo;
+
+    @Operation(
+            summary = "Authentication Check",
+            tags = {"Auth"}
+    )
+    @RequestMapping(method = RequestMethod.HEAD, path = "/session")
+    public ResponseEntity<?> checkAuthentication(HttpServletRequest request) {
+        Optional<String> token = jwtService.extractJwtFromRequest(request, JwtType.ACCESS_TOKEN);
+        if (token.isPresent() && jwtService.isTokenValid(token.get(), JwtType.ACCESS_TOKEN))
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
 
     @ApiResponses(value = {
             @ApiResponse(

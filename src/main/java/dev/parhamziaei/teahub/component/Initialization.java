@@ -18,6 +18,7 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.enums.ProvisionStrategy
 import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.service.CategoryService;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;
+import dev.parhamziaei.teahub.valueobject.ProductPresentation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +81,7 @@ public class Initialization implements CommandLineRunner {
         initRequest.setProductPeriod(ProductPeriod.DAILY);
         initRequest.setMaxClients(32);
         initRequest.setEnabled(true);
+        initRequest.setPresentation(new ProductPresentation("AAA", "BBB", "CCC"));
         initRequest.setProductName("Test TeaSpeak Product");
         initRequest.setCategoryId(1L);
         initRequest.setType(ResourceType.TEASPEAK);

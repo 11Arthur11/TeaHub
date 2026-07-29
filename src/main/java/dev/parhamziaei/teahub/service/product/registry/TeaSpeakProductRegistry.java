@@ -40,6 +40,7 @@ public class TeaSpeakProductRegistry implements ProductRegistryHandler {
         Money price = new Money(initRequest.getPrice());
         TeaSpeakProduct product = TeaSpeakProduct.builder()
                 .productName(initRequest.getProductName())
+                .presentation(request.getPresentation())
                 .price(price)
                 .enabled(initRequest.isEnabled())
                 .maxClients(initRequest.getMaxClients())
@@ -67,6 +68,8 @@ public class TeaSpeakProductRegistry implements ProductRegistryHandler {
         }
 
         teaSpeakProductMapStruct.updateEntity(editRequest, product);
+        if (editRequest.getPresentation() != null)
+            product.setPresentation(editRequest.getPresentation());
         teaSpeakProductRepo.save(product);
     }
 

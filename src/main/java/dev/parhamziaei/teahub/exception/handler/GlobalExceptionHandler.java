@@ -10,6 +10,7 @@ import dev.parhamziaei.teahub.exception.custom.global.EntityInUseException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.*;
+import dev.parhamziaei.teahub.exception.custom.service.dns.DnsProviderNotConfiguredException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.*;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
@@ -349,5 +350,16 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    // ? <DNS Provider Exception >
+    @ExceptionHandler(DnsProviderNotConfiguredException.class)
+    public ResponseEntity<SimpleResponse> handleDnsProviderNotConfiguredException() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.NO_DATA,
+                messageService.get(ServiceMessage.DNS_PROVIDER_NOT_CONFIGURED),
+                HttpStatus.OK
+        );
+    }
+
 
 }

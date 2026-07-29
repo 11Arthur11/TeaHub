@@ -50,7 +50,6 @@ public class ResourceService {
     private final BillableResourceRepository billableResourceRepository;
     private final ResourceMapperFactory mapperFactory;
     private final BillableResourceMapStruct billableResourceMapStruct;
-    private final TeaSpeakService teaSpeakService;
 
     @Transactional
     public void newBillableResource(Long userId, AbstractNewResourceRequest request) {

@@ -20,6 +20,7 @@ import dev.parhamziaei.teahub.service.WalletService;
 import dev.parhamziaei.teahub.service.interfaces.PaymentService;
 import dev.parhamziaei.teahub.service.payment.PostPaymentRegistryFactory;
 import dev.parhamziaei.teahub.utils.PersianPeriod;
+import dev.parhamziaei.teahub.valueobject.TimeRange;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -68,14 +69,14 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private AdminMetric.FinanceFlowComparison totalIncomeComparison() {
-        PersianPeriod.TimeRange today = PersianPeriod.today();
-        PersianPeriod.TimeRange yesterday = PersianPeriod.yesterday();
+        TimeRange today = PersianPeriod.today();
+        TimeRange yesterday = PersianPeriod.yesterday();
 
-        PersianPeriod.TimeRange thisMonth = PersianPeriod.thisMonth();
-        PersianPeriod.TimeRange lastMonth = PersianPeriod.lastMonth();
+        TimeRange thisMonth = PersianPeriod.thisMonth();
+        TimeRange lastMonth = PersianPeriod.lastMonth();
 
-        PersianPeriod.TimeRange thisWeek = PersianPeriod.thisWeek();
-        PersianPeriod.TimeRange lastWeek = PersianPeriod.lastWeek();
+        TimeRange thisWeek = PersianPeriod.thisWeek();
+        TimeRange lastWeek = PersianPeriod.lastWeek();
 
         FinanceFlowAggregate current = paymentTransactionRepository.aggregate(
                 today.start(),

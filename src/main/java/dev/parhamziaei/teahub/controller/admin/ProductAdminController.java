@@ -5,8 +5,10 @@ import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductEditRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductInitRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
-import dev.parhamziaei.teahub.dto.response.shop.AbstractProductListResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductDetailResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.AudioBotProductDetailAdminResponse;
+import dev.parhamziaei.teahub.dto.response.shop.admin.TeaSpeakProductDetailAdminResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.MessageService;
@@ -61,7 +63,9 @@ public class ProductAdminController {
                                                   },
                                                   "period": "روزانه",
                                                   "productType": "TEASPEAK_PRODUCT",
-                                                  "maxClients": 32
+                                                  "maxClients": 32,
+                                                  "categoryName": "Test Category",
+                                                  "categorySlug": "test"
                                                 },
                                                 {
                                                   "id": 1,
@@ -73,7 +77,9 @@ public class ProductAdminController {
                                                     "currency": "IRT"
                                                   },
                                                   "period": "ماهانه",
-                                                  "productType": "AUDIO_BOT_PRODUCT"
+                                                  "productType": "AUDIO_BOT_PRODUCT",
+                                                  "categoryName": "Test Category",
+                                                  "categorySlug": "test"
                                                 }
                                               ]
                                             }
@@ -84,7 +90,7 @@ public class ProductAdminController {
     })
     @GetMapping
     public
-    ResponseEntity<DataResponse<List<AbstractProductListResponse>>> getAllProducts() {
+    ResponseEntity<DataResponse<List<AbstractProductListAdminResponse>>> getAllProducts() {
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 productService.getAllProducts(),
@@ -109,7 +115,12 @@ public class ProductAdminController {
                                               "price": 5000,
                                               "enabled": true,
                                               "productPeriod": "MONTHLY",
-                                              "maxClients": 32
+                                              "maxClients": 32,
+                                              "presentation": {
+                                                  "description": "سرور TeaSpeak با کیفیت بالا و منابع اختصاصی",
+                                                  "features": "[{\\"text\\":\\"صدای با کیفیت\\",\\"enabled\\":true},{\\"text\\":\\"بکاپ خودکار\\",\\"enabled\\":true},{\\"text\\":\\"Anti-DDoS Protection\\",\\"enabled\\":false}]",
+                                                  "badges": "[{\\"text\\":\\"پرفروش\\",\\"variant\\":\\"success\\"},{\\"text\\":\\"جدید\\",\\"variant\\":\\"primary\\"}]"
+                                              }
                                             }
                                             """
                             ),
@@ -124,7 +135,12 @@ public class ProductAdminController {
                                               "price": 1000,
                                               "enabled": true,
                                               "productPeriod": "HOURLY",
-                                              "providerNodeId": 1
+                                              "providerNodeId": 1,
+                                              "presentation": {
+                                                  "description": "سرور TeaSpeak با کیفیت بالا و منابع اختصاصی",
+                                                  "features": "[{\\"text\\":\\"صدای با کیفیت\\",\\"enabled\\":true},{\\"text\\":\\"بکاپ خودکار\\",\\"enabled\\":true},{\\"text\\":\\"Anti-DDoS Protection\\",\\"enabled\\":false}]",
+                                                  "badges": "[{\\"text\\":\\"پرفروش\\",\\"variant\\":\\"success\\"},{\\"text\\":\\"جدید\\",\\"variant\\":\\"primary\\"}]"
+                                                }
                                             }
                                             """
                             )
@@ -166,68 +182,6 @@ public class ProductAdminController {
             description = "Returns detailed information of a specific product identified by productId.",
             tags = {"Products (Admin)"}
     )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful response",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "success": true,
-                                              "type": "DATA",
-                                              "data": {
-                                                "id": 1,
-                                                "categoryName": "Test Category",
-                                                "categorySlug": "test",
-                                                "productName": "Test TeaSpeak Product",
-                                                "period": "روزانه",
-                                                "expiration": "24h",
-                                                "orderedResources": 1,
-                                                "price": {
-                                                  "amount": 50000,
-                                                  "currency": "IRT"
-                                                },
-                                                "enabled": true,
-                                                "maxClients": 32
-                                              }
-                                            }
-                                    """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful response",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "success": true,
-                                              "type": "DATA",
-                                              "data": {
-                                                "id": 2,
-                                                "categoryName": "Test Category",
-                                                "categorySlug": "test",
-                                                "productName": "string",
-                                                "period": "ساعتی",
-                                                "expiration": "1h",
-                                                "orderedResources": 0,
-                                                "price": {
-                                                  "amount": 50000,
-                                                  "currency": "IRT"
-                                                },
-                                                "enabled": true,
-                                                "providerNodeId": null
-                                              }
-                                            }
-                                    """
-                            )
-                    )
-            )
-    })
     @GetMapping("/{productId}")
     public ResponseEntity<DataResponse<AbstractProductDetailResponse>> getProduct(@PathVariable Long productId) {
         return ResponseBuilder.buildSuccess(

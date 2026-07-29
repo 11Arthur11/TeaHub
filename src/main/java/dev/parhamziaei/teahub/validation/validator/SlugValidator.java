@@ -22,7 +22,7 @@ public class SlugValidator implements ConstraintValidator<Slug, String> {
             return true;
         }
         if (slug == null) return false;
-        Pattern pattern = Pattern.compile("^[a-z]{2,10}$");
+        Pattern pattern = Pattern.compile("^[a-z0-9]+(?:-[a-z0-9]+)*$");
         Matcher matcher = pattern.matcher(slug);
         return matcher.matches();
     }

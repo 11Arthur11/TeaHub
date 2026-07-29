@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 public interface BillableResourceRepository extends JpaSpecificationExecutor<BillableResource>, JpaRepository<BillableResource, Long> {
@@ -45,5 +46,10 @@ public interface BillableResourceRepository extends JpaSpecificationExecutor<Bil
         FROM BillableResource r
     """)
     ResourceMetric getResourceMetric();
+
+    @Query("""
+        SELECT COUNT(r) FROM BillableResource r WHERE r.product.id = :productId
+    """)
+    Long countByProductId(@Param("productId") Long productId);
 
 }

@@ -6,6 +6,7 @@ import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
 import dev.parhamziaei.teahub.enums.shop.ProductType;
 import dev.parhamziaei.teahub.enums.shop.ResourceType;
 import dev.parhamziaei.teahub.valueobject.Money;
+import dev.parhamziaei.teahub.valueobject.ProductPresentation;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -29,5 +30,7 @@ public class AbstractProductEditRequest {
     private Long categoryId;
 
     private Money price;
+
+    private ProductPresentation presentation;
 
 }

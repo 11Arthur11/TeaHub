@@ -25,8 +25,10 @@ import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.service.interfaces.UserService;
 import dev.parhamziaei.teahub.service.mapper.UserMapStruct;
 import dev.parhamziaei.teahub.utils.PersianPeriod;
+import dev.parhamziaei.teahub.valueobject.TimeRange;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,6 +43,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -180,12 +183,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AdminMetric.UserMetric userMetric() {
-        PersianPeriod.TimeRange today = PersianPeriod.today();
-        PersianPeriod.TimeRange yesterday = PersianPeriod.yesterday();
-        PersianPeriod.TimeRange thisMonth = PersianPeriod.thisMonth();
-        PersianPeriod.TimeRange lastMonth = PersianPeriod.lastMonth();
-        PersianPeriod.TimeRange thisWeek = PersianPeriod.thisWeek();
-        PersianPeriod.TimeRange lastWeek = PersianPeriod.lastWeek();
+        TimeRange today = PersianPeriod.today();
+        TimeRange yesterday = PersianPeriod.yesterday();
+        TimeRange thisMonth = PersianPeriod.thisMonth();
+        TimeRange lastMonth = PersianPeriod.lastMonth();
+        TimeRange thisWeek = PersianPeriod.thisWeek();
+        TimeRange lastWeek = PersianPeriod.lastWeek();
+
+        log.debug("Today: {}, Yesterday: {}, ThisWeek: {}, LastWeek: {}, ThisMonth: {}, LastMonth: {}",
+                today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth
+        );
 
         UserRegistersMetricAggregate current = userRepository.aggregateUserRegisters(
                 today.start(),

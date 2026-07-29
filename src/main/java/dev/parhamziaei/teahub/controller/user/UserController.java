@@ -34,23 +34,4 @@ public class UserController {
         );
     }
 
-    @GetMapping("/identity")
-    public ResponseEntity<DataResponse<Map<String, String>>> getIdentity() {
-
-        Map<String, String> map = new HashMap<>();
-        map.put("roleIdentifier", userService.getProfile(
-                currentUser.getId(),
-                UserDetailResponse.class
-        ).getRole().nameWithoutPrefix());
-        map.put("id", currentUser.getId().toString());
-
-        return ResponseBuilder.buildSuccess(
-                ResponseType.DATA,
-                map,
-                HttpStatus.OK
-        );
-    }
-
-
-
 }

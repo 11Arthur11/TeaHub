@@ -77,7 +77,7 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         authorize -> authorize
-                        .requestMatchers("/v1/auth/**", "/v1/payments/gateway/**").permitAll()
+                        .requestMatchers("/v1/auth/**", "/v1/payments/gateway/callback/**", "/v1/global/**").permitAll()
                         .requestMatchers("/docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/v1/admin/tickets/**").hasRole(Roles.ROLE_SUPPORT.nameWithoutPrefix())
                         .requestMatchers("/v1/admin/**").hasRole(Roles.ROLE_ADMIN.nameWithoutPrefix())

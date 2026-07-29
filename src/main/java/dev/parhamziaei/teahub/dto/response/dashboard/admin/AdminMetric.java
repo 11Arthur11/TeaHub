@@ -73,5 +73,4 @@ public class AdminMetric {
         private ProvisionStrategy nodeStrategy;
     }
 
-
 }

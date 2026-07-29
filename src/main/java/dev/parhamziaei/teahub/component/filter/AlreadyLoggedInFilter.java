@@ -40,7 +40,7 @@ public class AlreadyLoggedInFilter extends OncePerRequestFilter {
             @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/v1/auth") && !requestURI.endsWith("logout")) {
+        if (requestURI.startsWith("/v1/auth") && (!requestURI.endsWith("logout") && !requestURI.endsWith("/session"))) {
             Optional<String> jwt = jwtService.extractJwtFromRequest(request, JwtType.ACCESS_TOKEN);
             if (jwt.isPresent() && jwtService.isTokenValid(jwt.get(), JwtType.ACCESS_TOKEN)) {
                 writeAlreadyLoggedInResponse(response);

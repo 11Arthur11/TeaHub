@@ -2,176 +2,112 @@ package dev.parhamziaei.teahub.utils;
 
 import com.github.mfathi91.time.PersianDate;
 import com.github.mfathi91.time.PersianMonth;
+import dev.parhamziaei.teahub.valueobject.TimeRange;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
+import java.time.LocalTime;
 
 public final class PersianPeriod {
 
     private PersianPeriod() {
     }
 
+    private static PersianDate minusDays(PersianDate date, long days) {
+        return PersianDate.fromGregorian(date.toGregorian().minusDays(days));
+    }
+
+    private static PersianDate minusMonths(PersianDate date, long months) {
+        return PersianDate.fromGregorian(date.toGregorian().minusMonths(months));
+    }
+
+    private static PersianDate minusWeeks(PersianDate date, long weeks) {
+        return PersianDate.fromGregorian(date.toGregorian().minusWeeks(weeks));
+    }
+
+    private static PersianDate plusDays(PersianDate date, long days) {
+        return PersianDate.fromGregorian(date.toGregorian().plusDays(days));
+    }
+
+    private static PersianDate plusMonths(PersianDate date, long months) {
+        return PersianDate.fromGregorian(date.toGregorian().plusMonths(months));
+    }
 
     public static TimeRange today() {
         PersianDate now = PersianDate.now();
-
-        PersianDate start = PersianDate.of(
-                now.getYear(),
-                now.getMonth(),
-                now.getDayOfMonth()
-        );
-
-        return range(
-                start,
-                start.plusDays(1)
-        );
+        return range(now, now);
     }
-
 
     public static TimeRange yesterday() {
-        PersianDate today = PersianDate.now();
-
-        PersianDate start =
-                PersianDate.fromGregorian(
-                        PersianDate.of(
-                                today.getYear(),
-                                today.getMonth(),
-                                today.getDayOfMonth()
-                        ).toGregorian().minusDays(1)
-                );
-
-        return range(
-                start,
-                start.plusDays(1)
-        );
-    }
-
-
-    public static TimeRange thisMonth() {
         PersianDate now = PersianDate.now();
-
-        PersianDate start = PersianDate.of(
-                now.getYear(),
-                now.getMonth(),
-                1
-        );
-
-        return range(
-                start,
-                start.plusMonths(1)
-        );
+        PersianDate yesterday = minusDays(now, 1);
+        return range(yesterday, yesterday);
     }
-
-
-    public static TimeRange lastMonth() {
-        PersianDate now = PersianDate.now();
-
-        PersianDate currentMonth = PersianDate.of(
-                now.getYear(),
-                now.getMonth(),
-                1
-        );
-
-        PersianDate start = PersianDate.fromGregorian(
-                currentMonth.toGregorian().minusMonths(1)
-        );
-
-        return range(
-                start,
-                currentMonth
-        );
-    }
-
 
     public static TimeRange thisWeek() {
         PersianDate today = PersianDate.now();
 
-        int diff = today.getDayOfWeek().getValue() - DayOfWeek.SATURDAY.getValue();
+        int dayOfWeek = today.getDayOfWeek().getValue();
+        int diff = dayOfWeek - 1;
 
-        if (diff < 0) {
-            diff += 7;
-        }
+        PersianDate start = minusDays(today, diff);
+        PersianDate end = plusDays(start, 6);
 
-        PersianDate start = PersianDate.fromGregorian(
-                today.toGregorian().minusDays(diff)
-        );
-
-        return range(
-                start,
-                start.plusDays(7)
-        );
+        return range(start, end);
     }
-
 
     public static TimeRange lastWeek() {
         TimeRange thisWeek = thisWeek();
-
-        PersianDate start = PersianDate.fromGregorian(
-                thisWeek.start().toLocalDate().minusWeeks(7)
+        PersianDate start = minusWeeks(
+                PersianDate.fromGregorian(thisWeek.start().toLocalDate()),
+                1
         );
+        PersianDate end = plusDays(start, 6);
 
-        return range(
-                start,
-                start.plusDays(7)
-        );
+        return range(start, end);
     }
 
+    public static TimeRange thisMonth() {
+        PersianDate now = PersianDate.now();
+        PersianDate start = PersianDate.of(now.getYear(), now.getMonth(), 1);
+        PersianDate end = minusDays(plusMonths(start, 1), 1);
+
+        return range(start, end);
+    }
+
+    public static TimeRange lastMonth() {
+        PersianDate now = PersianDate.now();
+
+        PersianDate currentMonthStart = PersianDate.of(now.getYear(), now.getMonth(), 1);
+
+        PersianDate lastMonthStart = minusMonths(currentMonthStart, 1);
+
+        PersianDate lastMonthEnd = minusDays(currentMonthStart, 1);
+
+        return range(lastMonthStart, lastMonthEnd);
+    }
 
     public static TimeRange thisYear() {
         PersianDate now = PersianDate.now();
+        PersianDate start = PersianDate.of(now.getYear(), PersianMonth.FARVARDIN, 1);
+        PersianDate end = PersianDate.of(now.getYear(), PersianMonth.ESFAND, 30);
 
-        PersianDate start = PersianDate.of(
-                now.getYear(),
-                PersianMonth.FARVARDIN,
-                1
-        );
-
-        return range(
-                start,
-                start.plusYears(1)
-        );
+        return range(start, end);
     }
-
 
     public static TimeRange lastYear() {
         PersianDate now = PersianDate.now();
+        int lastYear = now.getYear() - 1;
 
-        PersianDate start = PersianDate.of(
-                now.getYear() - 1,
-                PersianMonth.FARVARDIN,
-                1
-        );
+        PersianDate start = PersianDate.of(lastYear, PersianMonth.FARVARDIN, 1);
+        PersianDate end = PersianDate.of(lastYear, PersianMonth.ESFAND, 30);
 
-        PersianDate end = PersianDate.of(
-                now.getYear(),
-                PersianMonth.FARVARDIN,
-                1
-        );
-
-        return range(
-                start,
-                end
-        );
+        return range(start, end);
     }
 
-
-    private static TimeRange range(
-            PersianDate start,
-            PersianDate end
-    ) {
+    private static TimeRange range(PersianDate start, PersianDate end) {
         return new TimeRange(
                 start.toGregorian().atStartOfDay(),
-                end.toGregorian().atStartOfDay()
+                end.toGregorian().atTime(LocalTime.MAX)
         );
     }
 
-
-    public record TimeRange(
-            LocalDateTime start,
-            LocalDateTime end
-    ) {
-    }
 }

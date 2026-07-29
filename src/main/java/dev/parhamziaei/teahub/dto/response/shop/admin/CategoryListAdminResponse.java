@@ -9,7 +9,6 @@ public class CategoryListAdminResponse {
     private Long id;
     private String name;
     private boolean active;
-    private ProductType productType;
     private String description;
     private String slug;
 
