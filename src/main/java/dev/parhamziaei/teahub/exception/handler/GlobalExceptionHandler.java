@@ -11,6 +11,7 @@ import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.*;
 import dev.parhamziaei.teahub.exception.custom.service.dns.DnsProviderNotConfiguredException;
+import dev.parhamziaei.teahub.exception.custom.service.dns.ResourceAlreadyHasAssignedSubdomainException;
 import dev.parhamziaei.teahub.exception.custom.service.payment.*;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceProvisionException;
@@ -358,6 +359,15 @@ public class GlobalExceptionHandler {
                 ResponseType.NO_DATA,
                 messageService.get(ServiceMessage.DNS_PROVIDER_NOT_CONFIGURED),
                 HttpStatus.OK
+        );
+    }
+
+    @ExceptionHandler(ResourceAlreadyHasAssignedSubdomainException.class)
+    public ResponseEntity<SimpleResponse> handleResourceAlreadyHasAssignedSubdomainException() {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.ERROR,
+                messageService.get(ServiceMessage.RESOURCE_ALREADY_HAS_SUBDOMAIN),
+                HttpStatus.BAD_REQUEST
         );
     }
 

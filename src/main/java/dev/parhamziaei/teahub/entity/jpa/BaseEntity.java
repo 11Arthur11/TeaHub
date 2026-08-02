@@ -20,7 +20,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    ID id;
+    Long id;
 
     public int hashCode() {
         return Objects.hash(id);

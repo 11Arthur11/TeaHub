@@ -8,10 +8,9 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class TicketSpecification {
 
-    public static Specification<Ticket> mustHaveAccess(User user) {
+    public static Specification<Ticket> mustHaveAccess(Long userId) {
         return (root, query, cb) -> {
-            if (user.isStaff()) return null;
-            return cb.equal(root.get("owner").get("id"), user.getId());
+            return cb.equal(root.get("owner").get("id"), userId);
         };
     }
 

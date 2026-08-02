@@ -309,7 +309,7 @@ public class TicketServiceImpl implements TicketService {
 
         Specification<Ticket> spec = TicketSpecification.hasDepartment(filterRequest.getDepartment())
                 .and(TicketSpecification.hasStatus(filterRequest.getStatus()))
-                .and(TicketSpecification.mustHaveAccess(user));
+                .and(TicketSpecification.mustHaveAccess(user.getId()));
 
         Page<Ticket> tickets = ticketRepo.findAll(spec, pageable);
 

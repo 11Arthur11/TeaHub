@@ -244,9 +244,6 @@ public class WalletService {
     public void debit(Long walletId, BigDecimal amount, TransactionReason reason, Long relatedResourceId) {
         Wallet wallet = walletRepo.findByIdAndLock(walletId);
 
-        if (wallet.getOwner().isAdmin())
-            return;
-
         if (wallet.getBalance().getAmount().compareTo(amount) < 0)
             throw new InsufficientBalanceException();
 

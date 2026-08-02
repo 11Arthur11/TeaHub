@@ -7,6 +7,7 @@ import dev.parhamziaei.teahub.repository.jpa.ApplicationSettingRepository;
 import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ResourceExpirationSchedule {
@@ -22,8 +24,9 @@ public class ResourceExpirationSchedule {
     private final ResourceEventProducer resourceEventProducer;
     private final ApplicationSettingRepository applicationSettingRepository;
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */1 * * * *")
     public void resourceSuspendSchedule() {
+        log.debug("ResourceSuspendSchedule Begin");
         Specification<BillableResource> spec = BillableResourceSpecification.byStatus(ResourceStatus.ACTIVE);
         billableResourceRepo.findAll(spec).forEach(resource -> {
             if (resource.getExpiration().plus(Duration.ofMinutes(5)).isBefore(LocalDateTime.now()))
@@ -31,8 +34,9 @@ public class ResourceExpirationSchedule {
         });
     }
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     public void resourceDeleteSchedule() {
+        log.debug("ResourceDeleteSchedule Begin");
         LocalDateTime resourceDeleteTime = LocalDateTime.now().minus(
                 applicationSettingRepository.find()
                         .getResourceProperties()

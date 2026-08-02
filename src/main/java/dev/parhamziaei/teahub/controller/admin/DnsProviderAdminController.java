@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.controller.admin;
 
+import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.dns.admin.LiaraDnsProviderPersistRequest;
 import dev.parhamziaei.teahub.dto.request.query.DnsRecordFilterRequest;
 import dev.parhamziaei.teahub.dto.response.dns.admin.LiaraDnsProviderDetailResponse;
@@ -26,6 +27,7 @@ public class DnsProviderAdminController {
 
     private final DnsProviderService dnsProviderService;
     private final MessageService messageService;
+    private final CurrentUser currentUser;
 
     @GetMapping("/liara")
     public ResponseEntity<DataResponse<LiaraDnsProviderDetailResponse>> getLiaraDnsProviders() {
@@ -46,19 +48,52 @@ public class DnsProviderAdminController {
         );
     }
 
-//    @GetMapping("/records")
-//    public ResponseEntity<?> liaraZoneRecords(@ModelAttribute DnsRecordFilterRequest filterRequest) {
-//
-//    }
-//
-//    @PatchMapping("/liara/{zoneName}/active")
-//    public ResponseEntity<?> liaraZoneRecords() {
-//
-//    }
-//
-//    @GetMapping("/liara/{zoneName}/deActive")
-//    public ResponseEntity<?> liaraZoneRecords() {
-//
-//    }
+    @GetMapping("/records/{zoneName}")
+    public ResponseEntity<?> zoneRecords(@PathVariable String zoneName) {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                dnsProviderService.getRecords(zoneName),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/records/resource/{resourceId}")
+    public ResponseEntity<?> liaraZoneRecords(@PathVariable Long resourceId) {
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                dnsProviderService.getAssignedRecordByResource(resourceId),
+                HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/records/{recordId}")
+    public ResponseEntity<SimpleResponse> unassignRecord(@PathVariable Long recordId) {
+        dnsProviderService.unassignRecordById(currentUser.getId(), recordId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                messageService.get(ServiceMessage.DEFAULT_DELETED),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping("/zones/{zoneId}/toggle-active")
+    public ResponseEntity<SimpleResponse> toggleZoneActive(@PathVariable Long zoneId) {
+        dnsProviderService.toggleZoneActive(zoneId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping("/records/{recordId}/re-assign")
+    public ResponseEntity<SimpleResponse> reassignRecord(@PathVariable Long recordId) {
+        //todo
+        return ResponseBuilder.buildSuccess(
+                ResponseType.SUCCESS,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+                HttpStatus.OK
+        );
+    }
 
 }

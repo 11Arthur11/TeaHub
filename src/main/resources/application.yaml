@@ -38,7 +38,7 @@ logging:
 
 app:
   settings:
-    front-end-domain: 'localhost:8080'
+    backend-domain: 'localhost:8080'
   components:
     telnet:
       default-timeout-millis: 10000

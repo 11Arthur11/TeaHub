@@ -2,6 +2,7 @@ package dev.parhamziaei.teahub.integration.zone_manager.liara.dto;
 
 import dev.parhamziaei.teahub.enums.dns.DnsRecordType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class LiaraRecordDTO {
 
     private String name;
@@ -22,6 +24,7 @@ public class LiaraRecordDTO {
     }
 
     @Data
+    @Builder
     public static class Content {
 
         private String ip;

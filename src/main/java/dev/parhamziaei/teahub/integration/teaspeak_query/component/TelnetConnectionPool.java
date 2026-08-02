@@ -1,6 +1,8 @@
 package dev.parhamziaei.teahub.integration.teaspeak_query.component;
 
 import dev.parhamziaei.teahub.configuration.properties.TelnetProperties;
+import dev.parhamziaei.teahub.entity.jpa.teaspeak.QueryInstance;
+import dev.parhamziaei.teahub.enums.teaspeak.QueryInstanceStatus;
 import dev.parhamziaei.teahub.integration.teaspeak_query.enums.TelnetSessionState;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryConnectionPoolingException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryLoginFailedException;
@@ -10,6 +12,7 @@ import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionLoginFailedEvent
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionReviveFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.teaspeak.TelnetSessionUnreachableEvent;
 import dev.parhamziaei.teahub.kafka.producer.TelnetEventProducer;
+import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.scheduling.annotation.Async;
@@ -30,12 +33,14 @@ public class TelnetConnectionPool {
     protected int telnetReconnectTries;
     protected Duration reconnectDelay;
     private final TelnetEventProducer telnetEventProducer;
+    private final QueryInstanceRepository queryInstanceRepository;
 
-    TelnetConnectionPool(TelnetProperties telnetProperties, TelnetEventProducer telnetEventProducer) {
+    TelnetConnectionPool(TelnetProperties telnetProperties, TelnetEventProducer telnetEventProducer, QueryInstanceRepository queryInstanceRepository) {
         this.timeout = telnetProperties.defaultTimeoutMillis();
         this.telnetReconnectTries = telnetProperties.reconnectTries();
         this.reconnectDelay = telnetProperties.reconnectDelay();
         this.telnetEventProducer = telnetEventProducer;
+        this.queryInstanceRepository = queryInstanceRepository;
     }
 
     public void addConnection(ServerQueryCredentials credentials) {
@@ -99,13 +104,24 @@ public class TelnetConnectionPool {
                     return session;
                 } else if (session.getState().get() == TelnetSessionState.BUSY) {
                     Thread.sleep(50);
-                } else
+                } else {
+                    changeStatusToUnreachable(credentials);
                     throw new QueryConnectionPoolingException("error while trying to borrow connection from the pool - there is a high chance that query is unreachable");
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
+        changeStatusToUnreachable(credentials);
         throw new QueryConnectionPoolingException("timeout while trying to borrow connection from the pool");
+    }
+
+    protected void changeStatusToUnreachable(ServerQueryCredentials credentials) {
+        QueryInstance queryInstance = queryInstanceRepository.findByAddress(credentials.ip(), credentials.port())
+                .orElseThrow(() -> new QueryConnectionPoolingException("query instance not found"));
+
+        queryInstance.setStatus(QueryInstanceStatus.UNREACHABLE);
+        queryInstanceRepository.save(queryInstance);
     }
 
     public void returnToPool(TelnetSession session) {

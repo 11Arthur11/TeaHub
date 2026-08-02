@@ -73,7 +73,8 @@ public enum ServiceMessage {
     PROVISIONING_STRATEGY_CHANGED("success.service.provisioning-strategy-changed"),
 
     DNS_PROVIDER_NOT_CONFIGURED("error.service.dns-provider.not-configured"),
-    DNS_PROVIDER_API_ERROR("error.service.dns-provider.api-error"),;
+    DNS_PROVIDER_API_ERROR("error.service.dns-provider.api-error"),
+    RESOURCE_ALREADY_HAS_SUBDOMAIN("error.service.dns-provider.resource-already-has-subdomain");
 
     private final String key;
 

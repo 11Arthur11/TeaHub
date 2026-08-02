@@ -40,25 +40,12 @@ public class Initialization implements CommandLineRunner {
     private final CategoryService categoryService;
     private final ApplicationSettingRepository applicationSettingRepository;
     private final ProductService productService;
-    private final TeaSpeakResourceRepository teaSpeakResourceRepository;
-    private final ResourceProvisioningStrategyRepository resourceProvisioningStrategyRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        try {
-            categoryService.getAllCategories();
-        } catch (NoSuchDataException ignored) {
-            initTestCategory();
-        }
-        try {
-            productService.getAllProducts();
-        } catch (NoSuchDataException ignored) {
-            initTestProduct();
-        }
 //        ipPanelService.sendTwoFactorSMS("0000", PhoneNumbers.formatedOf(initProperties.adminPhoneNumber()));
         initApplicationSetting();
-
         log.info("Initialization-Operation -> Application settings initialized");
         initRoles();
         if (!userRepository.existsByPhoneNumber(initProperties.adminPhoneNumber()))

@@ -30,4 +30,8 @@ public class DnsRecord extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     private DnsZone dnsZone;
 
+    public String getNameWithoutTs3Prefix() {
+        return name.replace("_ts3._udp.", "");
+    }
+
 }

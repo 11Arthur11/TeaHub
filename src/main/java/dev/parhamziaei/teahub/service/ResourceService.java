@@ -138,6 +138,11 @@ public class ResourceService {
         BillableResource resource = billableResourceRepository.findById(resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
+        if (!resource.isAutoProlong()) {
+            resource.setResourceStatus(ResourceStatus.PENDING_PROLONG);
+            return;
+        }
+
         BillableProduct product = resource.getProduct();
 
         User owner = resource.getOwner();
@@ -156,8 +161,6 @@ public class ResourceService {
 
             deploymentFactory.getStrategy(resource.getResourceType())
                     .suspend(resource);
-
-            resource.setResourceStatus(ResourceStatus.PENDING_PROLONG);
 
             // ! notify user via sms or email or something
         }

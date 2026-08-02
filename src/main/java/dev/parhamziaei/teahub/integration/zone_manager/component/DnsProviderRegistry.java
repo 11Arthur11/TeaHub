@@ -6,14 +6,13 @@ import org.springframework.stereotype.Service;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Service
-public class DnsProviderFactory {
+public class DnsProviderRegistry {
 
     private final EnumMap<DnsProviderType, DnsProviderGateway> providers = new EnumMap<>(DnsProviderType.class);
 
-    public DnsProviderFactory(
+    public DnsProviderRegistry(
             List<DnsProviderGateway> providers
     ) {
         providers.forEach(provider -> this.providers.put(provider.getType(), provider));

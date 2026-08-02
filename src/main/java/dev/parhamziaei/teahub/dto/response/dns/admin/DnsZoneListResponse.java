@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DnsZoneListResponse {
 
+    private Long id;
+
     private String name;
 
     private Boolean active;

@@ -7,7 +7,7 @@ import lombok.Data;
 public abstract class AbstractDnsRecordResponse {
 
     private String name;
-    private String zone;
     private DnsRecordType type;
+
 
 }

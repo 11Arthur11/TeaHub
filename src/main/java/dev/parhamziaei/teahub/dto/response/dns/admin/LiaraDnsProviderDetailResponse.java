@@ -18,7 +18,7 @@ public class LiaraDnsProviderDetailResponse {
 
     private String baseUrl;
 
-    private String apiKey;
+//    private String apiKey;
 
     private List<DnsZoneListResponse> dnsZones;
 

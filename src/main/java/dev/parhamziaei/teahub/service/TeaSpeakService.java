@@ -152,7 +152,9 @@ public class TeaSpeakService {
     @Transactional
     public void resumeInternal(TeaSpeakResource resource) {
         QueryInstance queryInstance = resource.getParentQueryInstance();
-        queryCLI.startServer(queryInstance.getCredentials(), resource.getSid());
+        syncWithQuery(resource);
+        if (resource.getTeaSpeakStatus() == TeaSpeakStatus.OFFLINE)
+            queryCLI.startServer(queryInstance.getCredentials(), resource.getSid());
         resource.setTeaSpeakStatus(TeaSpeakStatus.ONLINE);
         log.info("Resumed TeaSpeak Instance ({}:{})", queryInstance.getCredentials().ip(), resource.getPort());
     }

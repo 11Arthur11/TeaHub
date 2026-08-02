@@ -1,8 +1,12 @@
 package dev.parhamziaei.teahub.integration.zone_manager.liara;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import dev.parhamziaei.teahub.entity.jpa.dns.*;
+import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.enums.dns.DnsProviderStatus;
 import dev.parhamziaei.teahub.enums.dns.DnsProviderType;
+import dev.parhamziaei.teahub.enums.dns.DnsRecordType;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.dns.DnsProviderApiException;
 import dev.parhamziaei.teahub.exception.custom.service.dns.DnsProviderNotConfiguredException;
 import dev.parhamziaei.teahub.integration.zone_manager.component.DnsProviderGateway;
@@ -23,7 +27,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -36,6 +42,7 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
     private final ADnsRecordRepository aDnsRecordRepository;
     private final ModelMapper modelMapper;
     private final SrvDnsRecordRepository srvDnsRecordRepository;
+    private final DnsRecordRepository dnsRecordRepository;
 
     @Override
     public DnsProviderType getType() {
@@ -45,6 +52,9 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
     private RestClient getRestClient() {
         LiaraDnsProvider liara = liaraDnsProviderRepo.find()
                 .orElseThrow(DnsProviderNotConfiguredException::new);
+
+        if (!liara.isActive())
+            throw new DnsProviderNotConfiguredException();
 
         return RestClient.builder()
                 .defaultHeaders(httpHeaders -> {
@@ -105,6 +115,37 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
         }
     }
 
+    private <T, U> U executePost(
+            String uri,
+            T body,
+            Class<U> responseType
+    ) {
+        try {
+            U response = getRestClient().post()
+                    .uri(uri)
+                    .body(body)
+                    .retrieve()
+                    .body(JsonNode.class)
+                    .get("data")
+                    .traverse()
+                    .readValueAs(responseType);
+
+            changeStatus(DnsProviderStatus.CONNECTED);
+            return response;
+        } catch (RestClientException | IOException e) {
+            log.warn("Liara APIs throw an exception, failed to retrieve POST request", e);
+
+            if (e instanceof HttpClientErrorException.Unauthorized)
+                changeStatus(DnsProviderStatus.API_KEY_REJECTED);
+            else if (e instanceof HttpServerErrorException)
+                changeStatus(DnsProviderStatus.SERVER_ERROR);
+            else
+                changeStatus(DnsProviderStatus.UNKNOWN);
+
+            throw new DnsProviderApiException();
+        }
+    }
+
     private List<LiaraRecordDTO> getRecordList(String zoneName) {
         BaseLiaraResponse<List<LiaraRecordDTO>> response = executeGet(
                 "/api/v1/zones/" + zoneName + "/dns-records",
@@ -115,6 +156,93 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
             return response.getData();
         else
             throw new DnsProviderApiException();
+    }
+
+    public boolean isSubdomainAvailable(String zoneName, String subdomain) {
+        return getRecordList(zoneName)
+                .stream()
+                .noneMatch(r -> r.getName().equalsIgnoreCase(subdomain));
+    }
+
+    @Override
+    @Transactional
+    public void addSrvRecord(String zoneName, String subdomain, TeaSpeakResource resource) {
+        final String ip = resource.getParentQueryInstance().getCredentials().ip();
+        List<LiaraRecordDTO> records = getRecordList(zoneName);
+        Optional<LiaraRecordDTO> optionalARecord = records.stream()
+                .filter(r -> r.getType() == DnsRecordType.A && r.getContents().getHost().equals(ip))
+                .findFirst();
+
+        final String aRecordAddress;
+        if (optionalARecord.isEmpty()) {
+            String aRecordName = "node-" + resource.getParentQueryInstance().getId();
+            addARecord(zoneName, aRecordName, ip);
+            aRecordAddress = aRecordName + "." + zoneName;
+        } else
+            aRecordAddress = optionalARecord.get().getName();
+
+        LiaraRecordDTO recordRequest = LiaraRecordDTO.builder()
+                .name("_ts3._udp." + subdomain)
+                .ttl(3600)
+                .type(DnsRecordType.SRV)
+                .contents(List.of(
+                        LiaraRecordDTO.Content.builder()
+                                .host(aRecordAddress)
+                                .port(resource.getPort())
+                                .weight(5)
+                                .priority(1)
+                                .build()
+                )).build();
+
+        LiaraRecordDTO liaraRecord = executePost(
+                "/api/v1/zones/" + zoneName + "/dns-records",
+                recordRequest,
+                LiaraRecordDTO.class
+        );
+
+        SrvDnsRecord srvRecord = srvDnsRecordRepository.findByName(liaraRecord.getName())
+                .orElse(modelMapper.map(liaraRecord, SrvDnsRecord.class));
+        srvRecord.setHost(liaraRecord.getContents().getHost());
+        srvRecord.setPort(liaraRecord.getContents().getPort());
+        srvRecord.setPriority(liaraRecord.getContents().getPriority());
+        srvRecord.setWeight(liaraRecord.getContents().getWeight());
+        srvRecord.setDnsZone(dnsZoneRepository.findByName(zoneName).orElseThrow());
+        srvRecord.setOwner(resource.getOwner());
+        srvRecord.setTtl(liaraRecord.getTtl());
+        srvRecord.setTargetResource(resource);
+        srvRecord.setAssigned(true);
+        srvDnsRecordRepository.save(srvRecord);
+    }
+
+    @Override
+    public void deleteSrvRecord(String recordName) {
+
+    }
+
+    @Override
+    @Transactional
+    public void reassignAllUnassignedSrvRecords() {
+        srvDnsRecordRepository.findAllByDnsZoneProviderTypeAndAssignedIsFalse(getType())
+                .forEach(dbSrvRecord -> addSrvRecord(
+                        dbSrvRecord.getDnsZone().getName(),
+                        dbSrvRecord.getNameWithoutTs3Prefix(),
+                        dbSrvRecord.getTargetResource())
+                );
+    }
+
+    private void addARecord(String zoneName, String name, String ip) {
+        LiaraRecordDTO aRecordRequest = LiaraRecordDTO.builder()
+                .name(name)
+                .type(DnsRecordType.A)
+                .ttl(120)
+                .contents(List.of(LiaraRecordDTO.Content.builder().ip(ip).build()))
+                .build();
+
+        executePost(
+                "/api/v1/zones/" + zoneName + "/dns-records",
+                aRecordRequest,
+                LiaraRecordDTO.class
+        );
     }
 
     @Override
@@ -132,6 +260,7 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
     @Override
     @Transactional
     public void syncRecords(DnsZone zone) {
+        List<SrvDnsRecord> dbSrvRecords = srvDnsRecordRepository.findAllByDnsZoneProviderType(getType());
         getRecordList(zone.getName()).forEach(liaraRecord -> {
             switch (liaraRecord.getType()) {
                 case A -> {
@@ -150,11 +279,20 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
                     srvRecord.setPort(liaraRecord.getContents().getPort());
                     srvRecord.setPriority(liaraRecord.getContents().getPriority());
                     srvRecord.setWeight(liaraRecord.getContents().getWeight());
+                    srvRecord.setTtl(liaraRecord.getTtl());
                     srvRecord.setDnsZone(zone);
+                    srvRecord.setAssigned(dbSrvRecords.stream().anyMatch(r -> r.getName().equals(liaraRecord.getName()) && r.hasTargetResource()));
                     srvDnsRecordRepository.save(srvRecord);
                 }
             }
         });
+    }
+
+    @Override
+    @Transactional
+    public List<DnsRecord> getRecords(String zoneName) {
+        syncRecords(dnsZoneRepository.findByName(zoneName).orElseThrow(NoSuchEntityException::new));
+        return dnsRecordRepository.findAllByDnsZone_Name(zoneName);
     }
 
 }

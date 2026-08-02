@@ -24,15 +24,13 @@ public class Wallet extends BaseEntity<Long> {
     private Money balance;
 
     @OneToMany(mappedBy = "wallet", fetch = FetchType.LAZY)
-    private List<WalletTransaction> transactions;
+    private List<WalletTransaction> transactions = new ArrayList<>();
 
     public Wallet() {
         this.balance = new Money(BigDecimal.ZERO);
     }
 
     public void addTransaction(WalletTransaction walletTransaction) {
-        if (this.transactions == null)
-            this.transactions = new ArrayList<>();
         walletTransaction.setWallet(this);
         this.transactions.add(walletTransaction);
     }

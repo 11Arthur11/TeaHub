@@ -52,7 +52,7 @@ public class AqayePardakhtService implements PaymentGatewayHandler {
     ) {
         this.paymentProperties = paymentProperties;
         this.invoiceRepo = invoiceRepo;
-        this.callbackUrl = appSetting.frontEndDomain() + "/v1/payments/gateway/callback/ap"; //appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
+        this.callbackUrl = appSetting.backendDomain() + "/v1/payments/gateway/callback/ap"; //appSetting.frontendDomain() + "/payments/gateway/callback?gatewayType=" + PaymentGatewayType.AQAYE_PARDAKHT.name();
         this.restClient = RestClient.builder()
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");

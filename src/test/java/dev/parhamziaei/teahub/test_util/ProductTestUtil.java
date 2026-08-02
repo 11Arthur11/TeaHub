@@ -10,6 +10,7 @@ import dev.parhamziaei.teahub.repository.jpa.BillableProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.CategoryRepository;
 import dev.parhamziaei.teahub.repository.jpa.ProductRepository;
 import dev.parhamziaei.teahub.valueobject.Money;
+import dev.parhamziaei.teahub.valueobject.ProductPresentation;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,7 @@ public class ProductTestUtil {
                 .productName(name)
                 .price(new Money(price))
                 .enabled(enabled)
+                .presentation(new ProductPresentation("AAA", "\"a\": 2", "\"b\": 3"))
                 .expiration(resourceExpiry)
                 .period(period)
                 .build();
