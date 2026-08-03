@@ -20,7 +20,8 @@ public interface SrvDnsRecordRepository extends JpaRepository<SrvDnsRecord, Long
     @Query("SELECT sdr FROM SrvDnsRecord sdr WHERE sdr.owner.id = :ownerId")
     List<SrvDnsRecord> findByOwnerId(@Param("ownerId") Long ownerId);
 
-    Optional<SrvDnsRecord> findOneByIdAndOwnerId(Long id, Long ownerId);
+    @Query("SELECT sdr FROM SrvDnsRecord sdr WHERE sdr.id = :id AND sdr.targetResource.owner.id = :ownerId")
+    Optional<SrvDnsRecord> findOneByIdAndOwnerId(@Param("id") Long id, @Param("ownerId") Long ownerId);
 
     boolean existsByTargetResourceId(Long targetResourceId);
 

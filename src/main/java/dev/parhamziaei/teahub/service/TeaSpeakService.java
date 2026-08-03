@@ -16,6 +16,8 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSCreateQu
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSPrivilegeAddResponse;
 import dev.parhamziaei.teahub.integration.teaspeak_query.dto.response.TSServerInfoResponse;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandExecutionException;
+import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryConnectionPoolingException;
+import dev.parhamziaei.teahub.kafka.producer.ResourceEventProducer;
 import dev.parhamziaei.teahub.repository.jpa.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ public class TeaSpeakService {
     private final QueryInstanceService queryInstanceService;
     private final TeaSpeakResourceRepository teaSpeakResourceRepository;
     private final UserRepository userRepo;
+    private final ResourceEventProducer resourceEventProducer;
 
     @Transactional
     public TeaSpeakResource loadResourceByPermission(Long userId, Long resourceId) {
@@ -78,6 +81,8 @@ public class TeaSpeakService {
                         )
                 ).build();
 
+        teaSpeakResource.setParentQueryInstance(queryInstance);
+
         try {
             // ? executing commands to query
             TSCreateQueryResponse createServerResponse = queryCLI.createServer(queryInstance.getCredentials(), createRequest);
@@ -94,11 +99,10 @@ public class TeaSpeakService {
             teaSpeakResource.setSid(createServerResponse.getSid());
             teaSpeakResource.setResourceStatus(ResourceStatus.ACTIVE);
             teaSpeakResource.setTeaSpeakStatus(TeaSpeakStatus.ONLINE);
-            teaSpeakResource.setParentQueryInstance(queryInstance);
 
-        } catch (QueryCommandExecutionException e) {
+        } catch (QueryCommandExecutionException | QueryConnectionPoolingException e) {
             log.error(e.getMessage());
-            // TODO handle failover reDeployment phase here
+            resourceEventProducer.sendDeployFailedEvent(resourceId);
         }
 
         teaSpeakResourceRepository.save(teaSpeakResource);
@@ -107,6 +111,8 @@ public class TeaSpeakService {
     @Transactional
     public TSServerInfoResponse syncWithQuery(TeaSpeakResource teaSpeakResource) {
         QueryInstance queryInstance = teaSpeakResource.getParentQueryInstance();
+        if (queryInstance == null || teaSpeakResource.getSid() == null)
+            throw new QueryCommandExecutionException("Parent query instance and server sid is required for syncing");
 
         TSServerInfoResponse info = queryCLI.getServerInfo(queryInstance.getCredentials(), teaSpeakResource.getSid());
         teaSpeakResource.setTeaSpeakStatus(TeaSpeakStatus.fromValue(info.getVirtualserver_status()));

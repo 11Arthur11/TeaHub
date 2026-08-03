@@ -26,7 +26,7 @@ public class ResourceExpirationSchedule {
 
     @Scheduled(cron = "0 */1 * * * *")
     public void resourceSuspendSchedule() {
-        log.debug("ResourceSuspendSchedule Begin");
+        log.debug("Starting ResourceSuspendSchedule...");
         Specification<BillableResource> spec = BillableResourceSpecification.byStatus(ResourceStatus.ACTIVE);
         billableResourceRepo.findAll(spec).forEach(resource -> {
             if (resource.getExpiration().plus(Duration.ofMinutes(5)).isBefore(LocalDateTime.now()))
@@ -36,7 +36,7 @@ public class ResourceExpirationSchedule {
 
     @Scheduled(cron = "0 */5 * * * *")
     public void resourceDeleteSchedule() {
-        log.debug("ResourceDeleteSchedule Begin");
+        log.debug("Starting ResourceDeleteSchedule...");
         LocalDateTime resourceDeleteTime = LocalDateTime.now().minus(
                 applicationSettingRepository.find()
                         .getResourceProperties()

@@ -100,15 +100,18 @@ public class TelnetConnectionPool {
         while (System.currentTimeMillis() - start < timeout) {
             try {
                 if (session.getState().compareAndSet(TelnetSessionState.IDLE, TelnetSessionState.BUSY) && session.getClient().isConnected()) {
-                    session.getPoolLock().lock();
+                    session.lock();
+                    log.debug("Telnet Session ({}:{}) borrowed from the pool", session.getCredentials().ip(), session.getCredentials().port());
                     return session;
                 } else if (session.getState().get() == TelnetSessionState.BUSY) {
                     Thread.sleep(50);
                 } else {
                     changeStatusToUnreachable(credentials);
+                    session.unlock();
                     throw new QueryConnectionPoolingException("error while trying to borrow connection from the pool - there is a high chance that query is unreachable");
                 }
             } catch (InterruptedException e) {
+                session.unlock();
                 throw new RuntimeException(e);
             }
         }
@@ -130,28 +133,29 @@ public class TelnetConnectionPool {
         } catch (IOException e) {
             log.debug("Pooling-Operation -> error while trying to clean input stream: {}", e.getMessage());
         }
-        session.getPoolLock().unlock();
+        session.unlock();
         session.getState().set(TelnetSessionState.IDLE);
+        log.debug("Telnet Session ({}:{}) returned to the pool", session.getCredentials().ip(), session.getCredentials().port());
     }
 
     @Async
-    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "*/25 * * * * *")
     public void heartbeat() {
         connections.values()
-                .stream()
-                .filter(s -> s.getState().get() != TelnetSessionState.BUSY)
                 .forEach(session -> {
                     log.debug("Heartbeat-Operation -> started heartbeat for: {}", session.getKey());
                     boolean connected;
                     if (session.getClient().isConnected()) {
-                        String versionResponse = session.execute("version");
+                        TelnetSession borrowed = borrow(session.getCredentials());
+                        String versionResponse = borrowed.execute("version");
+                        returnToPool(borrowed);
                         connected = versionResponse.contains("msg=ok");
                     } else {
                         connected = false;
                     }
                     if (!connected) {
                         session.getState().set(TelnetSessionState.UNHEALTHY);
-                        log.debug("Heartbeat-Operation -> new dead connection detected trying to heartbeat...");
+                        log.debug("Heartbeat-Operation -> new dead connection detected trying to refresh...");
 
                         TelnetClient refreshedClient = new TelnetClient();
                         refreshedClient.setConnectTimeout(timeout);

@@ -2,11 +2,9 @@ package dev.parhamziaei.teahub.controller.admin;
 
 import dev.parhamziaei.teahub.component.CurrentUser;
 import dev.parhamziaei.teahub.dto.request.dns.admin.LiaraDnsProviderPersistRequest;
-import dev.parhamziaei.teahub.dto.request.query.DnsRecordFilterRequest;
 import dev.parhamziaei.teahub.dto.response.dns.admin.LiaraDnsProviderDetailResponse;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
-import dev.parhamziaei.teahub.enums.dns.DnsProviderType;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.service.DnsProviderService;
@@ -68,7 +66,7 @@ public class DnsProviderAdminController {
 
     @DeleteMapping("/records/{recordId}")
     public ResponseEntity<SimpleResponse> unassignRecord(@PathVariable Long recordId) {
-        dnsProviderService.unassignRecordById(currentUser.getId(), recordId);
+        dnsProviderService.deleteRecordById(currentUser.getId(), recordId);
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 messageService.get(ServiceMessage.DEFAULT_DELETED),

@@ -5,6 +5,7 @@ import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.Hibernate;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,7 @@ public class TeaSpeakResource extends BillableResource {
 
     public void setParentQueryInstance(QueryInstance parentQueryInstance) {
         this.parentQueryInstance = parentQueryInstance;
+        Hibernate.initialize(parentQueryInstance.getInstances());
         if (this.parentQueryInstance.getInstances() == null)
             this.parentQueryInstance.setInstances(new ArrayList<>());
         this.parentQueryInstance.getInstances().add(this);

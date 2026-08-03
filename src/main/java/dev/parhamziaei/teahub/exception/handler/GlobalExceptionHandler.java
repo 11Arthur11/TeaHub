@@ -97,7 +97,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoSuchEntityException.class)
-    public ResponseEntity<SimpleResponse> handleNoSuchEntityException() {
+    public ResponseEntity<SimpleResponse> handleNoSuchEntityException(NoSuchEntityException e) {
+        e.printStackTrace();
         return ResponseBuilder.buildFailed(
                 ResponseType.NO_DATA,
                 messageService.get(ServiceMessage.DEFAULT_NO_SUCH_ENTITY),

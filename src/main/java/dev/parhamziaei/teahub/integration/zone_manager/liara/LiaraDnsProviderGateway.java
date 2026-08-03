@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.integration.zone_manager.liara;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.parhamziaei.teahub.entity.jpa.dns.*;
 import dev.parhamziaei.teahub.entity.jpa.resource.TeaSpeakResource;
 import dev.parhamziaei.teahub.enums.dns.DnsProviderStatus;
@@ -30,7 +31,6 @@ import org.springframework.web.client.RestClientException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Slf4j
 @Component
@@ -43,6 +43,7 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
     private final ModelMapper modelMapper;
     private final SrvDnsRecordRepository srvDnsRecordRepository;
     private final DnsRecordRepository dnsRecordRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     public DnsProviderType getType() {
@@ -121,14 +122,15 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
             Class<U> responseType
     ) {
         try {
-            U response = getRestClient().post()
+
+            log.debug("Trying to post request to {} body: {}", uri, new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(body));
+            JsonNode root = getRestClient().post()
                     .uri(uri)
                     .body(body)
                     .retrieve()
-                    .body(JsonNode.class)
-                    .get("data")
-                    .traverse()
-                    .readValueAs(responseType);
+                    .body(JsonNode.class);
+
+            U response = objectMapper.treeToValue(root.get("data"), responseType);
 
             changeStatus(DnsProviderStatus.CONNECTED);
             return response;
@@ -170,7 +172,7 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
         final String ip = resource.getParentQueryInstance().getCredentials().ip();
         List<LiaraRecordDTO> records = getRecordList(zoneName);
         Optional<LiaraRecordDTO> optionalARecord = records.stream()
-                .filter(r -> r.getType() == DnsRecordType.A && r.getContents().getHost().equals(ip))
+                .filter(r -> r.getType() == DnsRecordType.A && r.getContent().getIp().equals(ip))
                 .findFirst();
 
         final String aRecordAddress;
@@ -202,10 +204,10 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
 
         SrvDnsRecord srvRecord = srvDnsRecordRepository.findByName(liaraRecord.getName())
                 .orElse(modelMapper.map(liaraRecord, SrvDnsRecord.class));
-        srvRecord.setHost(liaraRecord.getContents().getHost());
-        srvRecord.setPort(liaraRecord.getContents().getPort());
-        srvRecord.setPriority(liaraRecord.getContents().getPriority());
-        srvRecord.setWeight(liaraRecord.getContents().getWeight());
+        srvRecord.setHost(liaraRecord.getContent().getHost());
+        srvRecord.setPort(liaraRecord.getContent().getPort());
+        srvRecord.setPriority(liaraRecord.getContent().getPriority());
+        srvRecord.setWeight(liaraRecord.getContent().getWeight());
         srvRecord.setDnsZone(dnsZoneRepository.findByName(zoneName).orElseThrow());
         srvRecord.setOwner(resource.getOwner());
         srvRecord.setTtl(liaraRecord.getTtl());
@@ -215,7 +217,7 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
     }
 
     @Override
-    public void deleteSrvRecord(String recordName) {
+    public void deleteSrvRecord(DnsZone zone, String recordName) {
 
     }
 
@@ -235,7 +237,7 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
                 .name(name)
                 .type(DnsRecordType.A)
                 .ttl(120)
-                .contents(List.of(LiaraRecordDTO.Content.builder().ip(ip).build()))
+                .contents(List.of(new LiaraRecordDTO.Content(ip)))
                 .build();
 
         executePost(
@@ -267,7 +269,7 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
                     ADnsRecord aRecord = aDnsRecordRepository.findByName(liaraRecord.getName())
                             .orElse(modelMapper.map(liaraRecord, ADnsRecord.class));
 
-                    aRecord.setIp(liaraRecord.getContents().getIp());
+                    aRecord.setIp(liaraRecord.getContent().getIp());
                     aRecord.setDnsZone(zone);
                     aDnsRecordRepository.save(aRecord);
                 }
@@ -275,10 +277,10 @@ public class LiaraDnsProviderGateway implements DnsProviderGateway {
                     SrvDnsRecord srvRecord = srvDnsRecordRepository.findByName(liaraRecord.getName())
                             .orElse(modelMapper.map(liaraRecord, SrvDnsRecord.class));
 
-                    srvRecord.setHost(liaraRecord.getContents().getHost());
-                    srvRecord.setPort(liaraRecord.getContents().getPort());
-                    srvRecord.setPriority(liaraRecord.getContents().getPriority());
-                    srvRecord.setWeight(liaraRecord.getContents().getWeight());
+                    srvRecord.setHost(liaraRecord.getContent().getHost());
+                    srvRecord.setPort(liaraRecord.getContent().getPort());
+                    srvRecord.setPriority(liaraRecord.getContent().getPriority());
+                    srvRecord.setWeight(liaraRecord.getContent().getWeight());
                     srvRecord.setTtl(liaraRecord.getTtl());
                     srvRecord.setDnsZone(zone);
                     srvRecord.setAssigned(dbSrvRecords.stream().anyMatch(r -> r.getName().equals(liaraRecord.getName()) && r.hasTargetResource()));

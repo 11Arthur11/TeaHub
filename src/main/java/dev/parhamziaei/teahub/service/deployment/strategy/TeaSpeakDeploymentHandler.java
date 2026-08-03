@@ -17,6 +17,7 @@ import dev.parhamziaei.teahub.repository.jpa.QueryInstanceRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.TeaSpeakResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
+import dev.parhamziaei.teahub.service.DnsProviderService;
 import dev.parhamziaei.teahub.service.TeaSpeakService;
 import dev.parhamziaei.teahub.service.WalletService;
 import jakarta.transaction.Transactional;
@@ -39,6 +40,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
     private final WalletService walletService;
     private final TeaSpeakService teaSpeakService;
     private final QueryInstanceRepository queryInstanceRepo;
+    private final DnsProviderService dnsProviderService;
 
     @Override
     public ResourceType getType() {
@@ -114,6 +116,7 @@ public class TeaSpeakDeploymentHandler implements DeploymentStrategyHandler{
     public void delete(BillableResource resource) {
         TeaSpeakResource teaSpeakResource = (TeaSpeakResource) resource;
         teaSpeakService.deleteInternal(teaSpeakResource);
+        dnsProviderService.deleteAssignedRecordByResource(teaSpeakResource.getId());
     }
 
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public abstract class AbstractDnsRecordResponse {
 
+    private Long id;
     private String name;
     private DnsRecordType type;
 

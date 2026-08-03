@@ -75,7 +75,7 @@ public class DnsController {
 
     @DeleteMapping("/records/{recordId}")
     public ResponseEntity<SimpleResponse> unassignRecord(@PathVariable Long recordId) {
-        dnsProviderService.unassignRecordById(currentUser.getId(), recordId);
+        dnsProviderService.deleteRecordById(currentUser.getId(), recordId);
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 messageService.get(ServiceMessage.DEFAULT_DELETED),

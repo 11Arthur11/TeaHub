@@ -3,7 +3,6 @@ package dev.parhamziaei.teahub.service;
 import dev.parhamziaei.teahub.dto.request.query.ResourceFilterRequest;
 import dev.parhamziaei.teahub.dto.request.resource.AbstractNewResourceRequest;
 import dev.parhamziaei.teahub.dto.request.resource.user.BillableResourceEditRequest;
-import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
 import dev.parhamziaei.teahub.dto.response.dashboard.admin.ResourceMetric;
 import dev.parhamziaei.teahub.dto.response.dashboard.user.ResourceOverviewResponse;
 import dev.parhamziaei.teahub.dto.response.resource.AbstractResourceDetailResponse;
@@ -19,6 +18,7 @@ import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
+import dev.parhamziaei.teahub.kafka.producer.ResourceEventProducer;
 import dev.parhamziaei.teahub.repository.jpa.*;
 import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpecification;
 import dev.parhamziaei.teahub.service.deployment.DeploymentStrategyFactory;
@@ -50,6 +50,7 @@ public class ResourceService {
     private final BillableResourceRepository billableResourceRepository;
     private final ResourceMapperFactory mapperFactory;
     private final BillableResourceMapStruct billableResourceMapStruct;
+    private final ResourceEventProducer resourceEventProducer;
 
     @Transactional
     public void newBillableResource(Long userId, AbstractNewResourceRequest request) {
@@ -99,9 +100,8 @@ public class ResourceService {
                 .map(r -> {
                     ResourceListAdminResponse dto = modelMapper.map(r, ResourceListAdminResponse.class);
                     dto.setProductName(r.getProduct().getProductName());
-                    dto.setOwnerId(r.getOwner().getId());
-                    dto.setResourceType(r.getResourceType());
-                    dto.setPeriod(r.getProduct().getPeriod());
+                    if (r.getOwner() != null)
+                        return dto;
                     switch (r.getResourceType()) {
                         case TEASPEAK -> {
                             TeaSpeakResource teaSpeakService = (TeaSpeakResource) r;
@@ -223,6 +223,17 @@ public class ResourceService {
 
     public ResourceOverviewResponse getResourceOverview(Long userId) {
         return billableResourceRepository.getOverview(userId);
+    }
+
+    @Transactional
+    public void handleDeployFailed(Long resourceId) {
+        BillableResource resource = billableResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        walletService.credit(resource.getOwner().getId(), resource.getProduct().getPrice().getAmount(), TransactionReason.REFUND);
+        resource.setOwner(null);
+        billableResourceRepository.save(resource);
+        resourceEventProducer.sendResourceDeleteEvent(resourceId);
     }
 
     @Transactional

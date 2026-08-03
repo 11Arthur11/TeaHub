@@ -30,19 +30,25 @@ public class QueryCommandLineInterfaceImpl implements QueryCLI{
     public TSCreateQueryResponse createServer(ServerQueryCredentials credentials, TSCreateQueryRequest createRequest) {
         final String command = commandFactory.createServerCommand(createRequest);
         TelnetSession session = connectionPool.borrow(credentials);
-        String rawResponse = session.execute(command);
-        connectionPool.returnToPool(session);
-        return modelMapper.map(
-                ResponseDecoder.convertToMap(rawResponse),
-                TSCreateQueryResponse.class
-        );
+        try {
+            String rawResponse = session.execute(command);
+            return modelMapper.map(
+                    ResponseDecoder.convertToMap(rawResponse),
+                    TSCreateQueryResponse.class
+            );
+        } finally {
+            connectionPool.returnToPool(session);
+        }
     }
 
     @Override
     public void deleteServer(ServerQueryCredentials credentials, String sid) {
         TelnetSession session = connectionPool.borrow(credentials);
-        session.execute(commandFactory.deleteServerCommand(sid));
-        connectionPool.returnToPool(session);
+        try {
+            session.execute(commandFactory.deleteServerCommand(sid));
+        } finally {
+            connectionPool.returnToPool(session);
+        }
     }
 
     @Override
@@ -51,55 +57,74 @@ public class QueryCommandLineInterfaceImpl implements QueryCLI{
         final String generatePrivilegeCommand = commandFactory.generatePrivilegeCommand(serverGroupId);
         TelnetSession session = connectionPool.borrow(credentials);
         session.execute(selectCommand);
-        String rawResponse = session.execute(generatePrivilegeCommand);
-        connectionPool.returnToPool(session);
-        return modelMapper.map(
-                ResponseDecoder.convertToMap(rawResponse),
-                TSPrivilegeAddResponse.class
-        );
+        try {
+            String rawResponse = session.execute(generatePrivilegeCommand);
+            return modelMapper.map(
+                    ResponseDecoder.convertToMap(rawResponse),
+                    TSPrivilegeAddResponse.class
+            );
+        } finally {
+            connectionPool.returnToPool(session);
+        }
+
     }
 
     @Override
     public List<TSPrivilegeListResponse> getPrivilegeTokens(ServerQueryCredentials credentials, String sid) {
         TelnetSession session = connectionPool.borrow(credentials);
         session.execute(commandFactory.useCommand(sid));
-        String rawResponse = session.execute(commandFactory.privilegeListCommand());
-        connectionPool.returnToPool(session);
-        return ResponseDecoder.convertMultiPipeToMap(rawResponse)
-                .stream()
-                .map(map -> modelMapper.map(map, TSPrivilegeListResponse.class))
-                .toList();
+        try {
+            String rawResponse = session.execute(commandFactory.privilegeListCommand());
+            return ResponseDecoder.convertMultiPipeToMap(rawResponse)
+                    .stream()
+                    .map(map -> modelMapper.map(map, TSPrivilegeListResponse.class))
+                    .toList();
+        } finally {
+            connectionPool.returnToPool(session);
+        }
     }
 
     @Override
     public void startServer(ServerQueryCredentials credentials, String sid) {
         TelnetSession session = connectionPool.borrow(credentials);
-        session.execute(commandFactory.startCommand(sid));
-        connectionPool.returnToPool(session);
+        try {
+            session.execute(commandFactory.startCommand(sid));
+        } finally {
+            connectionPool.returnToPool(session);
+        }
     }
 
     @Override
     public void stopServer(ServerQueryCredentials credentials, String sid) {
         TelnetSession session = connectionPool.borrow(credentials);
-        session.execute(commandFactory.stopCommand(sid));
-        connectionPool.returnToPool(session);
+        try {
+            session.execute(commandFactory.stopCommand(sid));
+        } finally {
+            connectionPool.returnToPool(session);
+        }
     }
 
     @Override
     public TSServerInfoResponse getServerInfo(ServerQueryCredentials credentials, String sid) {
         TelnetSession session = connectionPool.borrow(credentials);
         session.execute(commandFactory.useCommand(sid));
-        String rawResponse = session.execute(commandFactory.serverInfoCommand());
-        connectionPool.returnToPool(session);
-        return modelMapper.map(ResponseDecoder.convertToMap(rawResponse), TSServerInfoResponse.class);
+        try {
+            String rawResponse = session.execute(commandFactory.serverInfoCommand());
+            return modelMapper.map(ResponseDecoder.convertToMap(rawResponse), TSServerInfoResponse.class);
+        } finally {
+            connectionPool.returnToPool(session);
+        }
     }
 
     @Override
     public void deletePrivilegeToken(ServerQueryCredentials credentials, String sid, String token) {
         TelnetSession session = connectionPool.borrow(credentials);
-        session.execute(commandFactory.useCommand(sid));
-        session.execute(commandFactory.deletePrivilegeCommand(token));
-        connectionPool.returnToPool(session);
+        try {
+            session.execute(commandFactory.useCommand(sid));
+            session.execute(commandFactory.deletePrivilegeCommand(token));
+        } finally {
+            connectionPool.returnToPool(session);
+        }
     }
 
 

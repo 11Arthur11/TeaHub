@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.kafka.consumer;
 
 import dev.parhamziaei.teahub.kafka.event.resource.ResourceDeleteEvent;
+import dev.parhamziaei.teahub.kafka.event.resource.ResourceDeployFailedEvent;
 import dev.parhamziaei.teahub.kafka.event.resource.ResourceExpiredEvent;
 import dev.parhamziaei.teahub.kafka.handler.ResourceEventHandler;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,11 @@ public class ResourceEventConsumer {
     @KafkaHandler
     protected void handleResourceDeleteEvent(ResourceDeleteEvent event) {
         resourceEventHandler.handleResourceDeleteEvent(event);
+    }
+
+    @KafkaHandler
+    protected void handleDeployFailedEvent(ResourceDeployFailedEvent event) {
+        resourceEventHandler.handleDeployFailedEvent(event);
     }
 
 }

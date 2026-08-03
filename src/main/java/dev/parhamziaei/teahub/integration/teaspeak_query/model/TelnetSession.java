@@ -6,6 +6,7 @@ import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryLoginFai
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.ResponseDecoder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.telnet.TelnetClient;
@@ -18,18 +19,28 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TelnetSession {
 
+    @Getter
     private TelnetClient client;
+
+    @Getter
     private ServerQueryCredentials credentials;
+
+    @Getter
     private PrintStream out;
+
+    @Getter
     private InputStream in;
 
     private final ReentrantLock poolLock = new ReentrantLock();
+
+    @Getter
     private final Semaphore lock = new Semaphore(1);
+
+    @Getter
     private final AtomicReference<TelnetSessionState> state = new AtomicReference<>();
 
     public TelnetSession(TelnetClient client, ServerQueryCredentials credentials) {
@@ -37,6 +48,16 @@ public class TelnetSession {
         this.credentials = credentials;
         this.out = new PrintStream(client.getOutputStream());
         this.in = client.getInputStream();
+    }
+
+    public void lock() {
+        this.poolLock.lock();
+        log.debug("Telnet Session ({}:{}) locked.", credentials.ip(), credentials.port());
+    }
+
+    public void unlock() {
+        this.poolLock.unlock();
+        log.debug("Telnet Session ({}:{}) unlocked.", credentials.ip(), credentials.port());
     }
 
     public String getKey() {

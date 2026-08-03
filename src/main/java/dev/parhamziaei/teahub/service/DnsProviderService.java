@@ -27,7 +27,6 @@ import dev.parhamziaei.teahub.service.mapper.LiaraDnsProviderMapStruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -133,9 +133,10 @@ public class DnsProviderService {
     public void updateAllZones() {
         if (baseDnsProviderRepo.count() == 0)
             return;
-        log.debug("Syncing all dns zones...");
+        log.debug("Syncing all dns providers...");
         try {
             providerRegistry.executeToAll(DnsProviderGateway::syncZones);
+            log.debug("All providers sync complete.");
         } catch (Exception e) {
             log.warn("There was a problem while syncing all dns zones: {}", e.getMessage());
         }
@@ -147,8 +148,9 @@ public class DnsProviderService {
                 .stream()
                 .map(r ->
                         DnsRecordUserResponse.builder()
+                                .id(r.getId())
                                 .assignedToResourceId(r.getTargetResource().getId())
-                                .value(r.getName())
+                                .value(r.getName().replace("_ts3._udp.", ""))
                                 .zone(new ZoneUserResponse(r.getDnsZone().getId(), r.getDnsZone().getName()))
                                 .build()
                 ).toList();
@@ -160,8 +162,9 @@ public class DnsProviderService {
                 .orElseThrow(NoSuchDataException::new);
 
         return DnsRecordUserResponse.builder()
+                .id(record.getId())
                 .assignedToResourceId(resourceId)
-                .value(record.getName())
+                .value(record.getName().replace("_ts3._udp.", ""))
                 .zone(new ZoneUserResponse(record.getDnsZone().getId(), record.getDnsZone().getName()))
                 .build();
     }
@@ -174,12 +177,13 @@ public class DnsProviderService {
         return modelMapper.map(record, SrvDnsRecordAdminResponse.class);
     }
 
-    public void unassignRecordById(Long userId, Long recordId) {
+    public void deleteRecordById(Long userId, Long recordId) {
         SrvDnsRecord srvDnsRecord = loadSrvRecordByPermission(recordId, userId);
 
         DnsZone zone = srvDnsRecord.getDnsZone();
         providerRegistry.getProvider(zone.getProvider().getType())
-                .deleteSrvRecord(srvDnsRecord.getName());
+                .deleteSrvRecord(zone, srvDnsRecord.getName());
+        srvDnsRecordRepository.delete(srvDnsRecord);
     }
 
     public void toggleZoneActive(Long zoneId) {
@@ -187,6 +191,15 @@ public class DnsProviderService {
                 .orElseThrow(NoSuchEntityException::new);
         zone.setActive(!zone.isActive());
         dnsZoneRepository.save(zone);
+    }
+
+    public void deleteAssignedRecordByResource(Long resourceId) {
+        Optional<SrvDnsRecord> record = srvDnsRecordRepository.findByTargetResourceId(resourceId);
+        record.ifPresent(srvDnsRecord -> {
+            providerRegistry.getProvider(srvDnsRecord.getDnsZone().getProvider().getType())
+                    .deleteSrvRecord(srvDnsRecord.getDnsZone(), srvDnsRecord.getName());
+            srvDnsRecordRepository.delete(srvDnsRecord);
+        });
     }
 
     @Async

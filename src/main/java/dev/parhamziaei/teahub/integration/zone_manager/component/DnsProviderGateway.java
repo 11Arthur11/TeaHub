@@ -15,7 +15,7 @@ public interface DnsProviderGateway {
     List<? extends DnsRecord> getRecords(String zoneName);
     boolean isSubdomainAvailable(String zoneName, String subdomain);
     void addSrvRecord(String zoneName, String subdomain, TeaSpeakResource resource);
-    void deleteSrvRecord(String recordName);
+    void deleteSrvRecord(DnsZone zone, String recordName);
     void reassignAllUnassignedSrvRecords();
 
 }
