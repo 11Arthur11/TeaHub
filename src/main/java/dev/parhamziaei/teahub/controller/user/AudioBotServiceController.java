@@ -1,26 +1,21 @@
 package dev.parhamziaei.teahub.controller.user;
 
 import dev.parhamziaei.teahub.component.CurrentUser;
-import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistTrackAddRequest;
-import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistCreateRequest;
 import dev.parhamziaei.teahub.dto.request.query.BasePaginationRequest;
 import dev.parhamziaei.teahub.dto.request.resource.user.AudioBotResourceEditRequest;
 import dev.parhamziaei.teahub.dto.response.global.DataResponse;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
+import dev.parhamziaei.teahub.dto.response.resource.audio_bot.user.AudioBotScopedPanelAccessResponse;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
 import dev.parhamziaei.teahub.enums.messages.ServiceMessage;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListDetailResponse;
-import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListsResponse;
 import dev.parhamziaei.teahub.service.AudioBotService;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,48 +59,57 @@ public class AudioBotServiceController {
         );
     }
 
-    @GetMapping("/{resourceId}/playlists")
-    public ResponseEntity<DataResponse<List<ABPlayListsResponse>>> getAudioBotPlaylists(@PathVariable Long resourceId) {
+    @GetMapping("/{resourceId}/access")
+    public ResponseEntity<DataResponse<AudioBotScopedPanelAccessResponse>> getPanelAccess(@PathVariable Long resourceId) {
         return ResponseBuilder.buildSuccess(
-                ResponseType.SUCCESS,
-                audioBotService.getInstancePlayLists(currentUser.getId(), resourceId),
+                ResponseType.DATA,
+                audioBotService.getInstanceScopedPanelAccess(currentUser.getId(), resourceId),
                 HttpStatus.OK
         );
     }
 
-    @PostMapping("/{resourceId}/playlists")
-    public ResponseEntity<SimpleResponse> addAudioBotPlaylist(
-            @PathVariable Long resourceId,
-            @RequestBody AudioBotPlaylistCreateRequest playlistRequest
-    ) {
-        audioBotService.createPlayList(
-                currentUser.getId(),
-                resourceId,
-                playlistRequest
-        );
-        return ResponseBuilder.buildSuccess(
-                ResponseType.SUCCESS,
-                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
-                HttpStatus.OK
-        );
-    }
+//    @GetMapping("/{resourceId}/playlists")
+//    public ResponseEntity<DataResponse<List<ABPlayListsResponse>>> getAudioBotPlaylists(@PathVariable Long resourceId) {
+//        return ResponseBuilder.buildSuccess(
+//                ResponseType.SUCCESS,
+//                audioBotService.getInstancePlayLists(currentUser.getId(), resourceId),
+//                HttpStatus.OK
+//        );
+//    }
 
-    @DeleteMapping("/{resourceId}/playlists/{playlistFilename}")
-    public ResponseEntity<SimpleResponse> deleteAudioBotPlaylist(
-            @PathVariable Long resourceId,
-            @PathVariable String playlistFilename
-    ) {
-        audioBotService.deletePlayList(
-                currentUser.getId(),
-                resourceId,
-                playlistFilename
-        );
-        return ResponseBuilder.buildSuccess(
-                ResponseType.SUCCESS,
-                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
-                HttpStatus.OK
-        );
-    }
+//    @PostMapping("/{resourceId}/playlists")
+//    public ResponseEntity<SimpleResponse> addAudioBotPlaylist(
+//            @PathVariable Long resourceId,
+//            @RequestBody AudioBotPlaylistCreateRequest playlistRequest
+//    ) {
+//        audioBotService.createPlayList(
+//                currentUser.getId(),
+//                resourceId,
+//                playlistRequest
+//        );
+//        return ResponseBuilder.buildSuccess(
+//                ResponseType.SUCCESS,
+//                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+//                HttpStatus.OK
+//        );
+//    }
+
+//    @DeleteMapping("/{resourceId}/playlists/{playlistFilename}")
+//    public ResponseEntity<SimpleResponse> deleteAudioBotPlaylist(
+//            @PathVariable Long resourceId,
+//            @PathVariable String playlistFilename
+//    ) {
+//        audioBotService.deletePlayList(
+//                currentUser.getId(),
+//                resourceId,
+//                playlistFilename
+//        );
+//        return ResponseBuilder.buildSuccess(
+//                ResponseType.SUCCESS,
+//                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+//                HttpStatus.OK
+//        );
+//    }
 
     @PostMapping("/{resourceId}/playlists/{playlistFilename}/details")
     public ResponseEntity<DataResponse<ABPlayListDetailResponse>> getAudioBotPlaylistDetail(
@@ -125,23 +129,23 @@ public class AudioBotServiceController {
         );
     }
 
-    @PostMapping("/{resourceId}/playlists/{playlistFilename}/tracks")
-    public ResponseEntity<SimpleResponse> addTrackToAudioBotPlaylist(
-            @PathVariable Long resourceId,
-            @PathVariable String playlistFilename,
-            @RequestBody AudioBotPlaylistTrackAddRequest linkAddRequest
-    ) {
-        audioBotService.addLinkToPlayList(
-                currentUser.getId(),
-                resourceId,
-                playlistFilename,
-                linkAddRequest
-        );
-        return ResponseBuilder.buildSuccess(
-                ResponseType.SUCCESS,
-                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
-                HttpStatus.OK
-        );
-    }
+//    @PostMapping("/{resourceId}/playlists/{playlistFilename}/tracks")
+//    public ResponseEntity<SimpleResponse> addTrackToAudioBotPlaylist(
+//            @PathVariable Long resourceId,
+//            @PathVariable String playlistFilename,
+//            @RequestBody AudioBotPlaylistTrackAddRequest linkAddRequest
+//    ) {
+//        audioBotService.addLinkToPlayList(
+//                currentUser.getId(),
+//                resourceId,
+//                playlistFilename,
+//                linkAddRequest
+//        );
+//        return ResponseBuilder.buildSuccess(
+//                ResponseType.SUCCESS,
+//                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+//                HttpStatus.OK
+//        );
+//    }
 
 }

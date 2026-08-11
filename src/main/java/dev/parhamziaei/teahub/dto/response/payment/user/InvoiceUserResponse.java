@@ -19,4 +19,6 @@ public class InvoiceUserResponse {
 
     private InvoiceStatus status;
 
+    private Integer taxPercentage;
+
 }

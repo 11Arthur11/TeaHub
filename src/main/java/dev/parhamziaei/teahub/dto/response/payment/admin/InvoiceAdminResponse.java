@@ -23,6 +23,8 @@ public class InvoiceAdminResponse {
 
     private Money money;
 
+    private Integer taxPercentage;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime paidAt;

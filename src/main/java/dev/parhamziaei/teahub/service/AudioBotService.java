@@ -2,8 +2,10 @@ package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistTrackAddRequest;
 import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistCreateRequest;
+import dev.parhamziaei.teahub.dto.request.audio_bot.user.AudioBotPlaylistTrackDeleteRequest;
 import dev.parhamziaei.teahub.dto.request.query.BasePaginationRequest;
 import dev.parhamziaei.teahub.dto.request.resource.user.AudioBotResourceEditRequest;
+import dev.parhamziaei.teahub.dto.response.resource.audio_bot.user.AudioBotScopedPanelAccessResponse;
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
 import dev.parhamziaei.teahub.entity.jpa.shop.AudioBotProduct;
@@ -29,12 +31,15 @@ import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.service.mapper.AudioBotMapStruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AudioBotService {
@@ -174,6 +179,15 @@ public class AudioBotService {
         );
     }
 
+    public AudioBotScopedPanelAccessResponse getInstanceScopedPanelAccess(Long userId, Long resourceId) {
+        AudioBotResource resource = loadResourceByPermission(userId, resourceId);
+        return AudioBotScopedPanelAccessResponse.builder()
+                .panelAddress(resource.getParentNode().getWebAddress())
+                .token(audioBotGateway.getToken(resource))
+                .build();
+    }
+
+    @Deprecated
     public void createPlayList(Long userId, Long resourceId, AudioBotPlaylistCreateRequest playlistRequest) {
         AudioBotResource resource = loadResourceByPermission(userId, resourceId);
         ABInstanceListResponse instance = getInstanceFromNode(resource);
@@ -187,6 +201,7 @@ public class AudioBotService {
         );
     }
 
+    @Deprecated
     public void deletePlayList(Long userId, Long resourceId, String playlistFilename) {
         AudioBotResource resource = loadResourceByPermission(userId, resourceId);
         ABInstanceListResponse instance = getInstanceFromNode(resource);
@@ -200,6 +215,7 @@ public class AudioBotService {
         );
     }
 
+    @Deprecated
     public void addLinkToPlayList(
             Long userId,
             Long resourceId,
@@ -210,15 +226,52 @@ public class AudioBotService {
         ABInstanceListResponse instance = getInstanceFromNode(resource);
         if (!instance.getStatus().equals(AudioBotStatus.CONNECTED))
             throw new AudioBotMustBeConnectedException();
-
-//        String trackLink = UriUtils.encodeURIComponent(trackAddRequest.getTrackLink());
-        //todo -> not working properly
+        String trackLink = URLEncoder.encode(trackAddRequest.getTrackLink(), StandardCharsets.UTF_8);
+        log.debug("Track link (UrlEncoded): {}", trackLink);
 
         audioBotGateway.addTrackToPlaylist(
                 resource,
                 instance.getId(),
                 playlistFilename,
-                trackAddRequest.getTrackLink()
+                trackLink
+        );
+    }
+
+    @Deprecated
+    public void deleteLinkFromPlayList(
+            Long userId,
+            Long resourceId,
+            String playlistFilename,
+            AudioBotPlaylistTrackDeleteRequest trackDeleteRequest
+    ) {
+        AudioBotResource resource = loadResourceByPermission(userId, resourceId);
+        ABInstanceListResponse instance = getInstanceFromNode(resource);
+        if (!instance.getStatus().equals(AudioBotStatus.CONNECTED))
+            throw new AudioBotMustBeConnectedException();
+
+        audioBotGateway.deleteTrackFromPlaylist(
+                resource,
+                instance.getId(),
+                playlistFilename,
+                trackDeleteRequest.getTrackIndex()
+        );
+    }
+
+    @Deprecated
+    public void playTheList(
+            Long userId,
+            Long resourceId,
+            String playlistFilename
+    ) {
+        AudioBotResource resource = loadResourceByPermission(userId, resourceId);
+        ABInstanceListResponse instance = getInstanceFromNode(resource);
+        if (!instance.getStatus().equals(AudioBotStatus.CONNECTED))
+            throw new AudioBotMustBeConnectedException();
+
+        audioBotGateway.playTheList(
+                resource,
+                instance.getId(),
+                playlistFilename
         );
     }
 

@@ -1,7 +1,6 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder._use;
 
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder.AudioBotBuildStep;
-
 public class AudioBotUseBuilder {
 
     private final StringBuilder sb;
@@ -47,5 +46,6 @@ public class AudioBotUseBuilder {
         .append(")");
         return new AudioBotBuildStep(sb);
     }
+
 
 }

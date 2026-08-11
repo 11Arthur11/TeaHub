@@ -24,7 +24,6 @@ public enum AudioBotStatus {
         return this.key;
     }
 
-    @JsonValue
     public int code() {
         return code;
     }

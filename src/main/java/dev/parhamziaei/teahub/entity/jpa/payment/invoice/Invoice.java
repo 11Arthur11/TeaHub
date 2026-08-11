@@ -7,6 +7,7 @@ import dev.parhamziaei.teahub.valueobject.Money;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -25,6 +26,8 @@ public class Invoice extends BaseEntity<Long> {
 
     @Embedded
     private Money money;
+
+    private Integer taxPercentage;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "payment_id")
@@ -58,6 +61,14 @@ public class Invoice extends BaseEntity<Long> {
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now().withNano(0);
+    }
+
+    public Money getTaxIncludedAmount() {
+        return new Money(
+                money.getAmount().add(
+                    money.getAmount().multiply(BigDecimal.valueOf(taxPercentage / 100D))
+                )
+        );
     }
 
 }

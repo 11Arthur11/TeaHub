@@ -1,20 +1,32 @@
 package dev.parhamziaei.teahub.integration.audio_bot.component;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.parhamziaei.teahub.dto.request.query.BasePaginationRequest;
 import dev.parhamziaei.teahub.entity.jpa.audio_bot.AudioBotNode;
 import dev.parhamziaei.teahub.entity.jpa.resource.AudioBotResource;
+import dev.parhamziaei.teahub.enums.audio_bot.AudioBotStatus;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotGatewayException;
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.AudioBotUri;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.ABApiTokenResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.ABConnectSettingsResponse;
+import dev.parhamziaei.teahub.integration.audio_bot.dto.mixin.*;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListDetailResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListItemResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListsResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceListResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceSettingsResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.exception.AudioBotHttpException;
+import dev.parhamziaei.teahub.integration.audio_bot.exception.AudioBotScopedPanelNotConfiguredException;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,9 +34,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
+import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,21 +50,38 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AudioBotGateway {
 
     private final AudioBotNodeRepository audioBotNodeRepository;
-    private final ObjectMapper audioBotMapper;
     private final Map<String, RestClient> clients = new ConcurrentHashMap<>();
 
-    public AudioBotGateway(
-            AudioBotNodeRepository audioBotNodeRepository,
-            @Qualifier("audioBotApiMapper") ObjectMapper mapper
-    ) {
-        this.audioBotNodeRepository = audioBotNodeRepository;
-        this.audioBotMapper = mapper;
-    }
-
     private RestClient buildRestClient(AudioBotNode audioBotNode) {
+        SimpleModule module = new SimpleModule();
+
+        module.addSerializer(AudioBotStatus.class,
+                new JsonSerializer<>() {
+                    @Override
+                    public void serialize(
+                            AudioBotStatus value,
+                            JsonGenerator gen,
+                            SerializerProvider serializers
+                    ) throws IOException {
+                        gen.writeNumber(value.code());
+                    }
+                });
+
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
+        mapper.registerModule(module);
+        mapper.addMixIn(ABConnectSettingsResponse.class, ABConnectSettingsResponseMixin.class);
+        mapper.addMixIn(ABPlayListDetailResponse.class, ABPlayListDetailResponseMixin.class);
+        mapper.addMixIn(ABPlayListItemResponse.class, ABPlayListItemResponseMixin.class);
+        mapper.addMixIn(ABPlayListsResponse.class, ABPlayListsResponseMixin.class);
+        mapper.addMixIn(ABInstanceListResponse.class, ABInstanceListResponseMixin.class);
+        mapper.addMixIn(ABApiTokenResponse.class, ABApiTokenResponseMixin.class);
         return RestClient.builder()
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -58,7 +93,7 @@ public class AudioBotGateway {
                     httpHeaders.add(HttpHeaders.ACCEPT_CHARSET, "utf-8");
                 })
                 .baseUrl(audioBotNode.getWebAddress())
-                .messageConverters(List.of(new MappingJackson2HttpMessageConverter(audioBotMapper)))
+                .messageConverters(List.of(new MappingJackson2HttpMessageConverter(mapper)))
                 .build();
     }
 
@@ -146,10 +181,10 @@ public class AudioBotGateway {
 
     private void execute(AudioBotNode audioBotNode, AudioBotUri uri) {
         try {
-            ResponseEntity<String> response = getClient(audioBotNode).get()
-                    .uri(uri.value())
+            ResponseEntity<Void> response = getClient(audioBotNode).get()
+                    .uri(URI.create(uri.value()))
                     .retrieve()
-                    .toEntity(String.class);
+                    .toBodilessEntity();
 
             checkResponse(response, audioBotNode, uri);
         } catch (Exception ex) {
@@ -342,6 +377,41 @@ public class AudioBotGateway {
         execute(resource.getParentNode(), addTrackUri);
     }
 
+    public void deleteTrackFromPlaylist(
+            AudioBotResource resource,
+            Long botId,
+            String playlistFilename,
+            Integer trackIndex
+    ) {
+        final AudioBotUri deleteTrackUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .playlist()
+                .itemDelete(playlistFilename, trackIndex)
+                .build();
+
+        execute(resource.getParentNode(), deleteTrackUri);
+    }
+
+    public ABApiTokenResponse getToken(AudioBotResource resource) {
+        AudioBotUri uri = new AudioBotUri(
+                "/api/api/token/bot/create/" + resource.getIdentifier().toString()
+                + "/" + formatRemainingTime(resource.getExpiration())
+        );
+
+        try {
+            ResponseEntity<ABApiTokenResponse> tokenResponse = getClient(resource.getParentNode()).get()
+                    .uri(uri.value())
+                    .retrieve()
+                    .toEntity(ABApiTokenResponse.class);
+
+            checkResponse(tokenResponse, resource.getParentNode(), uri);
+            return tokenResponse.getBody();
+        } catch (HttpClientErrorException.UnprocessableEntity ignored) {
+            throw new AudioBotScopedPanelNotConfiguredException("This Version of AudioBot is not supported for generating scoped token, Use TeaCloud Fork");
+        }
+    }
+
     public ABPlayListDetailResponse getPlaylistDetail(AudioBotResource resource, Long botId, String playlistFilename, BasePaginationRequest paginationRequest) {
         final AudioBotUri getPlaylistsUri = AudioBotUri.builder()
                 .bot()
@@ -365,11 +435,39 @@ public class AudioBotGateway {
 
         if (playlistDetail != null && playlistDetail.getPlayListItems() != null) {
             for (int i=0; i<playlistDetail.getPlayListItems().size(); i++) {
-                playlistDetail.getPlayListItems().get(i).setOrder(i);
+                playlistDetail.getPlayListItems().get(i).setIndex(i);
             }
         }
 
         return playlistsResponse.getBody();
+    }
+
+    public void playTheList(AudioBotResource resource, Long botId, String playlistFilename) {
+        final AudioBotUri playTheListUri = AudioBotUri.builder()
+                .bot()
+                .use(botId)
+                .playlist()
+                .play(playlistFilename)
+                .build();
+
+        execute(resource.getParentNode(), playTheListUri);
+    }
+
+    private static String formatRemainingTime(LocalDateTime futureTime) {
+        Duration duration = Duration.between(LocalDateTime.now(), futureTime);
+
+        long hours = duration.toHours();
+        long minutes = duration.toMinutesPart();
+
+        if (hours > 0 && minutes > 0) {
+            return hours + "h" + minutes + "m";
+        }
+
+        if (hours > 0) {
+            return hours + "h";
+        }
+
+        return minutes + "m";
     }
 
 }

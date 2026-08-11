@@ -42,19 +42,4 @@ public class BeanManagement {
         return mapper;
     }
 
-    @Bean("audioBotApiMapper")
-    public ObjectMapper integrationObjectMapper() {
-        ObjectMapper mapper = JsonMapper.builder()
-                .addModule(new JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .build();
-
-        mapper.addMixIn(ABConnectSettingsResponse.class, ABConnectSettingsResponseMixin.class);
-        mapper.addMixIn(ABPlayListDetailResponse.class, ABPlayListDetailResponseMixin.class);
-        mapper.addMixIn(ABPlayListItemResponse.class, ABPlayListItemResponseMixin.class);
-        mapper.addMixIn(ABPlayListsResponse.class, ABPlayListsResponseMixin.class);
-        mapper.addMixIn(ABInstanceListResponse.class, ABInstanceListResponseMixin.class);
-        return mapper;
-    }
-
 }

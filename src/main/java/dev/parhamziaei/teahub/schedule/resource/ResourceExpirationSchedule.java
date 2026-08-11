@@ -6,6 +6,7 @@ import dev.parhamziaei.teahub.kafka.producer.ResourceEventProducer;
 import dev.parhamziaei.teahub.repository.jpa.ApplicationSettingRepository;
 import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.BillableResourceSpecification;
+import dev.parhamziaei.teahub.valueobject.ProductPeriodSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,16 +38,24 @@ public class ResourceExpirationSchedule {
     @Scheduled(cron = "0 */5 * * * *")
     public void resourceDeleteSchedule() {
         log.debug("Starting ResourceDeleteSchedule...");
-        LocalDateTime resourceDeleteTime = LocalDateTime.now().minus(
-                applicationSettingRepository.find()
-                        .getResourceProperties()
-                        .getResourceDeleteTimeAfterSuspend()
-        );
+        ProductPeriodSettings settings = applicationSettingRepository.find().getProductPeriodSettings();
 
         Specification<BillableResource> spec = BillableResourceSpecification.byStatus(ResourceStatus.PENDING_PROLONG);
         billableResourceRepo.findAll(spec).forEach(resource -> {
-            if (resource.getExpiration().isBefore(resourceDeleteTime))
-                resourceEventProducer.sendResourceDeleteEvent(resource.getId());
+            switch (resource.getProduct().getPeriod()) {
+                case HOURLY -> {
+                    if (resource.getExpiration().plus(settings.getHourly().getSuspendDeleteAfter()).isBefore(LocalDateTime.now()))
+                        resourceEventProducer.sendResourceDeleteEvent(resource.getId());
+                }
+                case DAILY -> {
+                    if (resource.getExpiration().plus(settings.getDaily().getSuspendDeleteAfter()).isBefore(LocalDateTime.now()))
+                        resourceEventProducer.sendResourceDeleteEvent(resource.getId());
+                }
+                default -> {
+                    if (resource.getExpiration().plus(settings.getMonthly().getSuspendDeleteAfter()).isBefore(LocalDateTime.now()))
+                        resourceEventProducer.sendResourceDeleteEvent(resource.getId());
+                }
+            }
         });
     }
 

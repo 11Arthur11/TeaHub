@@ -1,6 +1,5 @@
 package dev.parhamziaei.teahub.integration.audio_bot.dto.playlist;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ABPlayListItemResponse {
 
-    private Integer order;
+    private Integer index;
 
     private String link;
 

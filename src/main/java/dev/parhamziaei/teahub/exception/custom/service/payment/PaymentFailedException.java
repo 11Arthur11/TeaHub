@@ -1,8 +1,11 @@
 package dev.parhamziaei.teahub.exception.custom.service.payment;
 
+import lombok.Getter;
+
 public class PaymentFailedException extends RuntimeException {
-    public PaymentFailedException(String message) {
-        super(message);
+    @Getter
+    private final Long invoiceId;
+    public PaymentFailedException(Long invoiceId) {
+        this.invoiceId = invoiceId;
     }
-    public PaymentFailedException() {}
 }

@@ -17,9 +17,11 @@ import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
+import dev.parhamziaei.teahub.repository.jpa.ApplicationSettingRepository;
 import dev.parhamziaei.teahub.repository.jpa.InvoiceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.specification.InvoiceSpecification;
+import dev.parhamziaei.teahub.valueobject.InvoiceProperties;
 import dev.parhamziaei.teahub.valueobject.Money;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -43,8 +45,8 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepo;
     private final ModelMapper modelMapper;
     private final MessageService messageService;
-    private final PaymentServiceProperties paymentProperties;
     private final UserRepository userRepository;
+    private final ApplicationSettingRepository applicationSettingRepository;
 
     public InvoiceUserResponse getOwnInvoice(Long userId, String invoiceToken) {
         Specification<Invoice> spec = Specification.allOf(
@@ -59,13 +61,15 @@ public class InvoiceService {
     }
 
     public String createChargeWalletInvoice(Long userId, BigDecimal amount) {
-        if (amount.compareTo(paymentProperties.minimumWalletChargeAmountIrt()) < 0)
-            throw new WalletChargeAmountTooSmallException(paymentProperties.minimumWalletChargeAmountIrt());
+        InvoiceProperties invoiceProperties = applicationSettingRepository.find().getInvoiceProperties();
+        if (amount.compareTo(invoiceProperties.getMinimumWalletChargeBigDecimal()) < 0)
+            throw new WalletChargeAmountTooSmallException(invoiceProperties.getMinimumWalletChargeBigDecimal());
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Invoice invoice = new Invoice(user, new Money(amount));
+        invoice.setTaxPercentage(invoiceProperties.getTaxPercentage());
         invoice.setPostPaymentAction(new WalletChargePostPayment());
         invoice.setDescription(messageService.get(Text.INVOICE_REASON_CREDIT));
         invoiceRepo.save(invoice);

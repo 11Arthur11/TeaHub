@@ -25,6 +25,16 @@ spring:
     hibernate:
       ddl-auto: update
 
+  cache:
+    cache-names:
+      - global-rate-limit
+      - auth-rate-limit
+    jcache:
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+    caffeine:
+      spec: maximumSize=1000000,expireAfterAccess=3600s
+
+
 logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} | %highlight(%-5level) | %logger{0} | %msg%n"
@@ -47,8 +57,6 @@ app:
 
   service:
     payment:
-      tax-percentage: 9
-      minimum-wallet-charge-amount-irt: 50000
       payment-success-redirect-uri: 'http://localhost:4173/panel/invoices/{invoice_id}?result=true'
       payment-failed-redirect-uri: 'http://localhost:4173/panel/invoices/{invoice_id}?result=false'
     media-storage:
@@ -77,10 +85,10 @@ app:
       port-step: 5
     ip-panel:
       base-url: https://edge.ippanel.com/v1
-      api-key: YTA3NTJkZDctOGExMi00NzdlLTg1ZTMtNDdlZmM3Y2NlZjVlN2RmNDkyMWMxNjllNjZiZmZjNmQ1OWQ2NzBhNmVlYjk=
+      api-key: YTI3NmRmNGQtY2ZhOS00MDVlLThhNWUtMWNiYzBhNzEzYmVkZjA0Y2ExNjExNDc5OTk0N2I2YjcyNTI1M2MzMGY0YTc=
       # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
-      two-facto-message-pattern-code: gaibs13nb08a8ku
-      from-number: 100016949
+      two-facto-message-pattern-code: llz1a8fbcs6n7hd
+      from-number: 3000505
 
   cookie-factory:
     secure-cookie: false #TODO make this true in production
@@ -107,3 +115,32 @@ springdoc:
 
 server:
   forward-headers-strategy: framework
+
+
+bucket4j:
+  enabled: true
+
+  filters:
+    # Auth endpoints
+    - cache-name: auth-rate-limit
+      filter-order: -101
+      url: ^(/v1/auth/).*
+      strategy: first
+      rate-limits:
+        - bandwidths:
+            - capacity: 10
+              time: 1
+              unit: minutes
+              refill-speed: interval
+
+    # Global
+    - cache-name: global-rate-limit
+      filter-order: -100
+      url: ^(/v1/).*
+      strategy: first
+      rate-limits:
+        - bandwidths:
+            - capacity: 100
+              time: 1
+              unit: minutes
+              refill-speed: interval

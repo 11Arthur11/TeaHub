@@ -46,13 +46,11 @@ public class AudioBotPlayListCommandBuilder {
         return new AudioBotBuildStep(sb);
     }
 
-    public AudioBotBuildStep itemDelete(String fileName, int index, int size) {
-        sb.append("/show/")
+    public AudioBotBuildStep itemDelete(String fileName, int index) {
+        sb.append("/item/delete/")
                 .append(fileName)
                 .append("/")
                 .append(index)
-                .append("/")
-                .append(size)
                 .append(")");
         return new AudioBotBuildStep(sb);
     }
@@ -67,5 +65,11 @@ public class AudioBotPlayListCommandBuilder {
     }
 
 
+    public AudioBotBuildStep play(String fileName) {
+        sb.append("/play/")
+                .append(fileName)
+                .append(")");
 
+        return new AudioBotBuildStep(sb);
+    }
 }

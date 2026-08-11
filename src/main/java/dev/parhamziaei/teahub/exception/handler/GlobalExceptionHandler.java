@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.exception.handler;
 
+import dev.parhamziaei.teahub.configuration.properties.PaymentServiceProperties;
 import dev.parhamziaei.teahub.dto.response.global.SimpleResponse;
 import dev.parhamziaei.teahub.enums.messages.Message;
 import dev.parhamziaei.teahub.enums.internal.ResponseType;
@@ -25,6 +26,7 @@ import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmen
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketServiceException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
 import dev.parhamziaei.teahub.exception.custom.service.user.WalletChargeAmountTooSmallException;
+import dev.parhamziaei.teahub.integration.audio_bot.exception.AudioBotScopedPanelNotConfiguredException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.exception.QueryCommandExecutionException;
 import dev.parhamziaei.teahub.service.MessageService;
 import dev.parhamziaei.teahub.utils.ResponseBuilder;
@@ -32,6 +34,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +43,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
+import java.net.URI;
 
 @Slf4j
 @ControllerAdvice
@@ -47,6 +51,7 @@ import java.io.IOException;
 public class GlobalExceptionHandler {
 
     private final MessageService messageService;
+    private final PaymentServiceProperties paymentServiceProperties;
 
     // TODO <Global, Default Exceptions>
     @ExceptionHandler(Exception.class)
@@ -268,6 +273,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(AudioBotScopedPanelNotConfiguredException.class)
+    public ResponseEntity<SimpleResponse> handleAudioBotScopedPanelNotConfiguredException() {
+        return ResponseBuilder.buildError(
+                messageService.get(ServiceMessage.AUDIO_BOT_SCOPED_PANEL_ACCESS_NOT_CONFIGURED),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
     //TODO <Gateway & Payment Exceptions>
     @ExceptionHandler(GatewayException.class)
     public ResponseEntity<SimpleResponse> handleGatewayException() {
@@ -303,11 +316,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PaymentFailedException.class)
-    public ResponseEntity<SimpleResponse> handlePaymentFailedException() {
-        return ResponseBuilder.buildError(
-                messageService.get(ServiceMessage.PAYMENT_FAILED),
-                HttpStatus.FORBIDDEN
-        );
+    public ResponseEntity<Void> handlePaymentFailedException(PaymentFailedException e) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(paymentServiceProperties.paymentFailedRedirectUri()
+                .replace("{invoice_id}",  String.valueOf(e.getInvoiceId()))));
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)

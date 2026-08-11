@@ -35,11 +35,4 @@ public class AudioBotResource extends BillableResource {
     @Enumerated(EnumType.STRING)
     private AudioBotStatus botStatus;
 
-    public void setParentNode(AudioBotNode parentNode) {
-        this.parentNode = parentNode;
-        if (this.parentNode.getInstances() == null)
-            this.parentNode.setInstances(new ArrayList<>());
-        this.parentNode.getInstances().add(this);
-    }
-
 }

@@ -1,9 +1,12 @@
 package dev.parhamziaei.teahub.valueobject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 
 @Embeddable
@@ -11,8 +14,13 @@ import java.time.Duration;
 @Setter
 public class InvoiceProperties {
 
-    private Duration monthlyResourcePreBilling = Duration.ofDays(7);
-    private Duration hourlyResourcePreBilling = Duration.ofHours(4);
-    private Duration dueDate = Duration.ofDays(7);
+    private Long minimumWalletChargeAmountIrt = 100000L;
+    private Integer taxPercentage = 9;
+
+    @Transient
+    @JsonIgnore
+    public BigDecimal getMinimumWalletChargeBigDecimal() {
+        return BigDecimal.valueOf(this.minimumWalletChargeAmountIrt);
+    }
 
 }

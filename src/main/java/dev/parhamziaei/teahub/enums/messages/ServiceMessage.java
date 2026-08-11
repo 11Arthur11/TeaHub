@@ -68,6 +68,7 @@ public enum ServiceMessage {
     AUDIO_BOT_NODE_EDITED("success.service.audio-bot-node.edited"),
     AUDIO_BOT_NODE_WEB_ADDRESS_ALREADY_INITIATED("success.audio-bot-node.already-initiated"),
     AUDIO_BOT_NODE_HAS_ACTIVE_INSTANCE("success.audio-bot-node.has-active-instance"),
+    AUDIO_BOT_SCOPED_PANEL_ACCESS_NOT_CONFIGURED("error.audio-bot.scoped-panel-not-configured"),
     AUDIO_BOT_MUST_BE_CONNECTED("error.audio-bot-instance.must-be-connected"),
 
     PROVISIONING_STRATEGY_CHANGED("success.service.provisioning-strategy-changed"),

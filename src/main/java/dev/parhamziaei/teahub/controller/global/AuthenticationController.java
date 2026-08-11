@@ -88,7 +88,7 @@ public class AuthenticationController {
             tags = {"Auth"}
     )
     @PostMapping("/initiate")
-    public ResponseEntity<?> authEntry(
+    public ResponseEntity<SimpleResponse> authEntry(
             @Valid @RequestBody AuthEntryRequest entryRequest,
             HttpServletRequest request,
             HttpServletResponse response
@@ -112,13 +112,12 @@ public class AuthenticationController {
             Cookie sessionCookie = cookieFactory.twoFactorCookie(twoFactorToken);
             response.addCookie(sessionCookie);
 
-            //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
-            String twoFactorCode = twoFactorRepo.get(sessionId).getCode();
+//            //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
+//            String twoFactorCode = twoFactorRepo.get(sessionId).getCode();
 
             return ResponseBuilder.buildSuccess(
                     ResponseType.LOGIN_INITIATED,
                     messageService.get(AuthMessage.TWO_FACTOR_SENT),
-                    twoFactorCode, //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
                     HttpStatus.OK
             );
         } else {
@@ -127,13 +126,12 @@ public class AuthenticationController {
             Cookie sessionCookie = cookieFactory.phoneVerifyCookie(phoneVerifyToken);
             response.addCookie(sessionCookie);
 
-            //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
-            String twoFactorCode = phoneVerifyRepo.get(sessionId).getCode();
+//            //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
+//            String twoFactorCode = phoneVerifyRepo.get(sessionId).getCode();
 
             return ResponseBuilder.buildSuccess(
                     ResponseType.REGISTER_INITIATED,
                     messageService.get(AuthMessage.TWO_FACTOR_SENT),
-                    twoFactorCode, //REMINDER: THIS IS FOR DEV PHASE ONLY!!!!!
                     HttpStatus.OK
             );
         }

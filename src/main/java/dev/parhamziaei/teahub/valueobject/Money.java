@@ -29,4 +29,14 @@ public class Money {
         this.currency = Currency.IRT;
     }
 
+    public Money(int amount) {
+        this.amount = BigDecimal.valueOf(amount);
+        this.currency = Currency.IRT;
+    }
+
+    public Money(Double amount) {
+        this.amount = BigDecimal.valueOf(amount);
+        this.currency = Currency.IRT;
+    }
+
 }

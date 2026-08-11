@@ -1,7 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa;
 
 import dev.parhamziaei.teahub.valueobject.InvoiceProperties;
-import dev.parhamziaei.teahub.valueobject.ResourceProperties;
+import dev.parhamziaei.teahub.valueobject.ProductPeriodSettings;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -22,6 +22,6 @@ public class ApplicationSettings {
     private InvoiceProperties invoiceProperties = new InvoiceProperties();
 
     @Embedded
-    private ResourceProperties resourceProperties = new ResourceProperties();
+    private ProductPeriodSettings productPeriodSettings = new ProductPeriodSettings();
 
 }
