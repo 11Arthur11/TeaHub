@@ -24,6 +24,7 @@ import dev.parhamziaei.teahub.integration.audio_bot.dto.ABInstanceSettingsRespon
 import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListDetailResponse;
 import dev.parhamziaei.teahub.integration.audio_bot.dto.playlist.ABPlayListsResponse;
 import dev.parhamziaei.teahub.kafka.event.resource.AudioBotDeployEvent;
+import dev.parhamziaei.teahub.kafka.event.resource.ResourceDeployFailedEvent;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotResourceRepository;
@@ -32,6 +33,7 @@ import dev.parhamziaei.teahub.service.mapper.AudioBotMapStruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
@@ -51,6 +53,7 @@ public class AudioBotService {
     private final AudioBotResourceRepository audioBotResourceRepository;
     private final UserRepository userRepo;
     private final AudioBotMapStruct audioBotMapStruct;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void deployInstance(AudioBotDeployEvent event) {
@@ -72,17 +75,22 @@ public class AudioBotService {
 
         resource.setIdentifier(identifier);
 
-        audioBotGateway.createInstance(node, identifier.toString());
-        resource.setParentNode(node);
-        audioBotGateway.setInstanceConnectAddress(resource, event.getResourceRequest().getServerAddress());
-        if (event.getResourceRequest().getServerPassword() != null)
-            audioBotGateway.setInstanceConnectPassword(resource, event.getResourceRequest().getServerPassword());
-        if (event.getResourceRequest().getBotNickname() != null)
-            audioBotGateway.setInstanceConnectNickname(resource, event.getResourceRequest().getBotNickname());
-        audioBotGateway.setConnectOnRuntime(resource, true);
-        audioBotGateway.connectInstance(node, identifier.toString());
-        syncWithNode(resource);
-        resource.setResourceStatus(ResourceStatus.ACTIVE);
+        try {
+            audioBotGateway.createInstance(node, identifier.toString());
+            resource.setParentNode(node);
+            audioBotGateway.setInstanceConnectAddress(resource, event.getResourceRequest().getServerAddress());
+            if (event.getResourceRequest().getServerPassword() != null)
+                audioBotGateway.setInstanceConnectPassword(resource, event.getResourceRequest().getServerPassword());
+            if (event.getResourceRequest().getBotNickname() != null)
+                audioBotGateway.setInstanceConnectNickname(resource, event.getResourceRequest().getBotNickname());
+            audioBotGateway.setConnectOnRuntime(resource, true);
+            audioBotGateway.connectInstance(node, identifier.toString());
+            syncWithNode(resource);
+            resource.setResourceStatus(ResourceStatus.ACTIVE);
+        } catch (RuntimeException e) {
+            log.error("Error while deploying a new audio-bot instance", e);
+            applicationEventPublisher.publishEvent(new ResourceDeployFailedEvent(resource.getId()));
+        }
     }
 
     public AudioBotResource loadResourceByPermission(Long userId, Long resourceId) {

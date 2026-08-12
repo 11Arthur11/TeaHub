@@ -2,6 +2,9 @@ package dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder._sett
 
 import dev.parhamziaei.teahub.integration.audio_bot.component.dsl.builder.AudioBotBuildStep;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 public class AudioBotSetSettingParameterBuilder {
     private final StringBuilder sb;
 
@@ -20,7 +23,7 @@ public class AudioBotSetSettingParameterBuilder {
     }
 
     public AudioBotBuildStep connectNickname(String nickname) {
-        sb.append("/connect.name/").append(nickname);
+        sb.append("/connect.name/").append(URLEncoder.encode(nickname, StandardCharsets.UTF_8));
         return new AudioBotBuildStep(sb);
     }
 
