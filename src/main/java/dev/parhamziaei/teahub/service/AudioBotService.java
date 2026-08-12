@@ -187,6 +187,30 @@ public class AudioBotService {
                 .build();
     }
 
+    public void suspendHandler(Long resourceId) {
+        AudioBotResource resource = audioBotResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+        audioBotGateway.changeBotSuspendState(resource, true);
+        ABInstanceListResponse instance = getInstanceFromNode(resource);
+        if (!instance.getStatus().equals(AudioBotStatus.OFFLINE))
+            audioBotGateway.disconnectInstance(resource, instance.getId());
+    }
+
+    public void resumeHandler(Long resourceId) {
+        AudioBotResource resource = audioBotResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+        audioBotGateway.changeBotSuspendState(resource, false);
+    }
+
+    public void deleteHandler(Long resourceId) {
+        AudioBotResource resource = audioBotResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        ABInstanceListResponse instance = getInstanceFromNode(resource);
+        audioBotGateway.disconnectInstance(resource, instance.getId());
+        audioBotGateway.deleteInstance(resource);
+    }
+
     @Deprecated
     public void createPlayList(Long userId, Long resourceId, AudioBotPlaylistCreateRequest playlistRequest) {
         AudioBotResource resource = loadResourceByPermission(userId, resourceId);

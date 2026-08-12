@@ -17,6 +17,7 @@ import dev.parhamziaei.teahub.repository.jpa.AudioBotNodeRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.AudioBotResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.UserRepository;
+import dev.parhamziaei.teahub.service.AudioBotService;
 import dev.parhamziaei.teahub.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,6 +35,7 @@ public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
     private final WalletService walletService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final AudioBotNodeRepository audioBotNodeRepo;
+    private final AudioBotService audioBotService;
 
     @Override
     public ResourceType getType() {
@@ -90,17 +92,17 @@ public class AudioBotDeploymentHandler implements DeploymentStrategyHandler {
 
     @Override
     public void suspend(BillableResource resource) {
-
+        audioBotService.suspendHandler(resource.getId());
     }
 
     @Override
     public void resume(BillableResource resource) {
-
+        audioBotService.resumeHandler(resource.getId());
     }
 
     @Override
     public void delete(BillableResource resource) {
-
+        audioBotService.deleteHandler(resource.getId());
     }
 
 }

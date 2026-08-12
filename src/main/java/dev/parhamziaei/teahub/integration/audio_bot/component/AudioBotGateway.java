@@ -412,6 +412,34 @@ public class AudioBotGateway {
         }
     }
 
+    public void changeBotSuspendState(AudioBotResource resource, boolean suspend) {
+        AudioBotUri uri = new AudioBotUri(
+                "/api/api/token/bot/suspend/" + resource.getIdentifier().toString()
+                + "/" + suspend
+        );
+
+        try {
+            ResponseEntity<Void> tokenResponse = getClient(resource.getParentNode()).get()
+                    .uri(uri.value())
+                    .retrieve()
+                    .toBodilessEntity();
+
+            checkResponse(tokenResponse, resource.getParentNode(), uri);
+        } catch (HttpClientErrorException.UnprocessableEntity ignored) {
+            throw new AudioBotScopedPanelNotConfiguredException("This Version of AudioBot is not supported for managing scoped token, Use TeaCloud Fork");
+        }
+
+    }
+
+    public void deleteInstance(AudioBotResource resource) {
+        AudioBotUri uri = AudioBotUri.builder()
+                .settings()
+                .delete(resource.getIdentifier().toString())
+                .build();
+
+        execute(resource.getParentNode(), uri);
+    }
+
     public ABPlayListDetailResponse getPlaylistDetail(AudioBotResource resource, Long botId, String playlistFilename, BasePaginationRequest paginationRequest) {
         final AudioBotUri getPlaylistsUri = AudioBotUri.builder()
                 .bot()
