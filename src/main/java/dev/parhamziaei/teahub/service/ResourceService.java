@@ -155,19 +155,8 @@ public class ResourceService {
             return;
         }
 
-        BillableProduct product = resource.getProduct();
-
-        User owner = resource.getOwner();
-
         try {
-            walletService.debit(
-                    owner.getWallet().getId(),
-                    product.getPrice().getAmount(),
-                    TransactionReason.PROLONG,
-                    resourceId
-            );
-
-            resource.setExpiration(LocalDateTime.now().plus(product.getExpiration()));
+            prolongResource(resource.getOwner().getId(), resourceId);
         } catch (InsufficientBalanceException ignored) {
             resource.setResourceStatus(ResourceStatus.PENDING_PROLONG);
 
