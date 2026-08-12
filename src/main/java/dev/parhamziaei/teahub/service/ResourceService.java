@@ -58,9 +58,21 @@ public class ResourceService {
                 .orElseThrow(() -> new NoSuchEntityException("product not found"));
 
         if (!product.isEnabled())
-            throw new NoSuchEntityException("product not enabled");
+            throw new NoSuchEntityException("product is not enabled");
 
         walletService.assertSufficientBalance(userId, product.getPrice().getAmount());
+
+        deploymentFactory.getStrategy(request.getType())
+                .initializeDeploy(request, userId);
+    }
+
+    @Transactional
+    public void forceNewBillableResource(Long userId, AbstractNewResourceRequest request) {
+        BillableProduct product = billableProductRepo.findById(request.getProductId())
+                .orElseThrow(() -> new NoSuchEntityException("product not found"));
+
+        if (!product.isEnabled())
+            throw new NoSuchEntityException("product is not enabled");
 
         deploymentFactory.getStrategy(request.getType())
                 .initializeDeploy(request, userId);
@@ -164,6 +176,8 @@ public class ResourceService {
 
             // ! notify user via sms or email or something
         }
+
+        billableResourceRepository.save(resource);
     }
 
     @Transactional
