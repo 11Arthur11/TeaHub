@@ -117,7 +117,10 @@ public class AudioBotService {
     private ABInstanceListResponse getInstanceFromNode(AudioBotResource resource) {
         return audioBotGateway.getInstanceList(resource.getParentNode())
                 .stream()
-                .filter(a -> a.getName().equals(resource.getIdentifier().toString()))
+                .filter(a -> {
+                    if (a != null) return a.getName().equals(resource.getIdentifier().toString());
+                    return false;
+                })
                 .findFirst()
                 .orElseThrow(AudioBotSynchronizationException::new);
     }
@@ -198,10 +201,15 @@ public class AudioBotService {
     public void suspendHandler(Long resourceId) {
         AudioBotResource resource = audioBotResourceRepository.findById(resourceId)
                 .orElseThrow(NoSuchEntityException::new);
-        audioBotGateway.changeBotSuspendState(resource, true);
-        ABInstanceListResponse instance = getInstanceFromNode(resource);
-        if (!instance.getStatus().equals(AudioBotStatus.OFFLINE))
-            audioBotGateway.disconnectInstance(resource, instance.getId());
+
+        try {
+            audioBotGateway.changeBotSuspendState(resource, true);
+            ABInstanceListResponse instance = getInstanceFromNode(resource);
+            if (!instance.getStatus().equals(AudioBotStatus.OFFLINE))
+                audioBotGateway.disconnectInstance(resource, instance.getId());
+        } catch (AudioBotSynchronizationException e) {
+            log.error("Failed to delete instance, failed to sync with node", e);
+        }
     }
 
     public void resumeHandler(Long resourceId) {
@@ -214,9 +222,14 @@ public class AudioBotService {
         AudioBotResource resource = audioBotResourceRepository.findById(resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
-        ABInstanceListResponse instance = getInstanceFromNode(resource);
-        audioBotGateway.disconnectInstance(resource, instance.getId());
-        audioBotGateway.deleteInstance(resource);
+        try {
+            ABInstanceListResponse instance = getInstanceFromNode(resource);
+            if (!instance.getStatus().equals(AudioBotStatus.OFFLINE))
+                audioBotGateway.disconnectInstance(resource, instance.getId());
+            audioBotGateway.deleteInstance(resource);
+        } catch (AudioBotSynchronizationException e) {
+            log.error("Failed to delete instance, because the node says it dose not exist already", e);
+        }
     }
 
     @Deprecated

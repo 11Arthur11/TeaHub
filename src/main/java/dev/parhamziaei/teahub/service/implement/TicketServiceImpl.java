@@ -147,7 +147,6 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = ticketRepo.findByOneByPermission(senderUser, ticketId)
                 .orElseThrow(() -> new TicketServiceException("Ticket not found with id " + ticketId));
 
-        String senderRole = messageService.get(Roles.fromName(senderUser.getHigherAuthority().getName()));
         TicketStatus newStatus = calculateNewStatus.apply(
                 ticket.getStatus(),
                 senderUser
@@ -160,7 +159,7 @@ public class TicketServiceImpl implements TicketService {
         TicketMessage newTicketMessage = TicketMessage.builder()
                 .message(messageRequest.getContent())
                 .senderFullName(senderUser.getFullName())
-                .senderRole(senderRole)
+                .senderRole(senderUser.getHigherAuthority().getEnum())
                 .build();
 
         addAttachmentsToTicketMessage(

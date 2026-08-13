@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface AudioBotResourceRepository extends JpaSpecificationExecutor<AudioBotResource>, JpaRepository<AudioBotResource, Long> {
 
-    @Query("SELECT a FROM TeaSpeakResource a WHERE a.id = :resourceId AND a.owner.id = :ownerId")
+    @Query("SELECT a FROM AudioBotResource a WHERE a.id = :resourceId AND a.owner.id = :ownerId")
     Optional<AudioBotResource> findOneByOwnerId(@Param("ownerId") Long userId, @Param("resourceId")Long resourceId);
 
     default Optional<AudioBotResource> findByOneByPermission(User user, Long resourceId) {

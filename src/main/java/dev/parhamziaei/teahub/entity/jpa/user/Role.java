@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.user;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.enums.user.Roles;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +34,10 @@ public class Role extends BaseEntity<Long> {
         if (this.users == null)
             this.users = new ArrayList<>();
         this.users.add(user);
+    }
+
+    public Roles getEnum() {
+        return Roles.valueOf(this.name);
     }
 
 }

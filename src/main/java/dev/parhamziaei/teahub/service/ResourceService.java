@@ -66,18 +66,6 @@ public class ResourceService {
                 .initializeDeploy(request, userId);
     }
 
-    @Transactional
-    public void forceNewBillableResource(Long userId, AbstractNewResourceRequest request) {
-        BillableProduct product = billableProductRepo.findById(request.getProductId())
-                .orElseThrow(() -> new NoSuchEntityException("product not found"));
-
-        if (!product.isEnabled())
-            throw new NoSuchEntityException("product is not enabled");
-
-        deploymentFactory.getStrategy(request.getType())
-                .initializeDeploy(request, userId);
-    }
-
     public List<ResourceListResponse> getAllUserResources(Long userId) {
         List<ResourceListResponse> resourcesResponse = new ArrayList<>();
         Specification<BillableResource> tsSpec = BillableResourceSpecification.forOwnerId(userId);

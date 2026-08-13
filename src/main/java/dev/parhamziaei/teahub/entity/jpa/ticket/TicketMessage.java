@@ -1,6 +1,7 @@
 package dev.parhamziaei.teahub.entity.jpa.ticket;
 
 import dev.parhamziaei.teahub.entity.jpa.BaseEntity;
+import dev.parhamziaei.teahub.enums.user.Roles;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +21,8 @@ public class TicketMessage extends BaseEntity<Long> {
     private String senderFullName;
 
     @Column(name = "sender_role")
-    private String senderRole;
+    @Enumerated(EnumType.STRING)
+    private Roles senderRole;
 
     @Column(name = "message")
     private String message;
