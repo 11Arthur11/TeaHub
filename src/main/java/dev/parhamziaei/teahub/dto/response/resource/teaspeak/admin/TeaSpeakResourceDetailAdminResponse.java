@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class TeaSpeakResourceDetailAdminResponse extends TeaSpeakResourceDetailResponse {
 
-    private String ownerPhone;
+    private Long ownerId;
     private String sid;
 
 }

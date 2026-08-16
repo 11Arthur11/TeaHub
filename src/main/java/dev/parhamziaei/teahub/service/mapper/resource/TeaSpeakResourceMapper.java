@@ -46,7 +46,7 @@ public class TeaSpeakResourceMapper implements ResourceMapperHandler {
     public TeaSpeakResourceDetailAdminResponse mapResourceDetailAdminResponse(BillableResource resource) {
         TeaSpeakResource teaSpeakResource = (TeaSpeakResource) resource;
         TeaSpeakResourceDetailAdminResponse dto = mapInternal(teaSpeakResource, TeaSpeakResourceDetailAdminResponse.class);
-        dto.setOwnerPhone(resource.getOwner().getPhone());
+        dto.setOwnerId(resource.getOwner().getId());
         return dto;
     }
 

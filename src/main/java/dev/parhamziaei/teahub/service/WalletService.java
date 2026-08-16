@@ -1,18 +1,21 @@
 package dev.parhamziaei.teahub.service;
 
 import dev.parhamziaei.teahub.dto.internal.shop.Renewal;
+import dev.parhamziaei.teahub.dto.request.payment.admin.WalletTransactionAdminRequest;
 import dev.parhamziaei.teahub.dto.request.query.WalletTransactionFilterRequest;
 import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
 import dev.parhamziaei.teahub.dto.response.user.WalletTransactionResponse;
 import dev.parhamziaei.teahub.dto.response.user.user.WalletOverviewResponse;
 import dev.parhamziaei.teahub.entity.jpa.payment.WalletTransaction;
 import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
+import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
 import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
+import dev.parhamziaei.teahub.repository.jpa.UserRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletTransactionRepository;
 import dev.parhamziaei.teahub.repository.jpa.aggregate.FinanceFlowAggregate;
@@ -51,6 +54,7 @@ public class WalletService {
     private final ModelMapper modelMapper;
     private final MessageService messageService;
     private final BillableResourceRepository billableResourceRepository;
+    private final UserRepository userRepository;
 
     public void assertSufficientBalance(Long userId, BigDecimal amount) {
         Wallet wallet = walletRepo.findOne(WalletSpecification.forUserId(userId))
@@ -152,6 +156,36 @@ public class WalletService {
         }
     }
 
+    public PagedModel<WalletTransactionResponse> getWalletTransactionsByUserId(Long userId, WalletTransactionFilterRequest filter) {
+        User user = userRepository.findById(userId).orElseThrow(NoSuchEntityException::new);
+        return getWalletTransactions(user.getWallet().getId(), filter);
+    }
+
+    @Transactional
+    public void transactionByAdmin(Long userId, WalletTransactionAdminRequest request) {
+        Wallet wallet = walletRepo.findByOwnerIdAndLock(userId);
+        Money newBalance = switch (request.getTransactionType()) {
+            case DEBIT ->
+                new Money(wallet.getBalance().getAmount().subtract(request.getAmount()));
+            case CREDIT ->
+                new Money(wallet.getBalance().getAmount().add(request.getAmount()));
+        };
+        wallet.setBalance(newBalance);
+
+        if (request.isPersist()) {
+            WalletTransaction transaction = WalletTransaction.builder()
+                    .createdAt(LocalDateTime.now().withNano(0))
+                    .reason(request.getTransactionReason())
+                    .type(request.getTransactionType())
+                    .amount(new Money(request.getAmount()))
+                    .build();
+            wallet.addTransaction(transaction);
+            walletTransactionRepo.save(transaction);
+        }
+
+        walletRepo.save(wallet);
+    }
+
     public PagedModel<WalletTransactionResponse> getWalletTransactions(Long walletId, WalletTransactionFilterRequest filter) {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Specification<WalletTransaction> spec = WalletTransactionSpecification.forWallet(walletId)
@@ -169,7 +203,7 @@ public class WalletService {
                 .stream()
                 .map(wt -> {
                     WalletTransactionResponse res = modelMapper.map(wt, WalletTransactionResponse.class);
-                    res.setReason(messageService.get(wt.getReason()));
+                    res.setReason(wt.getReason());
                     return res;
                 })
                 .toList();

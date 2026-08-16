@@ -16,6 +16,7 @@ import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotMustBeConnectedException;
 import dev.parhamziaei.teahub.exception.custom.service.audio_bot.AudioBotSynchronizationException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceLockedException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceSuspendedException;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotGateway;
 import dev.parhamziaei.teahub.integration.audio_bot.component.AudioBotNodeManager;
@@ -100,7 +101,10 @@ public class AudioBotService {
         AudioBotResource resource = audioBotResourceRepository.findByOneByPermission(user, resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
-        if (resource.getResourceStatus() != ResourceStatus.ACTIVE)
+        if (resource.getResourceStatus().equals(ResourceStatus.LOCKED) && !user.isAdmin())
+            throw new ResourceLockedException();
+
+        if (resource.getResourceStatus().equals(ResourceStatus.PENDING_PROLONG) && !user.isAdmin())
             throw new ResourceSuspendedException(resource.getId().toString());
 
         return resource;

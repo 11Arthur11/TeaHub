@@ -8,6 +8,7 @@ import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
 import dev.parhamziaei.teahub.enums.teaspeak.TeaSpeakStatus;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
+import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceLockedException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ResourceSuspendedException;
 import dev.parhamziaei.teahub.exception.custom.service.resource.ActionNotExecutableException;
 import dev.parhamziaei.teahub.integration.teaspeak_query.component.QueryCLI;
@@ -48,7 +49,10 @@ public class TeaSpeakService {
         TeaSpeakResource resource = teaSpeakResourceRepository.findByOneByPermission(user, resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
-        if (resource.getResourceStatus() != ResourceStatus.ACTIVE)
+        if (resource.getResourceStatus().equals(ResourceStatus.LOCKED) && !user.isAdmin())
+            throw new ResourceLockedException();
+
+        if (resource.getResourceStatus().equals(ResourceStatus.PENDING_PROLONG) && !user.isAdmin())
             throw new ResourceSuspendedException(resource.getId().toString());
 
         return resource;
@@ -202,7 +206,7 @@ public class TeaSpeakService {
     }
 
     private String generateInstanceName(Long resourceId) {
-        return "\\s-\\sResourceID:\\s" + String.format("%06d", resourceId);
+        return "\\sTC-\\sResourceID:\\s" + String.format("%06d", resourceId);
     }
 
 }

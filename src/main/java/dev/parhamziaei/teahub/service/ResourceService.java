@@ -26,19 +26,19 @@ import dev.parhamziaei.teahub.service.mapper.BillableResourceMapStruct;
 import dev.parhamziaei.teahub.service.mapper.resource.ResourceMapperFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ResourceService {
@@ -90,33 +90,32 @@ public class ResourceService {
                 .and(BillableResourceSpecification.byType(filter.getByType()))
                 .and(BillableResourceSpecification.byStatus(filter.getByResourceStatus()));
 
-        Page<BillableResource> resourcesPage = billableResourceRepository.findAll(spec, pageable);
+        Page<ResourceListAdminResponse> resourcesPage = billableResourceRepository.findAll(spec, pageable)
+                .map(r -> {
+                    ResourceListAdminResponse dto = modelMapper.map(r, ResourceListAdminResponse.class);
+                    dto.setProductName(r.getProduct().getProductName());
+                    if (r.getOwner() == null)
+                        return dto;
+                    dto.setPeriod(r.getProduct().getPeriod());
+                    switch (r.getResourceType()) {
+                        case TEASPEAK -> {
+                            TeaSpeakResource teaSpeakResource = (TeaSpeakResource) r;
+                            if (teaSpeakResource.getParentQueryInstance() != null)
+                                dto.setNodeId(teaSpeakResource.getParentQueryInstance().getId());
+                        }
+                        case AUDIO_BOT -> {
+                            AudioBotResource audioBotResource = (AudioBotResource) r;
+                            if (audioBotResource.getParentNode() != null)
+                                dto.setNodeId(audioBotResource.getParentNode().getId());
+                        }
+                    }
+                    return dto;
+                });
 
         if (!resourcesPage.hasContent())
             throw new NoSuchDataException();
 
-        List<ResourceListAdminResponse> mapped = resourcesPage.getContent()
-                .stream()
-                .map(r -> {
-                    ResourceListAdminResponse dto = modelMapper.map(r, ResourceListAdminResponse.class);
-                    dto.setProductName(r.getProduct().getProductName());
-                    if (r.getOwner() != null)
-                        return dto;
-                    switch (r.getResourceType()) {
-                        case TEASPEAK -> {
-                            TeaSpeakResource teaSpeakService = (TeaSpeakResource) r;
-                            dto.setNodeId(teaSpeakService.getParentQueryInstance().getId());
-                        }
-                        case AUDIO_BOT -> {
-                            AudioBotResource audioBotService = (AudioBotResource) r;
-                            dto.setNodeId(audioBotService.getParentNode().getId());
-                        }
-                    }
-                    return dto;
-                }).toList();
-        Page<ResourceListAdminResponse> mappedPage = new PageImpl<>(mapped, pageable, resourcesPage.getTotalElements());
-
-        return new PagedModel<>(mappedPage);
+        return new PagedModel<>(resourcesPage);
     }
 
     @Transactional
@@ -158,7 +157,50 @@ public class ResourceService {
     }
 
     @Transactional
+    public void lockResource(Long resourceId) {
+        BillableResource resource = billableResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+        resource.setResourceStatus(ResourceStatus.LOCKED);
+        billableResourceRepository.save(resource);
+        deploymentFactory.getStrategy(resource.getResourceType())
+                .suspend(resource);
+    }
+
+    @Transactional
+    public void unlockResource(Long resourceId) {
+        BillableResource resource = billableResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        resource.setResourceStatus(
+                resource.isExpired() ? ResourceStatus.PENDING_PROLONG : ResourceStatus.ACTIVE
+        );
+
+        billableResourceRepository.save(resource);
+        deploymentFactory.getStrategy(resource.getResourceType())
+                .resume(resource);
+    }
+
+    @Transactional
     public void prolongByInvoicePaid(Long resourceId) {
+        BillableResource resource = billableResourceRepository.findById(resourceId)
+                .orElseThrow(NoSuchEntityException::new);
+
+        BillableProduct product = resource.getProduct();
+
+        // ? prolonging resource
+        resource.setExpiration(
+                resource.getExpiration().plus(product.getExpiration())
+        );
+
+        if (resource.getResourceStatus() == ResourceStatus.PENDING_PROLONG) {
+            resource.setResourceStatus(ResourceStatus.ACTIVE);
+            deploymentFactory.getStrategy(resource.getResourceType())
+                    .resume(resource);
+        }
+    }
+
+    @Transactional
+    public void forceProlongResource(Long resourceId) {
         BillableResource resource = billableResourceRepository.findById(resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 

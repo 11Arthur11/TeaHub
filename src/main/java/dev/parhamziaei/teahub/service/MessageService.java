@@ -42,59 +42,8 @@ public class MessageService {
         return messageSource.getMessage(message.key(), null, Locale.forLanguageTag("fa"));
     }
 
-    public String get(QueryInstanceStatus status) {
-        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(TicketStatus status) {
-        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(TicketDepartment department) {
-        return textSource.getMessage(department.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(InvoiceStatus status) {
-        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(ResourceStatus status) {
-        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(ProductPeriod period) {
-        return textSource.getMessage(period.key(), null, Locale.forLanguageTag("fa"));
-    }
-
     public String get(Text text) {
         return textSource.getMessage(text.key(), null, Locale.forLanguageTag("fa"));
     }
 
-    public String get(TransactionReason reason) {
-        return textSource.getMessage(reason.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(TeaSpeakStatus teaSpeakStatus) {
-        return textSource.getMessage(teaSpeakStatus.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(NodeStatus nodeStatus) {
-        return textSource.getMessage(nodeStatus.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(AudioBotStatus botStatus) {
-        return textSource.getMessage(botStatus.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(DnsProviderStatus status) {
-        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(ZoneStatus status) {
-        return textSource.getMessage(status.key(), null, Locale.forLanguageTag("fa"));
-    }
-
-    public String get(Roles roles) {
-        return textSource.getMessage(roles.key(), null, Locale.forLanguageTag("fa"));
-    }
 }

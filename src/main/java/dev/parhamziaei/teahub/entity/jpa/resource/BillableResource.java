@@ -55,4 +55,8 @@ public class BillableResource extends BaseEntity<Long> {
         return String.format(product.getProductName() + " - " + "%06d", product.getId());
     }
 
+    public boolean isExpired() {
+        return expiration.isBefore(LocalDateTime.now());
+    }
+
 }

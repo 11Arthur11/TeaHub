@@ -16,6 +16,10 @@ public interface WalletRepository extends JpaSpecificationExecutor<Wallet>, JpaR
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Wallet findByIdAndLock(Long id);
 
+    @Query("SELECT w FROM Wallet w WHERE w.owner.id = :id")
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Wallet findByOwnerIdAndLock(Long id);
+
 
     @Query("""
     SELECT COALESCE(SUM(w.balance.amount), 0)

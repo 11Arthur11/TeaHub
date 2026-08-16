@@ -34,9 +34,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -118,12 +116,17 @@ public class AudioBotGateway {
                 .info()
                 .build();
 
-        ResponseEntity<Void> response = restClient.get()
-                .uri(uri.value())
-                .retrieve()
-                .toBodilessEntity();
-
-        return response.getStatusCode().value();
+        try {
+            ResponseEntity<Void> response = restClient.get()
+                    .uri(uri.value())
+                    .retrieve()
+                    .toBodilessEntity();
+            return response.getStatusCode().value();
+        } catch (RestClientResponseException e) {
+            return e.getStatusCode().value();
+        } catch (RuntimeException e) {
+            return 0;
+        }
     }
 
     public boolean testConnection(AudioBotNode audioBotNode) {

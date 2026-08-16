@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
                 .stream()
                 .map(u -> {
                     UserListResponse res = modelMapper.map(u, UserListResponse.class);
-                    res.setRole(messageService.get(Roles.fromName(u.getRole().getName())));
+                    res.setRole(Roles.fromName(u.getRole().getName()));
                     res.setFullName(u.getFullName());
                     res.setOnline(onlineUserRedisRepo.isOnline(u.getId()));
                     return res;

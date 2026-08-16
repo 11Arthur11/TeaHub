@@ -7,6 +7,7 @@ import dev.parhamziaei.teahub.dto.request.query.InvoiceFilterRequest;
 import dev.parhamziaei.teahub.dto.response.payment.admin.InvoiceAdminResponse;
 import dev.parhamziaei.teahub.dto.response.payment.admin.PaymentTransactionDetailResponse;
 import dev.parhamziaei.teahub.dto.response.payment.user.InvoiceUserResponse;
+import dev.parhamziaei.teahub.dto.response.user.admin.UserListResponse;
 import dev.parhamziaei.teahub.entity.jpa.payment.invoice.AdminDebtPostPayment;
 import dev.parhamziaei.teahub.entity.jpa.payment.invoice.Invoice;
 import dev.parhamziaei.teahub.entity.jpa.payment.invoice.ProlongPostPayment;
@@ -111,6 +112,7 @@ public class InvoiceService {
         List<InvoiceAdminResponse> response = invoices.stream()
                 .map(i -> {
                     InvoiceAdminResponse r = modelMapper.map(i, InvoiceAdminResponse.class);
+                    r.setOwnerFullName(i.getOwner().getFullName());
                     if (i.getPaymentTransaction() != null)
                         r.setPaymentTransaction(modelMapper.map(i.getPaymentTransaction(), PaymentTransactionDetailResponse.class));
                     return r;

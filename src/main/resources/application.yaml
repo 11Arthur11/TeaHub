@@ -128,7 +128,7 @@ bucket4j:
       strategy: first
       rate-limits:
         - bandwidths:
-            - capacity: 10
+            - capacity: 100
               time: 1
               unit: minutes
               refill-speed: interval
@@ -140,7 +140,7 @@ bucket4j:
       strategy: first
       rate-limits:
         - bandwidths:
-            - capacity: 100
+            - capacity: 200
               time: 1
               unit: minutes
               refill-speed: interval

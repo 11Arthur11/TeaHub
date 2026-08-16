@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.dto.response.user.admin;
 
+import dev.parhamziaei.teahub.enums.user.Roles;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ public class UserListResponse {
 
     private String email;
 
-    private String role;
+    private Roles role;
 
     private LocalDateTime lastLogin;
 

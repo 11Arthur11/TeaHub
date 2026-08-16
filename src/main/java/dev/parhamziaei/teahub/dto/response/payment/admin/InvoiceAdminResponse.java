@@ -1,5 +1,7 @@
 package dev.parhamziaei.teahub.dto.response.payment.admin;
 
+import dev.parhamziaei.teahub.dto.response.user.admin.UserDetailAdminResponse;
+import dev.parhamziaei.teahub.dto.response.user.admin.UserListResponse;
 import dev.parhamziaei.teahub.enums.payment.InvoiceStatus;
 import dev.parhamziaei.teahub.valueobject.Money;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,9 +20,7 @@ import java.time.LocalDateTime;
 public class InvoiceAdminResponse {
 
     private String invoiceToken;
-
-    private Long ownerId;
-
+    
     private Money money;
 
     private Integer taxPercentage;
@@ -32,5 +32,7 @@ public class InvoiceAdminResponse {
     private InvoiceStatus status;
 
     private PaymentTransactionDetailResponse paymentTransaction;
+
+    private String ownerFullName;
 
 }

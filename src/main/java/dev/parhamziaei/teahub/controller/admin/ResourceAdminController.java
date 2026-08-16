@@ -72,6 +72,33 @@ public class ResourceAdminController {
     )
     @PatchMapping("/{resourceId}/force-prolong")
     public ResponseEntity<SimpleResponse> forceProlongResource(@PathVariable Long resourceId) {
+        resourceService.forceProlongResource(resourceId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            tags = {"Resource (Admin)"}
+    )
+    @PatchMapping("/{resourceId}/lock")
+    public ResponseEntity<SimpleResponse> lockResource(@PathVariable Long resourceId) {
+        resourceService.lockResource(resourceId);
+        return ResponseBuilder.buildSuccess(
+                ResponseType.DATA,
+                messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(
+            tags = {"Resource (Admin)"}
+    )
+    @PatchMapping("/{resourceId}/unlock")
+    public ResponseEntity<SimpleResponse> unlockResource(@PathVariable Long resourceId) {
+        resourceService.unlockResource(resourceId);
         return ResponseBuilder.buildSuccess(
                 ResponseType.DATA,
                 messageService.get(ServiceMessage.DEFAULT_ACTION_DONE),
