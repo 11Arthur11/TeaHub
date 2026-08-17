@@ -7,7 +7,6 @@ import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketAdminRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.admin.TicketEditAdminRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketMessageRequest;
 import dev.parhamziaei.teahub.dto.request.ticket.user.TicketUserRequest;
-import dev.parhamziaei.teahub.dto.response.dashboard.admin.AdminMetric;
 import dev.parhamziaei.teahub.dto.response.dashboard.admin.TicketMetric;
 import dev.parhamziaei.teahub.dto.response.ticket.AbstractTicketResponse;
 import dev.parhamziaei.teahub.dto.response.ticket.admin.TicketListAdminResponse;
@@ -18,7 +17,6 @@ import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessage;
 import dev.parhamziaei.teahub.entity.jpa.ticket.TicketMessageAttachment;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.enums.ticket.TicketStatus;
-import dev.parhamziaei.teahub.enums.user.Roles;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchDataException;
 import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.ticket.TicketMaxAttachmentReachedException;
@@ -105,18 +103,15 @@ public class TicketServiceImpl implements TicketService {
     protected BiFunction<TicketStatus, User, TicketStatus> calculateNewStatus = (currentStatus, modifierUser) -> {
         switch (currentStatus) {
             case CLOSED -> {
-                if (!modifierUser.isStaff())
-                    throw new TicketServiceException("Cannot add new message on closed ticket");
-                else
-                    return TicketStatus.WAITING;
+                return TicketStatus.OPEN;
             }
-            case PENDING -> {
+            case OPEN -> {
                 if (modifierUser.isStaff())
-                    return TicketStatus.WAITING;
+                    return TicketStatus.RESPONDED;
             }
             case RESPONDED, WAITING -> {
                 if (!modifierUser.isStaff())
-                    return TicketStatus.PENDING;
+                    return TicketStatus.OPEN;
             }
         }
         return currentStatus;
@@ -152,9 +147,8 @@ public class TicketServiceImpl implements TicketService {
                 senderUser
         );
 
-        if (!newStatus.equals(ticket.getStatus())) {
+        if (!newStatus.equals(ticket.getStatus()))
             changeTicketStatus(ticket.getId(), newStatus);
-        }
 
         TicketMessage newTicketMessage = TicketMessage.builder()
                 .message(messageRequest.getContent())
@@ -209,7 +203,7 @@ public class TicketServiceImpl implements TicketService {
         Ticket ticket = Ticket.builder()
                 .subject(ticketRequest.getSubject())
                 .department(ticketRequest.getDepartment())
-                .status(TicketStatus.PENDING)
+                .status(TicketStatus.OPEN)
                 .owner(submitterUser)
                 .build();
 
@@ -342,7 +336,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     public Long countOpenTickets(Long userId) {
-        return ticketRepository.countTicketsByStatus(userId, TicketStatus.PENDING);
+        return ticketRepository.countTicketsByStatus(userId, TicketStatus.OPEN);
     }
 
     @Override

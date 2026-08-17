@@ -133,7 +133,7 @@ public class ResourceService {
     }
 
     @Transactional
-    public void resourceExpiredHandler (Long resourceId) {
+    public void resourceExpiredHandler(Long resourceId) {
         BillableResource resource = billableResourceRepository.findById(resourceId)
                 .orElseThrow(NoSuchEntityException::new);
 
@@ -172,10 +172,16 @@ public class ResourceService {
                 .orElseThrow(NoSuchEntityException::new);
 
         resource.setResourceStatus(
-                resource.isExpired() ? ResourceStatus.PENDING_PROLONG : ResourceStatus.ACTIVE
+                ResourceStatus.ACTIVE
         );
 
         billableResourceRepository.save(resource);
+
+        if (resource.isExpired()) {
+            resourceExpiredHandler(resourceId);
+            return;
+        }
+
         deploymentFactory.getStrategy(resource.getResourceType())
                 .resume(resource);
     }
