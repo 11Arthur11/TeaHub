@@ -23,18 +23,16 @@ public class RandomizedAudioBotProvisionStrategy implements AudioBotProvisionStr
 
     @Override
     public AudioBotNode getProviderNode() {
-        List<AudioBotNode> candidates =  audioBotNodeRepository.findProvisionCandidates();
+        List<AudioBotNode> candidates = new java.util.ArrayList<>(audioBotNodeRepository.findProvisionCandidates());
 
         if (candidates.isEmpty())
             throw new AudioBotProvisionException("No available audio bot nodes found");
 
         Random random = new Random();
-        for (int index = 0; index < candidates.size(); index++) {
-            AudioBotNode node = candidates.get(random.nextInt(candidates.size()));
+        while (!candidates.isEmpty()) {
+            AudioBotNode node = candidates.remove(random.nextInt(candidates.size()));
             if (audioBotGateway.testConnection(node))
                 return node;
-            else
-                candidates.remove(node);
         }
 
         throw new AudioBotProvisionException("Could not find any healthy node with RANDOMIZED strategy");

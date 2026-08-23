@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: jdbc:mysql://invalid:3306/test
+    username: test
+    password: test
+  kafka:
+    bootstrap-servers: localhost:1
+  data:
+    redis:
+      host: localhost
+      port: 1
+      password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+app:
+  settings:
+    backend-domain: localhost:8080
+  initialize:
+    admin-email: admin@test.invalid
+    admin-phone-number: "9000000000"
+    admin-first-name: Test
+    admin-last-name: Admin
+  integration:
+    ip-panel:
+      api-key: ""
+      two-facto-message-pattern-code: ""
+      from-number: ""
+  service:
+    media-storage:
+      ticket-attachments-path: ${java.io.tmpdir}/teahub-test-attachments
+  cookie-factory:
+    secure-cookie: false
+    domain: ""
+  jason-web-token:
+    base64-secret: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+
+bucket4j:
+  enabled: false
+
+springdoc:
+  api-docs:
+    enabled: false
+
+logging:
+  level:
+    root: WARN

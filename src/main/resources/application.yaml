@@ -1,21 +1,23 @@
 spring:
+  config:
+    import: "optional:file:.env[.properties]"
   application:
     name: TeaHub
 
   datasource:
-    url: jdbc:mysql://localhost:3306/teahub
-    username: admin
-    password: StrongPassword123!@#
+    url: jdbc:mysql://${DB_HOST}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}
 
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: StrongPassword123!@#
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD:}
 
   servlet:
     multipart:
@@ -34,31 +36,30 @@ spring:
     caffeine:
       spec: maximumSize=1000000,expireAfterAccess=3600s
 
-
 logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} | %highlight(%-5level) | %logger{0} | %msg%n"
   level:
-    dev.parhamziaei: trace
+    dev.parhamziaei: ${APP_LOG_LEVEL:trace}
   threshold:
-    console: TRACE
+    console: ${APP_LOG_LEVEL:TRACE}
   file:
-    path: logs
-    name: logs/application.log
+    path: ${APP_LOG_PATH:logs}
+    name: ${APP_LOG_FILE:logs/application.log}
 
 app:
   settings:
-    backend-domain: 'localhost:8080'
+    backend-domain: ${APP_BACKEND_DOMAIN:api.teacloud.ir}
   components:
     telnet:
-      default-timeout-millis: 10000
-      reconnect-tries: 10
-      reconnect-delay: 60s
+      default-timeout-millis: ${TELNET_TIMEOUT_MILLIS:10000}
+      reconnect-tries: ${TELNET_RECONNECT_TRIES:10}
+      reconnect-delay: ${TELNET_RECONNECT_DELAY:60s}
 
   service:
     payment:
-      payment-success-redirect-uri: 'http://localhost:4173/panel/invoices/{invoice_id}?result=true'
-      payment-failed-redirect-uri: 'http://localhost:4173/panel/invoices/{invoice_id}?result=false'
+      payment-success-redirect-uri: ${PAYMENT_SUCCESS_REDIRECT_URI:https://teacloud.ir/panel/invoices/{invoice_id}?result=true}
+      payment-failed-redirect-uri: ${PAYMENT_FAILED_REDIRECT_URI:https://teacloud.ir/panel/invoices/{invoice_id}?result=false}
     media-storage:
       allowed-media-extension:
         - jpg
@@ -68,79 +69,74 @@ app:
         - image/png
         - image/jpeg
         - image/webp
-      maximum-media-size-mb: 10
-      ticket-attachments-path: /home/arthur/spring-boot/uploads/ticket-attachments
+      maximum-media-size-mb: ${MEDIA_MAXIMUM_SIZE_MB:10}
+      ticket-attachments-path: ${TICKET_ATTACHMENTS_PATH:/app/uploads/ticket-attachments}
 
     ticket:
-      max-attachment-per-message: 5
+      max-attachment-per-message: ${TICKET_MAX_ATTACHMENTS:5}
 
   initialize:
-    admin-email: javadtoktamp@gmail.com
-    admin-phone-number: "9053781183"
-    admin-first-name: parham
-    admin-last-name: ziaei
+    admin-email: ${ADMIN_EMAIL}
+    admin-phone-number: ${ADMIN_PHONE_NUMBER}
+    admin-first-name: ${ADMIN_FIRST_NAME}
+    admin-last-name: ${ADMIN_LAST_NAME}
 
   integration:
     teaspeak-query:
-      port-step: 5
+      port-step: ${TEASPEAK_PORT_STEP:5}
     ip-panel:
-      base-url: https://edge.ippanel.com/v1
-      api-key: YTI3NmRmNGQtY2ZhOS00MDVlLThhNWUtMWNiYzBhNzEzYmVkZjA0Y2ExNjExNDc5OTk0N2I2YjcyNTI1M2MzMGY0YTc=
-      # Service will send one variable to IPPanel : (%code%) make sure you created this variable in patterns setting
-      two-facto-message-pattern-code: llz1a8fbcs6n7hd
-      from-number: 3000505
+      base-url: ${IP_PANEL_BASE_URL:https://edge.ippanel.com/v1}
+      api-key: ${IP_PANEL_API_KEY:}
+      two-facto-message-pattern-code: ${IP_PANEL_TWO_FACTOR_PATTERN_CODE:}
+      from-number: ${IP_PANEL_FROM_NUMBER:}
 
   cookie-factory:
-    secure-cookie: false #TODO make this true in production
-    two-factor-cookie-ttl: 300s
-    phone-verify-cookie-ttl: 300s
-    same-site-attribute: "Strict"
-    domain: ""
+    secure-cookie: ${COOKIE_SECURE:true}
+    two-factor-cookie-ttl: ${TWO_FACTOR_COOKIE_TTL:300s}
+    phone-verify-cookie-ttl: ${PHONE_VERIFY_COOKIE_TTL:300s}
+    same-site-attribute: ${COOKIE_SAME_SITE:Strict}
+    domain: ${COOKIE_DOMAIN:teacloud.ir}
 
   jason-web-token:
-    base64-secret: f633915d212d5159e506d6d69f6d1adcad3aff7396b05545df48183e1331d537 #Change this value on production phase, this is the whole authentication layer key , keep it secret ;)
-    access-token-ttl: 1800s
-    phone-verify-token-ttl: 300s
-    refresh-token-ttl: 86400s
-    two-factor-token-ttl: 180s
+    base64-secret: ${JWT_BASE64_SECRET}
+    access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:1800s}
+    phone-verify-token-ttl: ${JWT_PHONE_VERIFY_TOKEN_TTL:300s}
+    refresh-token-ttl: ${JWT_REFRESH_TOKEN_TTL:86400s}
+    two-factor-token-ttl: ${JWT_TWO_FACTOR_TOKEN_TTL:180s}
 
   sessions:
-    phone-verify-session-ttl: 300s
-    two-factor-session-ttl: 180s
+    phone-verify-session-ttl: ${PHONE_VERIFY_SESSION_TTL:300s}
+    two-factor-session-ttl: ${TWO_FACTOR_SESSION_TTL:180s}
 
 springdoc:
   api-docs:
-    enabled: true
+    enabled: ${SPRINGDOC_ENABLED:true}
     path: /docs
 
 server:
   forward-headers-strategy: framework
 
-
 bucket4j:
-  enabled: true
-
+  enabled: ${RATE_LIMIT_ENABLED:true}
   filters:
-    # Auth endpoints
     - cache-name: auth-rate-limit
       filter-order: -101
       url: ^(/v1/auth/).*
       strategy: first
       rate-limits:
         - bandwidths:
-            - capacity: 100
+            - capacity: ${AUTH_RATE_LIMIT_CAPACITY:10}
               time: 1
               unit: minutes
               refill-speed: interval
 
-    # Global
     - cache-name: global-rate-limit
       filter-order: -100
       url: ^(/v1/).*
       strategy: first
       rate-limits:
         - bandwidths:
-            - capacity: 200
+            - capacity: ${GLOBAL_RATE_LIMIT_CAPACITY:100}
               time: 1
               unit: minutes
               refill-speed: interval

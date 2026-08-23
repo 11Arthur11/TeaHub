@@ -127,18 +127,18 @@ public class PaymentServiceImpl implements PaymentService {
                 )
         ).orElseThrow(NoSuchEntityException::new);
 
+        if (!invoice.getStatus().equals(InvoiceStatus.PENDING)) {
+            throw new InvoiceException("invoice is not pending and cannot be payment-verified: " + invoice.getInvoiceToken());
+        }
+
         postPaymentRegistryFactory.getHandler(invoice.getPostPaymentAction().getPostPaymentType())
                 .processAction(invoice);
 
-        if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
-            invoice.setStatus(InvoiceStatus.PAID);
-            invoice.setPaidAt(LocalDateTime.now().withNano(0));
-            invoiceRepo.save(invoice);
-            savePaymentTransaction(callbackRequest, invoice, apRepo.find()
-                    .orElseThrow(GatewayNotFoundException::new).getName());
-        } else {
-            throw new InvoiceException("invoice is cancelled and cannot be payment-verified: " + invoice.getInvoiceToken());
-        }
+        invoice.setStatus(InvoiceStatus.PAID);
+        invoice.setPaidAt(LocalDateTime.now().withNano(0));
+        invoiceRepo.save(invoice);
+        savePaymentTransaction(callbackRequest, invoice, apRepo.find()
+                .orElseThrow(GatewayNotFoundException::new).getName());
     }
 
     @Override

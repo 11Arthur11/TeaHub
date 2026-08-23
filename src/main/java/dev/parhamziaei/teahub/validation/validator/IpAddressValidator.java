@@ -13,6 +13,9 @@ public class IpAddressValidator implements ConstraintValidator<IpAddress, String
     @Override
     public boolean isValid(String ip, ConstraintValidatorContext cvContext)
     {
+        if (ip == null || ip.isBlank()) {
+            return false;
+        }
         String[] parts = ip.split("\\.");
 
         if (parts.length != 4) {

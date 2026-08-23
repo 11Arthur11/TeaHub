@@ -25,10 +25,10 @@ public class RoundRobinAudioBotProvisionStrategy implements AudioBotProvisionStr
 
     @Override
     public AudioBotNode getProviderNode() {
-        List<AudioBotNode> available = new java.util.ArrayList<>(audioBotNodeRepository.findProvisionCandidates()
+        List<AudioBotNode> available = audioBotNodeRepository.findProvisionCandidates()
                 .stream()
                 .sorted(Comparator.comparing(AudioBotNode::getId))
-                .toList());
+                .toList();
 
         if (available.isEmpty()) {
             throw new AudioBotProvisionException();
@@ -39,8 +39,6 @@ public class RoundRobinAudioBotProvisionStrategy implements AudioBotProvisionStr
             AudioBotNode node = available.get(Math.floorMod(index, available.size()));
             if (audioBotGateway.testConnection(node))
                 return node;
-            else
-                available.remove(node);
         }
 
         throw new AudioBotProvisionException("Could not find any healthy node with ROUND_ROBIN strategy");

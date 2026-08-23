@@ -10,6 +10,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfiguration {
@@ -27,6 +28,7 @@ public class RedisConfiguration {
     public RedisTemplate<String, TwoFactorSession> twoFactorRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, TwoFactorSession> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
+        configureStringKeys(redisTemplate);
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(TwoFactorSession.class));
         return redisTemplate;
     }
@@ -35,6 +37,7 @@ public class RedisConfiguration {
     public RedisTemplate<String, Long> onlineUserRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Long> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
+        configureStringKeys(redisTemplate);
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Long.class));
         return redisTemplate;
     }
@@ -43,8 +46,15 @@ public class RedisConfiguration {
     public RedisTemplate<String, PhoneVerifySession> forgotPasswordRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, PhoneVerifySession> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
+        configureStringKeys(redisTemplate);
         redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(PhoneVerifySession.class));
         return redisTemplate;
+    }
+
+    private void configureStringKeys(RedisTemplate<String, ?> redisTemplate) {
+        StringRedisSerializer serializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(serializer);
+        redisTemplate.setHashKeySerializer(serializer);
     }
 
 }

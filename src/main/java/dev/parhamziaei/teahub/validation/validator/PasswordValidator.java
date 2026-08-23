@@ -28,7 +28,7 @@ public class PasswordValidator implements ConstraintValidator<PasswordValidation
             return false;
         }
         String regexPn = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*+=])(?=\\S+$).{8,20}$";
-        Pattern pattern = Pattern.compile(regexPn, Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile(regexPn);
         Matcher matcher = pattern.matcher(value);
         return matcher.matches();
     }

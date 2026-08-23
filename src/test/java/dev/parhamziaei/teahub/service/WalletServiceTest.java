@@ -1,113 +1,159 @@
 package dev.parhamziaei.teahub.service;
 
+import dev.parhamziaei.teahub.entity.jpa.payment.WalletTransaction;
+import dev.parhamziaei.teahub.entity.jpa.resource.BillableResource;
+import dev.parhamziaei.teahub.entity.jpa.shop.BillableProduct;
 import dev.parhamziaei.teahub.entity.jpa.user.User;
 import dev.parhamziaei.teahub.entity.jpa.user.Wallet;
 import dev.parhamziaei.teahub.enums.payment.TransactionReason;
+import dev.parhamziaei.teahub.enums.payment.TransactionType;
+import dev.parhamziaei.teahub.enums.shop.ProductPeriod;
+import dev.parhamziaei.teahub.enums.shop.ResourceStatus;
+import dev.parhamziaei.teahub.exception.custom.global.NoSuchEntityException;
 import dev.parhamziaei.teahub.exception.custom.service.user.InsufficientBalanceException;
+import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
+import dev.parhamziaei.teahub.repository.jpa.UserRepository;
+import dev.parhamziaei.teahub.repository.jpa.WalletRepository;
 import dev.parhamziaei.teahub.repository.jpa.WalletTransactionRepository;
-import dev.parhamziaei.teahub.repository.jpa.specification.WalletTransactionSpecification;
-import dev.parhamziaei.teahub.test_util.UserTestUtil;
+import dev.parhamziaei.teahub.support.TestFixtures;
 import dev.parhamziaei.teahub.valueobject.Money;
-import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 class WalletServiceTest {
 
-    @Autowired
-    private UserTestUtil userTestUtil;
-    @Autowired
+    @Mock private WalletRepository walletRepository;
+    @Mock private WalletTransactionRepository transactionRepository;
+    @Mock private ModelMapper modelMapper;
+    @Mock private MessageService messageService;
+    @Mock private BillableResourceRepository resourceRepository;
+    @Mock private UserRepository userRepository;
+
     private WalletService walletService;
-    @Autowired
-    private WalletTransactionRepository transactionRepository;
+
+    @BeforeEach
+    void setUp() {
+        walletService = new WalletService(
+                walletRepository,
+                transactionRepository,
+                modelMapper,
+                messageService,
+                resourceRepository,
+                userRepository
+        );
+    }
 
     @Test
-    void assertSufficientBalanceTest_InsufficientBalance() {
-        User user = userTestUtil.persistedDummyUser();
-        Assertions.assertThrows(
+    void rejectsBalanceBelowRequestedAmount() {
+        User user = TestFixtures.user(1L, 10L, new BigDecimal("99.99"));
+        when(walletRepository.findOne(ArgumentMatchers.<Specification<Wallet>>any()))
+                .thenReturn(Optional.of(user.getWallet()));
+
+        assertThrows(
                 InsufficientBalanceException.class,
-                () -> walletService.assertSufficientBalance(user.getId(), new BigDecimal(500))
+                () -> walletService.assertSufficientBalance(user.getId(), new BigDecimal("100.00"))
         );
     }
 
     @Test
-    @Transactional
-    void assertSufficientBalanceTest_sufficientBalance() {
-        User user = userTestUtil.persistedDummyUser();
-        user.getWallet().setBalance(new Money(new BigDecimal(500)));
-        Assertions.assertDoesNotThrow(() -> walletService.assertSufficientBalance(user.getId(), new BigDecimal(499)));
+    void adminBalanceIsUnlimited() {
+        User admin = TestFixtures.admin(1L, 10L, BigDecimal.ZERO);
+        when(walletRepository.findOne(ArgumentMatchers.<Specification<Wallet>>any()))
+                .thenReturn(Optional.of(admin.getWallet()));
+
+        assertDoesNotThrow(() -> walletService.assertSufficientBalance(admin.getId(), new BigDecimal("999999")));
     }
 
     @Test
-    @Transactional
-    void debitTest() {
-        User user = userTestUtil.persistedDummyUser();
-        Wallet wallet = user.getWallet();
-        wallet.setBalance(new Money(new BigDecimal(500)));
-        Assertions.assertDoesNotThrow( () ->
-                walletService.debit(
-                        wallet.getId(),
-                        new BigDecimal(400),
-                        TransactionReason.PURCHASE,
-                        1L
-                )
-        );
-        Assertions.assertEquals(new Money(new BigDecimal(100)), wallet.getBalance());
+    void debitLocksWalletUpdatesBalanceAndPersistsAuditTransaction() {
+        User user = TestFixtures.user(1L, 10L, new BigDecimal("500"));
+        when(walletRepository.findByIdAndLock(10L)).thenReturn(user.getWallet());
+        ArgumentCaptor<WalletTransaction> transaction = ArgumentCaptor.forClass(WalletTransaction.class);
+
+        walletService.debit(10L, new BigDecimal("125"), TransactionReason.PURCHASE, 77L);
+
+        assertEquals(new BigDecimal("375"), user.getWallet().getBalance().getAmount());
+        verify(transactionRepository).save(transaction.capture());
+        assertEquals(TransactionType.DEBIT, transaction.getValue().getType());
+        assertEquals(TransactionReason.PURCHASE, transaction.getValue().getReason());
+        assertEquals(77L, transaction.getValue().getRelatedResourceId());
+        assertSame(user.getWallet(), transaction.getValue().getWallet());
     }
 
     @Test
-    @Transactional
-    void debitShouldCreateWalletTransactionTest() {
-        User user = userTestUtil.persistedDummyUser();
-        Wallet wallet = user.getWallet();
-        wallet.setBalance(new Money(new BigDecimal(500)));
-        final long userTransactionsBeforeDebit = transactionRepository.count(WalletTransactionSpecification.forWallet(wallet.getId()));
-        Assertions.assertDoesNotThrow( () ->
-                walletService.debit(
-                        wallet.getId(),
-                        new BigDecimal(400),
-                        TransactionReason.PURCHASE,
-                        1L
-                )
+    void failedDebitDoesNotCreateTransaction() {
+        User user = TestFixtures.user(1L, 10L, new BigDecimal("10"));
+        when(walletRepository.findByIdAndLock(10L)).thenReturn(user.getWallet());
+
+        assertThrows(
+                InsufficientBalanceException.class,
+                () -> walletService.debit(10L, new BigDecimal("11"), TransactionReason.PURCHASE, 77L)
         );
-        Assertions.assertTrue(transactionRepository.count(WalletTransactionSpecification.forWallet(wallet.getId())) > userTransactionsBeforeDebit);
+        assertEquals(new BigDecimal("10"), user.getWallet().getBalance().getAmount());
+        verifyNoInteractions(transactionRepository);
     }
 
     @Test
-    @Transactional
-    void creditTest() {
-        User user = userTestUtil.persistedDummyUser();
-        Assertions.assertDoesNotThrow( () ->
-                walletService.credit(
-                        user.getId(),
-                        new BigDecimal(400),
-                        TransactionReason.WALLET_CHARGE
-                )
-        );
-        Assertions.assertDoesNotThrow( () ->
-                walletService.assertSufficientBalance(user.getId(), new BigDecimal(400))
-        );
+    void creditUpdatesBalanceAndPersistsCreditTransaction() {
+        User user = TestFixtures.user(1L, 10L, new BigDecimal("25"));
+        when(walletRepository.findOne(ArgumentMatchers.<Specification<Wallet>>any()))
+                .thenReturn(Optional.of(user.getWallet()));
+        ArgumentCaptor<WalletTransaction> transaction = ArgumentCaptor.forClass(WalletTransaction.class);
+
+        walletService.credit(1L, new BigDecimal("75"), TransactionReason.WALLET_CHARGE);
+
+        assertEquals(new BigDecimal("100"), user.getWallet().getBalance().getAmount());
+        verify(transactionRepository).save(transaction.capture());
+        assertEquals(TransactionType.CREDIT, transaction.getValue().getType());
+        assertEquals(new Money(new BigDecimal("75")), transaction.getValue().getAmount());
     }
 
     @Test
-    @Transactional
-    void creditShouldCreateWalletTransactionTest() {
-        User user = userTestUtil.persistedDummyUser();
-        Wallet wallet = user.getWallet();
-        final long userTransactionsBeforeDebit = transactionRepository.count(WalletTransactionSpecification.forWallet(wallet.getId()));
-        Assertions.assertDoesNotThrow( () ->
-                walletService.credit(
-                        user.getId(),
-                        new BigDecimal(400),
-                        TransactionReason.WALLET_CHARGE
-                )
+    void missingWalletCannotBeCredited() {
+        when(walletRepository.findOne(ArgumentMatchers.<Specification<Wallet>>any())).thenReturn(Optional.empty());
+
+        assertThrows(
+                NoSuchEntityException.class,
+                () -> walletService.credit(99L, BigDecimal.ONE, TransactionReason.WALLET_CHARGE)
         );
-        Assertions.assertTrue(transactionRepository.count(WalletTransactionSpecification.forWallet(wallet.getId())) > userTransactionsBeforeDebit);
+        verifyNoInteractions(transactionRepository);
     }
 
+    @Test
+    void calculatesFirstRenewalThatCurrentBalanceCannotCover() {
+        User user = TestFixtures.user(1L, 10L, new BigDecimal("25"));
+        LocalDateTime firstExpiry = LocalDateTime.now().plusDays(1).withNano(0);
+        BillableProduct product = TestFixtures.product(1L, new BigDecimal("10"), ProductPeriod.DAILY);
+        BillableResource resource = TestFixtures.resource(1L, user, product, ResourceStatus.ACTIVE, firstExpiry);
+        when(resourceRepository.findAll(ArgumentMatchers.<Specification<BillableResource>>any()))
+                .thenReturn(List.of(resource));
+
+        LocalDateTime coverage = walletService.calculateAutoRenewalCoverage(user.getWallet());
+
+        assertEquals(firstExpiry.plusDays(2), coverage);
+    }
+
+    @Test
+    void returnsNullCoverageWhenUserHasNoAutoRenewResources() {
+        User user = TestFixtures.user(1L, 10L, new BigDecimal("25"));
+        when(resourceRepository.findAll(ArgumentMatchers.<Specification<BillableResource>>any())).thenReturn(List.of());
+
+        assertNull(walletService.calculateAutoRenewalCoverage(user.getWallet()));
+    }
 }

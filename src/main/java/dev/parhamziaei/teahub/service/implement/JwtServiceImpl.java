@@ -210,6 +210,7 @@ public class JwtServiceImpl implements JwtService {
     private String buildToken(Map<String, Object> claims, String subject, Date expiration) {
         return Jwts.builder()
                 .setClaims(claims)
+                .setId(UUID.randomUUID().toString())
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expiration)

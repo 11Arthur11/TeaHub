@@ -1073,8 +1073,7 @@ src/
 │   │   ├── validation/
 │   │   └── valueobject/
 │   └── resources/
-│       ├── application.yaml
-│       └── application-docker.yaml
+│       └── application.yaml
 └── test/
 ```
 
@@ -1082,7 +1081,7 @@ src/
 
 # Tests
 
-پروژه دارای تست برای بخش‌های مهم Business است.
+پروژه دارای تست‌های Unit، Web/Security، Protocol و Integration برای بخش‌های مهم Business است.
 
 نمونه‌ها:
 
@@ -1090,10 +1089,15 @@ src/
 JwtServiceTest
 ResourceServiceTest
 WalletServiceTest
-TeaSpeakApiTest
+PaymentServiceTest
+SecurityWebSliceTest
+TeaSpeakProtocolTest
+WalletServiceIT
+RedisRepositoryIT
+KafkaEventIT
 ```
 
-همچنین Test Utilityهای جداگانه برای ساخت Entityهای موردنیاز تست‌ها وجود دارند.
+تست‌های Integration با Testcontainers و نمونه‌های واقعی MySQL، Redis و Kafka اجرا می‌شوند.
 
 ---
 
@@ -1115,10 +1119,25 @@ Kafka
 
 ---
 
+## Configuration
+
+تنها فایل تنظیمات Spring پروژه `application.yaml` است و هم در Docker و هم در اجرای محلی از Environment Variable استفاده می‌کند.
+
+برای اجرای محلی، فایل نمونه را کپی و مقادیر حساس را تنظیم کنید:
+
+```bash
+cp .env.example .env
+openssl rand -base64 32
+```
+
+خروجی دستور دوم را در `JWT_BASE64_SECRET` قرار دهید. فایل `.env` به‌صورت خودکار خوانده می‌شود و در Git نادیده گرفته شده است. در Docker نیز همین متغیرها باید از Compose، Secret Manager یا محیط اجرا تزریق شوند و دیگر نیازی به profile جداگانه `docker` نیست.
+
+---
+
 ## Build
 
 ```bash
-mvn clean package
+./mvnw clean package
 ```
 
 ---
@@ -1126,7 +1145,7 @@ mvn clean package
 ## Run
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 یا:
@@ -1140,7 +1159,13 @@ java -jar target/TeaHub-0.0.2.jar
 ## Tests
 
 ```bash
-mvn test
+./mvnw test
+```
+
+برای اجرای Unit Testها به‌همراه Integration Testها، Docker باید در دسترس باشد:
+
+```bash
+./mvnw verify
 ```
 
 ---
