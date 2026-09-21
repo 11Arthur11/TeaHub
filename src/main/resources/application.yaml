@@ -4,6 +4,17 @@ spring:
   application:
     name: TeaHub
 
+  docker:
+    compose:
+      enabled: ${SPRING_DOCKER_COMPOSE_ENABLED:true}
+      file: compose.yaml
+      lifecycle-management: start-and-stop
+      readiness:
+        timeout: 2m
+      stop:
+        command: down
+        timeout: 15s
+
   datasource:
     url: jdbc:mysql://${DB_HOST}/${DB_NAME}
     username: ${DB_USERNAME}

@@ -1,4 +1,7 @@
 spring:
+  docker:
+    compose:
+      enabled: false
   datasource:
     url: jdbc:mysql://invalid:3306/test
     username: test

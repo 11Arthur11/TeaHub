@@ -1110,9 +1110,7 @@ KafkaEventIT
 ```text
 Java 21
 Maven
-MySQL
-Redis
-Kafka
+Docker Compose
 ```
 
 بسته به Featureهایی که فعال هستند، Credential سرویس‌های خارجی مانند DNS، SMS یا Payment نیز موردنیاز خواهد بود.
@@ -1121,7 +1119,7 @@ Kafka
 
 ## Configuration
 
-تنها فایل تنظیمات Spring پروژه `application.yaml` است و هم در Docker و هم در اجرای محلی از Environment Variable استفاده می‌کند.
+تنها فایل تنظیمات Spring پروژه `application.yaml` است و از Environment Variable استفاده می‌کند. سرویس‌های محلی MySQL، Redis و Kafka در `compose.yaml` تعریف شده‌اند.
 
 برای اجرای محلی، فایل نمونه را کپی و مقادیر حساس را تنظیم کنید:
 
@@ -1130,7 +1128,9 @@ cp .env.example .env
 openssl rand -base64 32
 ```
 
-خروجی دستور دوم را در `JWT_BASE64_SECRET` قرار دهید. فایل `.env` به‌صورت خودکار خوانده می‌شود و در Git نادیده گرفته شده است. در Docker نیز همین متغیرها باید از Compose، Secret Manager یا محیط اجرا تزریق شوند و دیگر نیازی به profile جداگانه `docker` نیست.
+خروجی دستور دوم را در `JWT_BASE64_SECRET` قرار دهید. فایل `.env` به‌صورت خودکار توسط Spring و Docker Compose خوانده می‌شود و در Git نادیده گرفته شده است؛ آن را دوباره به‌عنوان Environment File در IDEA اضافه نکنید.
+
+با Run کردن `TeaHubApplication` از IDEA یا اجرای `./mvnw spring-boot:run`، Spring Boot به‌صورت خودکار `compose.yaml` را اجرا می‌کند، تا آماده‌شدن سرویس‌ها منتظر می‌ماند و هنگام توقف برنامه کانتینرها و network را حذف می‌کند. volume داده‌ها باقی می‌ماند. برای غیرفعال‌کردن این رفتار مقدار `SPRING_DOCKER_COMPOSE_ENABLED=false` را تنظیم کنید.
 
 ---
 
