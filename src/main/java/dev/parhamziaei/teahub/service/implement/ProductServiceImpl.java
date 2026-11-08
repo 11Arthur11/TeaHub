@@ -1,5 +1,6 @@
 package dev.parhamziaei.teahub.service.implement;
 
+import dev.parhamziaei.teahub.dto.request.query.ProductFilterRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductEditRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductInitRequest;
 import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductListAdminResponse;
@@ -14,11 +15,13 @@ import dev.parhamziaei.teahub.repository.jpa.BillableProductRepository;
 import dev.parhamziaei.teahub.repository.jpa.BillableResourceRepository;
 import dev.parhamziaei.teahub.repository.jpa.CategoryRepository;
 import dev.parhamziaei.teahub.repository.jpa.ProductRepository;
+import dev.parhamziaei.teahub.repository.jpa.specification.BillableProductSpecification;
 import dev.parhamziaei.teahub.service.interfaces.ProductService;
 import dev.parhamziaei.teahub.service.mapper.product.ProductMapperFactory;
 import dev.parhamziaei.teahub.service.product.ProductRegistryFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -104,6 +107,28 @@ public class ProductServiceImpl implements ProductService {
             throw new NoSuchDataException();
 
         List<AbstractProductListResponse> mappedResponse = category.getProducts()
+                .stream()
+                .filter(BillableProduct::isEnabled)
+                .map(p -> {
+                    AbstractProductListResponse dto = productMapperFactory.getMapper(p.getProductType()).mapToList(p);
+                    dto.setPresentation(p.getPresentation());
+                    return dto;
+                })
+                .sorted(Comparator.comparing(AbstractProductListResponse::getProductType))
+                .toList();
+
+        if (mappedResponse.isEmpty())
+            throw new NoSuchDataException();
+
+        return mappedResponse;
+    }
+
+    @Override
+    public List<? extends AbstractProductListResponse> getAvailableProductsByFilter(ProductFilterRequest filterRequest) {
+        Specification<BillableProduct> spec = BillableProductSpecification.byType(filterRequest.getProductType())
+                .and(BillableProductSpecification.byPeriod(filterRequest.getProductPeriod()));
+
+        List<AbstractProductListResponse> mappedResponse = billableProductRepo.findAll(spec)
                 .stream()
                 .filter(BillableProduct::isEnabled)
                 .map(p -> {

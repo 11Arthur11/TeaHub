@@ -1,10 +1,12 @@
 package dev.parhamziaei.teahub.service.interfaces;
 
+import dev.parhamziaei.teahub.dto.request.query.ProductFilterRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductEditRequest;
 import dev.parhamziaei.teahub.dto.request.shop.admin.AbstractProductInitRequest;
 import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductListAdminResponse;
 import dev.parhamziaei.teahub.dto.response.shop.user.AbstractProductListResponse;
 import dev.parhamziaei.teahub.dto.response.shop.admin.AbstractProductDetailResponse;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -16,4 +18,5 @@ public interface ProductService {
     void removeProduct(Long productId);
     void changeEnabled(Long productId, boolean enabled);
     List<? extends AbstractProductListResponse> getAvailableProductsByCategorySlug(String categorySlug);
+    List<? extends AbstractProductListResponse> getAvailableProductsByFilter(@Valid ProductFilterRequest filterRequest);
 }
